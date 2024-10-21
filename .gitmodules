@@ -1,0 +1,6 @@
+[submodule "dafny"]
+	path = dafny
+	url = https://github.com/namin/dafny.git
+[submodule "ide-vscode"]
+	path = ide-vscode
+	url = https://github.com/namin/ide-vscode.git
