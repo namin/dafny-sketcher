@@ -30,7 +30,7 @@ piggy-backing on the Dafny language implementation to explore interactive semi-a
     ]
 ```
 
-- Now, `Run Debug` the configuration `Launch VSCode Extension`.
+- Now, `Run Debug` the configuration `Run with default server`.
 - This will pop-up a new VSCode window, where the extension is enabled.
 - Try `Cmd-Shift-P` then `Dafny: Generate Inductive Proof Sketch` from within a `.dfy` file.
 
@@ -85,4 +85,30 @@ which is sufficient to prove the lemma.
 
 ## Hint: Interactively debugging the Dafny core implementation and LSP server
 
-TODO
+If it doesn't exist, created the file `dafny/.vscode/launch.json`:
+```
+{
+    "version": "0.2.0",
+    "configurations": [
+
+    ]
+}
+```
+
+Now, add a generic configuration to attach any manually picked process to the `configurations` list within the file `dafny/.vscode/launch.json`:
+```
+      {
+        "name": "Attach",
+        "type": "coreclr",
+        "request": "attach",
+        "processId": "${command:pickProcess}",
+        "justMyCode": false,
+      }
+```
+
+Now, the workflow is to first start debugging in the `ide-vscode` project,
+and then to start debugging by running the `Attach` configuration in the `dafny` project,
+and then to select the `DafnyLanguageServer.dll` `dotnet` process.
+
+You can put a breakpoint in the `dafny` project,
+and it will get triggered when hit by the VSCode extension run.
