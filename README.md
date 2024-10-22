@@ -8,16 +8,16 @@ piggy-backing on the Dafny language implementation to explore interactive semi-a
 
 ### Dafny's Language Server Protocol (LSP)
 
-- From `dafny`,
+- From subdirectory `dafny`,
 - try the command **`make exe`**.
-- Then, from `dafny/Source/DafnyLanguageServer`,
+- Then, from subdirectory `dafny/Source/DafnyLanguageServer`,
 - try the command **`dotnet build`**,
 - which should create the file `dafny/Binaries/DafnyLanguageServer.dll`.
 - If this command doesn't work, see Dafny wiki INSTALL[(https://github.com/dafny-lang/dafny/wiki/INSTALL)].
 
 ### VSCode Extension
 
-- From `ide-vscode`,
+- From subdirectory `ide-vscode`,
 - try the command **`npm install`**.
 - Open the `ide-vscode` project in VSCode, either in VSCode or perhaps
 - try the command **`code .`**.
