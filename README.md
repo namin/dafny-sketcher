@@ -83,7 +83,7 @@ which is sufficient to prove the lemma.
     }
 ```
 
-## Hint: Interactively debugging the Dafny core implementation and LSP server
+### Hint: Interactively debugging the Dafny core implementation and LSP server
 
 If it doesn't exist, created the file `dafny/.vscode/launch.json`:
 ```
