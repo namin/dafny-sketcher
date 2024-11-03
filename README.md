@@ -13,7 +13,7 @@ piggy-backing on the Dafny language implementation to explore interactive semi-a
 - Then, from subdirectory `dafny/Source/DafnyLanguageServer`,
 - try the command **`dotnet build`**,
 - which should create the file `dafny/Binaries/DafnyLanguageServer.dll`.
-- If this command doesn't work, see Dafny wiki INSTALL[(https://github.com/dafny-lang/dafny/wiki/INSTALL)].
+- If this command doesn't work, see Dafny wiki [INSTALL](https://github.com/dafny-lang/dafny/wiki/INSTALL).
 
 ### VSCode Extension
 
