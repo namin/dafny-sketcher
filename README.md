@@ -6,6 +6,13 @@ piggy-backing on the Dafny language implementation to explore interactive semi-a
 - Clone this repo, making sure to recursively clone all submodules:
 - `git clone --recursive https://github.com/namin/dafny-sandbox.git`
 
+### Submodules
+
+The submodules are forked (namin) branches (sketcher) of the Dafny repositories: [dafny-lang/dafny](https://github.com/dafny-lang/dafny) and [dafny-lang/ide-vscode](https://github.com/dafny-lang/ide-vscode).
+- [diff for dafny-lang/dafny](https://github.com/namin/dafny/compare/master...namin:dafny:sketcher)
+- [diff for dafny-lang/ide-vscode](https://github.com/namin/ide-vscode/compare/master...namin:ide-vscode:sketcher)
+- [proof sketchers](https://github.com/namin/dafny/tree/sketcher/Source/DafnyCore/Sketchers)
+
 ### Quick compilation script
 - `./compile.sh`
 
