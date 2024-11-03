@@ -6,6 +6,9 @@ piggy-backing on the Dafny language implementation to explore interactive semi-a
 - Clone this repo, making sure to recursively clone all submodules:
 - `git clone --recursive https://github.com/namin/dafny-sandbox.git`
 
+### Quick compilation script
+- `./compile.sh`
+
 ### Dafny's Language Server Protocol (LSP)
 
 - From subdirectory `dafny`,
