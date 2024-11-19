@@ -16,6 +16,10 @@ The submodules are forked (namin) branches (sketcher) of the Dafny repositories:
 ### Quick compilation script
 - `./compile.sh`
 
+### Core unit tests
+- From subdirectory `dafny/Source`,
+- `dotnet build DafnyCore.Test/DafnyCore.Test.csproj; dotnet test DafnyCore.Test/DafnyCore.Test.csproj`
+
 ### Dafny's Language Server Protocol (LSP)
 
 - From subdirectory `dafny`,
