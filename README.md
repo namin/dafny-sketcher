@@ -20,6 +20,11 @@ The submodules are forked (namin) branches (sketcher) of the Dafny repositories:
 - From subdirectory `dafny/Source`,
 - `dotnet build DafnyCore.Test/DafnyCore.Test.csproj; dotnet test DafnyCore.Test/DafnyCore.Test.csproj`
 
+### Running the `LLMProgram`
+(just a thin wrapper over the bare `LLMClient`)
+- From subdirectory `dafny`, e.g.,
+- `dotnet run --project Source/DafnyCore/DafnyCore.csproj -- What is 2 and 2`
+
 ### Dafny's Language Server Protocol (LSP)
 
 - From subdirectory `dafny`,
