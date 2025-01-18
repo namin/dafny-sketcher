@@ -51,7 +51,7 @@ The submodules are forked (namin) branches (sketcher) of the Dafny repositories:
 
 - Now, `Run Debug` the configuration `Run with default server`.
 - This will pop-up a new VSCode window, where the extension is enabled.
-- Try `Cmd-Shift-P` then `Dafny: Generate Inductive Proof Sketch` from within a `.dfy` file.
+- Try `Cmd-Shift-P` then `Dafny: Generate Sketch` then `induction` from within a `.dfy` file.
 
 #### Example (originally from [VerMCTS](https://github.com/namin/llm-verified-with-monte-carlo-tree-search))
 
