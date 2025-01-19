@@ -48,9 +48,9 @@ The submodules are forked (namin) branches (sketcher) of the Dafny repositories:
         "--server", "YOUR_REPO_PATH/dafny/Binaries/DafnyLanguageServer.dll"
     ]
 ```
-
-- Now, `Run Debug` the configuration `Run with default server`.
-- This will pop-up a new VSCode window, where the extension is enabled.
+- Install and run the extension in VSCode or Cursor:
+  - From the `ide-vscode` project in VSCode, `Run Debug` the configuration `Run with default server`. This will pop-up a new VSCode window, where the extension is enabled. 
+  - Alternatively, package the extension with `npx vsce package` in the command line, and then in VSCode or Cursor, pick `Extensions: Install from VSIX`.
 - Try `Cmd-Shift-P` then `Dafny: Generate Sketch` then `induction` from within a `.dfy` file.
 
 #### Example (originally from [VerMCTS](https://github.com/namin/llm-verified-with-monte-carlo-tree-search))
