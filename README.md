@@ -38,6 +38,8 @@ You can specify by environment export `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, or 
 - try the command **`dotnet build`**,
 - which should create the file `dafny/Binaries/DafnyLanguageServer.dll`.
 - If this command doesn't work, see Dafny wiki [INSTALL](https://github.com/dafny-lang/dafny/wiki/INSTALL).
+- Verify that this created a file called "Binaries/Dafny.dll". Sometimes, that file apparently ends up in the "net8.0" folder. If that happens, creating a symlink helps: ln -s net8.0/Dafny.dll Binaries/Dafny.dll
+
 
 ### VSCode Extension
 
