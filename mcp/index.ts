@@ -47,6 +47,16 @@ async function dafnySketcher(fileContent: string, args: string): Promise<string>
     });
 };
 
+server.tool("show-errors",
+    { fileContent: z.string() },
+    async ({ fileContent }) => {
+      const result = await dafnySketcher(fileContent, "--sketch errors");
+      return {
+        content: [{ type: "text", text: result || "OK" }]
+      };
+    }
+  );
+
 server.tool("sketch-induction",
   { fileContent: z.string(), methodName: z.string() },
   async ({ fileContent, methodName }) => {
