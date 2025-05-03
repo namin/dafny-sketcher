@@ -2,20 +2,33 @@ import { McpServer, ResourceTemplate } from "@modelcontextprotocol/sdk/server/mc
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 
+import { writeFile } from 'fs/promises';
+
+async function writeFileContent(filePath: string, content: string) {
+  try {
+    await writeFile(filePath, content, 'utf8');  // Overwrites by default
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
 // Create an MCP server
 const server = new McpServer({
   name: "Dafny Sketcher",
   version: "1.0.0"
 });
 
-const dafnySketcher = function(fileContent: string, args: string) {
-    return "TODO";
+async function dafnySketcher(fileContent: string, args: string) {
+    const filePath = 'tmp.dfy';
+    const ok = await writeFileContent(filePath, fileContent);
+    return String(ok);
 };
 
 server.tool("sketch-induction",
   { fileContent: z.string(), methodName: z.string() },
   async ({ fileContent, methodName }) => ({
-    content: [{ type: "text", text: dafnySketcher(fileContent, "--sketch induction --method " + methodName)}]
+    content: [{ type: "text", text: await dafnySketcher(fileContent, "--sketch induction --method " + methodName)}]
   })
 );
 
