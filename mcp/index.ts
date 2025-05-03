@@ -4,15 +4,19 @@ import { z } from "zod";
 
 import { exec } from 'child_process';
 import { writeFile } from 'fs/promises';
+import { join } from 'path';
+import { tmpdir } from 'os';
 
 const cli_dll = process.env.DAFNY_SKETCHER_CLI_DLL_PATH || "../cli//bin/Release/net8.0/DafnySketcherCli.dll ";
 
-async function writeFileContent(filePath: string, content: string) {
+async function writeFileContent(content: string) {
   try {
-    await writeFile(filePath, content, 'utf8');  // Overwrites by default
-    return true;
+    const tempDir = tmpdir();
+    const filePath = join(tempDir, 'tmp.dfy');
+    await writeFile(filePath, content, 'utf8');
+    return filePath;
   } catch (err) {
-    return false;
+    return null;
   }
 }
 
@@ -23,21 +27,19 @@ const server = new McpServer({
 });
 
 async function dafnySketcher(fileContent: string, args: string): Promise<string> {
-    const filePath = 'tmp.dfy';
-    var ok = await writeFileContent(filePath, fileContent);
-    if (!ok) {
+    var filePath = await writeFileContent(fileContent);
+    if (!filePath) {
         return "Error writing file";
     }
     
-    // Use Promise to handle the exec callback
     return new Promise<string>((resolve, reject) => {
-        exec('dotnet '+cli_dll+" --file tmp.dfy "+args, (error, stdout, stderr) => {
+        exec('dotnet '+cli_dll+" --file "+filePath+" "+args, (error, stdout, stderr) => {
             if (error) {
-                resolve("Error running Dafny Sketcher");
+                resolve("Error running Dafny Sketcher: "+error.message);
                 return;
             }
             if (stderr) {
-                resolve("Error from Dafny Sketcher");
+                resolve("Error from Dafny Sketcher: "+stderr);
                 return;
             }
             resolve(stdout);
