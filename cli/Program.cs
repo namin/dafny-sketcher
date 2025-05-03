@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Dafny;
 using static Microsoft.Dafny.DafnyMain;
 using System.Linq;
+using Std.Wrappers;
 
 namespace DafnySketcherCli {
   class Program {
@@ -119,8 +120,31 @@ namespace DafnySketcherCli {
 
         var req  = new SketchRequest(dafnyProgram, source, method, null, method?.StartToken.line, prompt);
         var resp = await sketcher.GenerateSketch(req);
+        var sketch = resp.Sketch;
+        var result = sketch;
 
-        await Console.Out.WriteLineAsync(resp.Sketch);
+        // 2) Read original lines
+        var lines = File.ReadAllLines(filePath).ToList();
+
+        // 3) Compute replace range
+        int start, end;
+        if (method != null) {
+          start = method.Body.StartToken.line;
+          end   = method.Body.EndToken.line - 1;
+        } else {
+          start = 0; // TODO
+          end   = start;
+        }
+
+        // 4) Replace those lines
+        var sketchLines = sketch.Split('\n');
+        lines.RemoveRange(start, end - start);
+        lines.InsertRange(start, sketchLines);
+
+        // 5) Output
+        result = string.Join("\n", lines);
+
+        await Console.Out.WriteLineAsync(result);
       }
       return 0;
     }
