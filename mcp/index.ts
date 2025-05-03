@@ -5,8 +5,7 @@ import { z } from "zod";
 import { exec } from 'child_process';
 import { writeFile } from 'fs/promises';
 
-// TODO: Make this configurable
-const cli_dll = "/Users/namin/code/cld/dafny-sketcher/cli//bin/Release/net8.0/DafnySketcherCli.dll ";
+const cli_dll = process.env.DAFNY_SKETCHER_CLI_DLL_PATH || "../cli//bin/Release/net8.0/DafnySketcherCli.dll ";
 
 async function writeFileContent(filePath: string, content: string) {
   try {
