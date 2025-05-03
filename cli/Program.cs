@@ -50,10 +50,12 @@ namespace DafnySketcherCli {
         "sketcher-cli",
         options
       );
+      /*
       if (!string.IsNullOrEmpty(error)) {
         await Console.Error.WriteLineAsync($"Dafny parse/resolve error: {error}");
         return 1;
       }
+      */
 
       // 3) Look up the method by name
       Method? method = null;
