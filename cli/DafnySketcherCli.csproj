@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Core Dafny parsing & AST -->
+    <ProjectReference Include="..\dafny\Source\DafnyCore\DafnyCore.csproj" />
+
+    <!-- The official Dafny CLI driver, for CommandLineOptions, DafnyMain, etc. -->
+    <ProjectReference Include="..\dafny\Source\DafnyDriver\DafnyDriver.csproj" />
+
+    <!-- Your custom sketcher handlers & ISketcher/SketchRequest interface -->
+    <ProjectReference Include="..\dafny\Source\DafnyLanguageServer\DafnyLanguageServer.csproj" />
+  </ItemGroup>
+</Project>
