@@ -134,9 +134,11 @@ namespace DafnySketcherCli {
               dafnyProgram, ln, col
             );
             var name = m?.Name ?? "<global>";
-            var snippet = ln - 1 >= 0 && ln - 1 < lines.Count
-              ? " -- in line: " + lines[ln - 1].Trim()
+            var snippet_line = ln - 1 >= 0 && ln - 1 < lines.Count
+              ? lines[ln - 1].Trim()
               : "";
+            // e.g., avoid showing lines with only braces
+            var snippet = snippet_line.Length > 1 ? " -- in line: " + snippet_line : "";
             Console.WriteLine($"{name}:{ln}:{col} {msg}{snippet}");
           }
 
