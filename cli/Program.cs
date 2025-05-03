@@ -19,6 +19,9 @@ namespace DafnySketcherCli {
       var filePath   = args[0];
       var sketchType = args[1];
       var methodName = args.Length >= 3 ? args[2] : null;
+      if (methodName == "null") {
+        methodName = null;
+      }
       var prompt     = args.Length >= 4 ? args[3] : "";
 
       if (!File.Exists(filePath)) {
@@ -112,7 +115,7 @@ namespace DafnySketcherCli {
           return 1;
         }
 
-        var req  = new SketchRequest(dafnyProgram, source, method, "inductive", method.StartToken.line, prompt);
+        var req  = new SketchRequest(dafnyProgram, source, method, null, method?.StartToken.line, prompt);
         var resp = await sketcher.GenerateSketch(req);
 
         await Console.Out.WriteLineAsync(resp.Sketch);
