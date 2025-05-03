@@ -74,7 +74,7 @@ namespace DafnySketcherCli {
         }
 
         // Figure out your target span
-        var method = methodName is not null
+        var method = dafnyProgram is not null && methodName is not null
           ? Utility.GetMethodByName(dafnyProgram, methodName)
           : null;
         int startLine = 0, endLine = 0;
