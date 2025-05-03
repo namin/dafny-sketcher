@@ -1,28 +1,14 @@
-import { McpServer, ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
-
 import { exec } from 'child_process';
-import { writeFile } from 'fs/promises';
-import { join } from 'path';
+import { writeFile, unlink } from 'fs/promises';
+import { join, isAbsolute, resolve, normalize } from 'path';
 import { tmpdir } from 'os';
-import { existsSync } from "fs";
+import { existsSync } from 'fs';
 
 const cli_dll = process.env.DAFNY_SKETCHER_CLI_DLL_PATH || "../cli//bin/Release/net8.0/DafnySketcherCli.dll ";
-
-async function writeFileInput(fileInput: string): Promise<string | null> {
-  if (existsSync(fileInput)) {
-    return fileInput;
-  }
-  try {
-    const tempDir = tmpdir();
-    const filePath = join(tempDir, 'tmp.dfy');
-    await writeFile(filePath, fileInput, 'utf8');
-    return filePath;
-  } catch (err) {
-    return null;
-  }
-}
+const workingDir = process.env.DAFNY_SKETCHER_WORKING_DIR || null;
 
 // Create an MCP server
 const server = new McpServer({
@@ -30,10 +16,63 @@ const server = new McpServer({
   version: "1.0.0"
 });
 
+async function writeContentToTempFile(content: string): Promise<string | null> {
+  try {
+    const tempDir = tmpdir();
+    const filePath = join(tempDir, `tmp.dfy`);
+    await writeFile(filePath, content, 'utf8');
+    return filePath;
+  } catch (err) {
+    return null;
+  }
+}
+
+// Function to resolve a path against the working directory
+function resolveFilePath(relativePath: string): string | null {
+  if (!workingDir) {
+    // If working directory isn't set, don't try to resolve files
+    return null;
+  }
+  
+  // Prevent path traversal attacks by normalizing and ensuring the path remains within workingDir
+  const normalized = normalize(relativePath);
+  
+  // Reject absolute paths or paths with ../ that might escape the working dir
+  if (isAbsolute(normalized) || normalized.startsWith('..')) {
+    return null;
+  }
+  
+  const absolutePath = resolve(workingDir, normalized);
+  
+  // Ensure the resolved path is still within the working directory
+  if (!absolutePath.startsWith(workingDir)) {
+    return null;
+  }
+  
+  return absolutePath;
+}
+
 async function dafnySketcher(fileInput: string, args: string): Promise<string> {
-    var filePath = await writeFileInput(fileInput);
+    let filePath: string | null = null;
+    let isTemp = false;
+    
+    // If working directory is set, try to resolve the file path
+    if (workingDir) {
+        const resolvedPath = resolveFilePath(fileInput);
+        if (resolvedPath && existsSync(resolvedPath)) {
+          filePath = resolvedPath;
+        } else {
+          return "Error resolving file path";
+        }
+    }
+    
+    // If not a valid file path or file doesn't exist, treat as content
     if (!filePath) {
-        return "Error writing file";
+        filePath = await writeContentToTempFile(fileInput);
+        isTemp = true;
+        if (!filePath) {
+            return "Error writing temporary file";
+        }
     }
     
     return new Promise<string>((resolve, reject) => {
