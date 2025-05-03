@@ -6,14 +6,18 @@ import { exec } from 'child_process';
 import { writeFile } from 'fs/promises';
 import { join } from 'path';
 import { tmpdir } from 'os';
+import { existsSync } from "fs";
 
 const cli_dll = process.env.DAFNY_SKETCHER_CLI_DLL_PATH || "../cli//bin/Release/net8.0/DafnySketcherCli.dll ";
 
-async function writeFileContent(content: string) {
+async function writeFileInput(fileInput: string): Promise<string | null> {
+  if (existsSync(fileInput)) {
+    return fileInput;
+  }
   try {
     const tempDir = tmpdir();
     const filePath = join(tempDir, 'tmp.dfy');
-    await writeFile(filePath, content, 'utf8');
+    await writeFile(filePath, fileInput, 'utf8');
     return filePath;
   } catch (err) {
     return null;
@@ -26,8 +30,8 @@ const server = new McpServer({
   version: "1.0.0"
 });
 
-async function dafnySketcher(fileContent: string, args: string): Promise<string> {
-    var filePath = await writeFileContent(fileContent);
+async function dafnySketcher(fileInput: string, args: string): Promise<string> {
+    var filePath = await writeFileInput(fileInput);
     if (!filePath) {
         return "Error writing file";
     }
@@ -48,9 +52,9 @@ async function dafnySketcher(fileContent: string, args: string): Promise<string>
 };
 
 server.tool("show-errors",
-    { fileContent: z.string() },
-    async ({ fileContent }) => {
-      const result = await dafnySketcher(fileContent, "--sketch errors");
+    { fileInput: z.string() },
+    async ({ fileInput }) => {
+      const result = await dafnySketcher(fileInput, "--sketch errors");
       return {
         content: [{ type: "text", text: result || "OK" }]
       };
@@ -58,9 +62,9 @@ server.tool("show-errors",
   );
 
 server.tool("sketch-induction",
-  { fileContent: z.string(), methodName: z.string() },
-  async ({ fileContent, methodName }) => {
-    const result = await dafnySketcher(fileContent, "--sketch induction --method " + methodName);
+  { fileInput: z.string(), methodName: z.string() },
+  async ({ fileInput, methodName }) => {
+    const result = await dafnySketcher(fileInput, "--sketch induction --method " + methodName);
     return {
       content: [{ type: "text", text: result }]
     };
