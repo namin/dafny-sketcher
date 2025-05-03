@@ -128,12 +128,16 @@ namespace DafnySketcherCli {
           diagnostics = diagnostics.Distinct().ToList();
 
           // 4) Map each error pos into the enclosing Dafny method and print
+          var lines = File.ReadAllLines(filePath).ToList();
           foreach (var (ln, col, msg) in diagnostics) {
             var m = Utility.GetEnclosingMethodByPosition(
               dafnyProgram, ln, col
             );
             var name = m?.Name ?? "<global>";
-            Console.WriteLine($"{name}:{ln}:{col} {msg}");
+            var snippet = ln - 1 >= 0 && ln - 1 < lines.Count
+              ? " -- in line: " + lines[ln - 1].Trim()
+              : "";
+            Console.WriteLine($"{name}:{ln}:{col} {msg}{snippet}");
           }
 
         } else {
