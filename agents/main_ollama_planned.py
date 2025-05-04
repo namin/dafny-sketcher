@@ -132,7 +132,10 @@ async def run(mcp_server: MCPServer):
     suggestions = [await make_suggestion(mcp_server, query) for i in range(3)]
     picked_suggestion = await pick_from_suggestions(mcp_server, query, suggestions)
     suggestion = await repair_suggestion(mcp_server, query, picked_suggestion)
-    print(suggestion)
+    print("Final code")
+    print(suggestion.code)
+    print("Final errors")
+    print(suggestion.errors)
 
 async def main():
     async with MCPServerStdio(
