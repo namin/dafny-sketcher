@@ -1,0 +1,110 @@
+import asyncio
+import shutil
+import re
+from typing import List
+
+from agents import Agent, Runner, trace
+from agents.mcp import MCPServer, MCPServerStdio
+
+from agents import ItemHelpers, RunResult
+from mcp.types import CallToolResult
+from pydantic import BaseModel
+
+from openai import AsyncOpenAI
+from agents import OpenAIChatCompletionsModel, set_tracing_disabled
+
+import os
+
+BASE_URL = os.getenv("OPENAI_BASE_URL") or "http://localhost:11434/v1"
+API_KEY = os.getenv("OPENAI_API_KEY") or "ollama"
+MODEL_NAME = os.getenv("OPENAI_MODEL_NAME") or "qwen3:14b"
+client = AsyncOpenAI(base_url=BASE_URL, api_key=API_KEY)
+set_tracing_disabled(disabled=True)
+model = OpenAIChatCompletionsModel(model=MODEL_NAME, openai_client=client)
+
+class Suggestion(BaseModel):
+    code: str
+    errors: str
+
+query = "Writes a datatype for arithmetic expressions comprising constants, variables, and binary additions. Then write an evaluator taking an expression and an environment (a function that takes a variable name and returns a number) and returning the number resulting from evaluation. Then write an optimizer taking an expression and returning an expression with all additions by 0 removed. Then prove that the optimizer preserves the semantics as defined by the evaluation function."
+
+SUGGESTION_PROMPT = (
+    "/nothink "
+    "You are a helpful assistant that develops Dafny code. "
+    "Only output the Dafny code."
+)
+
+def extract_code(output: str) -> str:
+    # Remove anything between <think> </think> tags
+    output = re.sub(r'<think>.*?</think>', '', output, flags=re.DOTALL)
+    # Extract all code blocks from the output
+    pattern = r'```(?:dafny)?\n(.*?)\n```'
+    code_blocks = re.findall(pattern, output, re.DOTALL | re.IGNORECASE)
+    if code_blocks:
+        return '\n\n'.join(code_blocks)
+    return output
+
+def extract_response_text(response: CallToolResult) -> str:
+    return response.content[0].text
+
+async def suggestion_from_result(mcp_server: MCPServer, result: RunResult) -> Suggestion:
+    output = result.final_output
+    print("Output")
+    print(output)
+    print("-" * 80)
+    code = extract_code(output)
+    print("Code")
+    print(code)
+    print("-" * 80)
+    errors = extract_response_text(await mcp_server.call_tool("show-errors", {'fileInput': code}))
+    print("Errors")
+    print(errors)
+    return Suggestion(code=code, errors=errors)
+
+async def make_suggestion(mcp_server: MCPServer, query: str):
+    suggestion_agent = Agent(
+        name="SuggestionAgent",
+        instructions=SUGGESTION_PROMPT,
+        model=model
+    )
+    print(f"Running: {query}")
+    result = await Runner.run(suggestion_agent, query, max_turns=1)
+    return await suggestion_from_result(mcp_server, result)
+
+async def repair_suggestions(mcp_server: MCPServer, query: str,suggestions: List[Suggestion]):
+    repair_agent = Agent(
+        name="RepairAgent",
+        instructions=(
+            SUGGESTION_PROMPT + "\n"
+            "You are given a list of suggestions and their errors. Pick the best suggestion and repair the errors. "
+            "Use the show-errors tool to check your work. "
+            "Use the sketch-induction tool to find a suggestion for a lemma proof sketch. "
+        ),
+        mcp_servers=[mcp_server],
+        model=model
+    )
+    prompt = "Query: " + query + "\n"
+    for suggestion in suggestions:
+        prompt += "## Suggestion:\n" + suggestion.code + "\n"
+        prompt += "### Errors:\n" + suggestion.errors + "\n"
+    result = await Runner.run(repair_agent, prompt, max_turns=3)
+    return await suggestion_from_result(mcp_server, result)
+
+async def run(mcp_server: MCPServer):
+    suggestions = [await make_suggestion(mcp_server, query) for i in range(2)]
+    suggestion = await repair_suggestions(mcp_server, query, suggestions)
+    print(suggestion)
+
+async def main():
+    async with MCPServerStdio(
+        cache_tools_list=True,
+        params={"command": "node", "args": ["../mcp/build/index.js"]},
+    ) as server:
+        with trace(workflow_name="Dafny Sketcher"):
+            await run(server)
+
+if __name__ == "__main__":
+    if not shutil.which("node"):
+        raise RuntimeError("node is not installed")
+
+    asyncio.run(main())
