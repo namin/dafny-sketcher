@@ -86,7 +86,9 @@ async def pick_from_suggestions(mcp_server: MCPServer, query: str, suggestions: 
     for i, suggestion in enumerate(suggestions):
         prompt += f"### Errors for Suggestion {i}:\n" + suggestion.errors + "\n"
     result = await Runner.run(pick_agent, prompt, max_turns=1)
-    return suggestions[result.final_output_as(int)]
+    index = result.final_output_as(int)
+    print(f"Picked suggestion: {index}")
+    return suggestions[index]
 
 async def repair_suggestion(mcp_server: MCPServer, query: str, suggestion: Suggestion):
     repair_agent = Agent(
