@@ -71,12 +71,29 @@ async def make_suggestion(mcp_server: MCPServer, query: str):
     result = await Runner.run(suggestion_agent, query, max_turns=1)
     return await suggestion_from_result(mcp_server, result.final_output)
 
-async def repair_suggestions(mcp_server: MCPServer, query: str,suggestions: List[Suggestion]):
+async def pick_from_suggestions(mcp_server: MCPServer, query: str, suggestions: List[Suggestion]):
+    pick_agent = Agent(
+        name="PickAgent",
+        instructions=(
+            "You have the following errors for different implementation of a Dafny program. "
+            "Based on the errors, pick the number of the best suggestion. "
+            "Often, if the errors happen later in the program, then that is a sign that the earlier parts are correct."
+        ),
+        output_type=int,
+        model=model
+    )
+    prompt = ""
+    for i, suggestion in enumerate(suggestions):
+        prompt += f"### Errors for Suggestion {i}:\n" + suggestion.errors + "\n"
+    result = await Runner.run(pick_agent, prompt, max_turns=1)
+    return suggestions[result.final_output_as(int)]
+
+async def repair_suggestion(mcp_server: MCPServer, query: str, suggestion: Suggestion):
     repair_agent = Agent(
         name="RepairAgent",
         instructions=(
             SUGGESTION_PROMPT + "\n"
-            "You are given a list of suggestions and their errors. Pick the best suggestion and repair the errors. "
+            "You are given a suggested program and its errors. Repair the errors as needed. "
             "Use the show-errors tool to check your work. "
             "Use the sketch-induction tool to find a suggestion for a lemma proof sketch. "
         ),
@@ -84,10 +101,9 @@ async def repair_suggestions(mcp_server: MCPServer, query: str,suggestions: List
         model=model
     )
     prompt = "Query: " + query + "\n"
-    for suggestion in suggestions:
-        prompt += "## Suggestion:\n" + suggestion.code + "\n"
-        prompt += "### Errors:\n" + suggestion.errors + "\n"
-    result = Runner.run_streamed(repair_agent, input=prompt, max_turns=6)
+    prompt += "## Suggestion:\n" + suggestion.code + "\n"
+    prompt += "### Errors:\n" + suggestion.errors + "\n"
+    result = Runner.run_streamed(repair_agent, prompt, max_turns=10)
     print("=== Run starting ===")
     async for event in result.stream_events():
         # We'll ignore the raw responses event deltas
@@ -111,8 +127,9 @@ async def repair_suggestions(mcp_server: MCPServer, query: str,suggestions: List
     return await suggestion_from_result(mcp_server, result.final_output)
 
 async def run(mcp_server: MCPServer):
-    suggestions = [await make_suggestion(mcp_server, query) for i in range(2)]
-    suggestion = await repair_suggestions(mcp_server, query, suggestions)
+    suggestions = [await make_suggestion(mcp_server, query) for i in range(3)]
+    picked_suggestion = await pick_from_suggestions(mcp_server, query, suggestions)
+    suggestion = await repair_suggestion(mcp_server, query, picked_suggestion)
     print(suggestion)
 
 async def main():
