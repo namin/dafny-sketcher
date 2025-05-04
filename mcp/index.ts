@@ -101,9 +101,10 @@ server.tool("show-errors",
   );
 
 server.tool("sketch-induction",
-  { fileInput: z.string(), methodName: z.string() },
+  // TODO: we only make methodName optional because OpenAI makes calls missing this parameter.
+  { fileInput: z.string(), methodName: z.string().optional() },
   async ({ fileInput, methodName }) => {
-    const result = await dafnySketcher(fileInput, "--sketch induction --method " + methodName);
+    const result = !methodName ? "Error: missing parameter methodName" : await dafnySketcher(fileInput, "--sketch induction --method " + methodName);
     return {
       content: [{ type: "text", text: result }]
     };
