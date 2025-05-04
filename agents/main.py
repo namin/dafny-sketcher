@@ -16,8 +16,8 @@ set_trace_processors([WeaveTracingProcessor()])
 async def run(mcp_server: MCPServer):
     agent = Agent(
         name="Assistant",
-        instructions=f"Create Dafny programs with functional code and verified properties through lemma. Use the dafny-sketcher MCP to help with proof automation, like inductive sketch, and also to verify your suggestions. Only return code that verifies using the dafny-sketcher MCP show-errors tool.",
-        model_settings=ModelSettings(tool_choice="required"),
+        instructions=f"Create Dafny programs with functional code and verified properties through lemma. Use the dafny-sketcher MCP to help with proof automation, like inductive sketches, and also to verify your suggestions. Only return code that verifies using the dafny-sketcher MCP show-errors tool. Use the MCP show-errors tool after each definition. Always provide the entire code so far to the Dafny Sketcher MCP.",
+        #model_settings=ModelSettings(tool_choice="required"),
         mcp_servers=[mcp_server],
     )
 
