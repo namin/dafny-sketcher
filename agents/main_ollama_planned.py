@@ -47,8 +47,8 @@ def extract_code(output: str) -> str:
 def extract_response_text(response: CallToolResult) -> str:
     return response.content[0].text
 
-async def suggestion_from_result(mcp_server: MCPServer, result: RunResult) -> Suggestion:
-    output = result.final_output
+async def suggestion_from_result(mcp_server: MCPServer, output: str) -> Suggestion:
+    output = output
     print("Output")
     print(output)
     print("-" * 80)
@@ -69,7 +69,7 @@ async def make_suggestion(mcp_server: MCPServer, query: str):
     )
     print(f"Running: {query}")
     result = await Runner.run(suggestion_agent, query, max_turns=1)
-    return await suggestion_from_result(mcp_server, result)
+    return await suggestion_from_result(mcp_server, result.final_output)
 
 async def repair_suggestions(mcp_server: MCPServer, query: str,suggestions: List[Suggestion]):
     repair_agent = Agent(
@@ -87,8 +87,28 @@ async def repair_suggestions(mcp_server: MCPServer, query: str,suggestions: List
     for suggestion in suggestions:
         prompt += "## Suggestion:\n" + suggestion.code + "\n"
         prompt += "### Errors:\n" + suggestion.errors + "\n"
-    result = await Runner.run(repair_agent, prompt, max_turns=3)
-    return await suggestion_from_result(mcp_server, result)
+    result = Runner.run_streamed(repair_agent, input=prompt, max_turns=6)
+    print("=== Run starting ===")
+    async for event in result.stream_events():
+        # We'll ignore the raw responses event deltas
+        if event.type == "raw_response_event":
+            continue
+        # When the agent updates, print that
+        elif event.type == "agent_updated_stream_event":
+            print(f"Agent updated: {event.new_agent.name}")
+            continue
+        # When items are generated, print them
+        elif event.type == "run_item_stream_event":
+            if event.item.type == "tool_call_item":
+                print(f"-- Tool {event.item.raw_item.name} was called with arguments: {event.item.raw_item.arguments}")
+            elif event.item.type == "tool_call_output_item":
+                print(f"-- Tool output: {event.item.output}")
+            elif event.item.type == "message_output_item":
+                print(f"-- Message output:\n {ItemHelpers.text_message_output(event.item)}")
+            else:
+                pass  # Ignore other event types
+    print("=== Run complete ===")
+    return await suggestion_from_result(mcp_server, result.final_output)
 
 async def run(mcp_server: MCPServer):
     suggestions = [await make_suggestion(mcp_server, query) for i in range(2)]
