@@ -32,7 +32,7 @@ async def run(mcp_server: MCPServer):
     message = "Write a datatype for arithmetic expressions comprising constants, variables, and binary additions. Then write an evaluator taking an expression and an environment (a function that takes a variable name and returns a number) and returning the number resulting from evaluation. Then write an optimizer taking an expression and returning an expression with all additions by 0 removed. Then prove that the optimizer preserves the semantics as defined by the evaluation function."
     print("\n" + "-" * 40)
     print(f"Running: {message}")
-    result = await Runner.run(starting_agent=agent, input=message)
+    result = await Runner.run(starting_agent=agent, input=message, max_turns=3)
     print(result.final_output)
 
 async def main():
