@@ -11,3 +11,4 @@ The agents rely on the Dafny Sketcher MCP.
 ## Run
 
 - Run example with `python main.py`.
+- The traces for the program are collected at https://platform.openai.com/traces.
