@@ -3,6 +3,7 @@ import shutil
 
 from agents import Agent, Runner, trace
 from agents.mcp import MCPServer, MCPServerStdio
+from agents.model_settings import ModelSettings
 
 """
 import weave
@@ -11,10 +12,12 @@ from agents import set_trace_processors
 weave.init("openai-agents")
 set_trace_processors([WeaveTracingProcessor()])
 """
+
 async def run(mcp_server: MCPServer):
     agent = Agent(
         name="Assistant",
         instructions=f"Create Dafny programs with functional code and verified properties through lemma. Use the dafny-sketcher MCP to help with proof automation, like inductive sketch, and also to verify your suggestions. Only return code that verifies using the dafny-sketcher MCP show-errors tool.",
+        model_settings=ModelSettings(tool_choice="required"),
         mcp_servers=[mcp_server],
     )
 
