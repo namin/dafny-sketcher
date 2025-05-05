@@ -15,12 +15,20 @@ from agents import OpenAIChatCompletionsModel, set_tracing_disabled
 
 import os
 
-BASE_URL = os.getenv("OPENAI_BASE_URL") or "http://localhost:11434/v1"
-API_KEY = os.getenv("OPENAI_API_KEY") or "ollama"
-MODEL_NAME = os.getenv("OPENAI_MODEL_NAME") or "qwen3:14b"
-client = AsyncOpenAI(base_url=BASE_URL, api_key=API_KEY)
 set_tracing_disabled(disabled=True)
-model = OpenAIChatCompletionsModel(model=MODEL_NAME, openai_client=client)
+LITELLM_MODEL_NAME = os.getenv("LITELLM_MODEL_NAME")
+LITELLM_API_KEY = os.getenv("LITELLM_API_KEY")
+if LITELLM_MODEL_NAME and LITELLM_API_KEY:
+    print("Using LiteLLM model")
+    from agents.extensions.models.litellm_model import LitellmModel
+    model = LitellmModel(model=LITELLM_MODEL_NAME, api_key=LITELLM_API_KEY)
+else:
+    BASE_URL = os.getenv("OPENAI_BASE_URL") or "http://localhost:11434/v1"
+    BASE_URL = os.getenv("OPENAI_BASE_URL") or "http://localhost:11434/v1"
+    API_KEY = os.getenv("OPENAI_API_KEY") or "ollama"
+    MODEL_NAME = os.getenv("OPENAI_MODEL_NAME") or "qwen3:14b"
+    client = AsyncOpenAI(base_url=BASE_URL, api_key=API_KEY)
+    model = OpenAIChatCompletionsModel(model=MODEL_NAME, openai_client=client)
 
 class Suggestion(BaseModel):
     code: str
