@@ -51,6 +51,7 @@ namespace DafnySketcherCli {
         // Read the source text
         var source = "";
         Microsoft.Dafny.Program? dafnyProgram = null;
+        String? dafnyError = null;
         if (filePath is not null) {
           await File.ReadAllTextAsync(filePath);
 
@@ -71,6 +72,7 @@ namespace DafnySketcherCli {
             options
           );
           dafnyProgram = program;
+          dafnyError = error;
         }
 
         // Figure out your target span
@@ -150,7 +152,7 @@ namespace DafnySketcherCli {
             return;
           }
 
-          var req  = new SketchRequest(dafnyProgram, source, method, null, method?.StartToken.line, prompt);
+          var req  = new SketchRequest(dafnyProgram, source, method, sketchType, method?.StartToken.line, prompt);
           var resp = await sketcher.GenerateSketch(req);
           var sketch = resp.Sketch;
           var result = sketch;
@@ -169,6 +171,10 @@ namespace DafnySketcherCli {
 
             // 5) Output
             result = string.Join("\n", lines);
+          }
+
+          if (!string.IsNullOrEmpty(dafnyError)) {
+            result = "// " + dafnyError + "\n" + result;
           }
 
           await Console.Out.WriteLineAsync(result);

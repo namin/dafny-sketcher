@@ -101,9 +101,13 @@ server.tool("show-errors",
   );
 
 server.tool("sketch-induction",
-  { fileInput: z.string(), methodName: z.string() },
+  // TODO: we only make methodName optional because OpenAI makes calls missing this parameter.
+  { fileInput: z.string(), methodName: z.string().optional() },
   async ({ fileInput, methodName }) => {
-    const result = await dafnySketcher(fileInput, "--sketch induction --method " + methodName);
+    let result = !methodName ? "Error: missing parameter methodName" : await dafnySketcher(fileInput, "--sketch induction --method " + methodName);
+    if (result.includes("// Error: No method resolved.")) {
+      result = "Error: No method resolved. Either the method name could not be found or there is a parse error early on. Use show-errors tool for details on errors.";
+    }
     return {
       content: [{ type: "text", text: result }]
     };
