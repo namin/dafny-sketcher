@@ -106,7 +106,7 @@ async def repair_suggestion(mcp_server: MCPServer, query: str, suggestion: Sugge
             "Use the show-errors tool to check your work. "
             "Use the sketch-induction tool to find a suggestion for a lemma proof sketch. "
             "For both of these tools, use the entire code of the program as the fileInput parameter. "
-            "For the sketch-induction tool, use the name of the lemma as the methodName parameter. "
+            "For the sketch-induction tool, use the name of the lemma/method as the methodName parameter. "
         ),
         mcp_servers=[mcp_server],
         model=model
