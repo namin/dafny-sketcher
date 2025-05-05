@@ -75,7 +75,6 @@ async def make_suggestion(mcp_server: MCPServer, query: str):
         instructions=SUGGESTION_PROMPT,
         model=model
     )
-    print(f"Running: {query}")
     result = await Runner.run(suggestion_agent, query, max_turns=1)
     return await suggestion_from_result(mcp_server, result.final_output)
 
@@ -139,7 +138,8 @@ async def repair_suggestion(mcp_server: MCPServer, query: str, suggestion: Sugge
     return await suggestion_from_result(mcp_server, result.final_output)
 
 async def run(mcp_server: MCPServer):
-    suggestions = [await make_suggestion(mcp_server, query) for i in range(3)]
+    print(f"Running: {query}")
+    suggestions = await asyncio.gather(*[make_suggestion(mcp_server, query) for i in range(3)])
     picked_suggestion = await pick_from_suggestions(mcp_server, query, suggestions)
     suggestion = await repair_suggestion(mcp_server, query, picked_suggestion)
     print("Final code")
