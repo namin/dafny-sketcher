@@ -4,7 +4,7 @@ piggy-backing on the Dafny language implementation to explore interactive semi-a
 ## Dev Setup
 
 - Clone this repo, making sure to recursively clone all submodules:
-- `git clone --recursive https://github.com/namin/dafny-sandbox.git`
+- `git clone --recursive https://github.com/namin/dafny-sketcher.git`
 
 ### Submodules
 
