@@ -1,6 +1,7 @@
 # Dafny Sketcher MCP
 
 This Dafny Sketcher MCP builds on the Dafny Sketcher CLI, and exposes certain CLI functionality to MCP clients such as Claude and Cursor.
+ChatGPT can also work through a [third-party adapter](https://github.com/SecretiveShell/MCP-actions-adapter).
 
 ## Building
 
