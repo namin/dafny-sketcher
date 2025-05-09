@@ -21,4 +21,15 @@ npm run compile
 
 cd ..
 
+cd cli
+dotnet build DafnySketcherCli.csproj -c Release
+
+cd ..
+
+cd mcp
+npm install
+npm run build
+
+cd ..
+
 cd $OLD_DIR
