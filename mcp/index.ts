@@ -1,7 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
-import { exec } from 'child_process';
+import { execFile } from 'child_process';
 import { writeFile, unlink } from 'fs/promises';
 import { join, isAbsolute, resolve, normalize } from 'path';
 import { tmpdir } from 'os';
@@ -52,7 +52,7 @@ function resolveFilePath(relativePath: string): string | null {
   return absolutePath;
 }
 
-async function dafnySketcher(fileInput: string, args: string): Promise<string> {
+async function dafnySketcher(fileInput: string, args: any[]): Promise<string> {
     let filePath: string | null = null;
     let isTemp = false;
     
@@ -76,7 +76,7 @@ async function dafnySketcher(fileInput: string, args: string): Promise<string> {
     }
     
     return new Promise<string>((resolve, reject) => {
-        exec('dotnet '+cli_dll+" --file "+filePath+" "+args, (error, stdout, stderr) => {
+        execFile('dotnet', [cli_dll, "--file", filePath].concat(args), (error, stdout, stderr) => {
             if (error) {
                 resolve("Error running Dafny Sketcher: "+error.message);
                 return;
@@ -93,7 +93,7 @@ async function dafnySketcher(fileInput: string, args: string): Promise<string> {
 server.tool("show-errors",
     { fileInput: z.string() },
     async ({ fileInput }) => {
-      const result = await dafnySketcher(fileInput, "--sketch errors");
+      const result = await dafnySketcher(fileInput, ["--sketch", "errors"]);
       return {
         content: [{ type: "text", text: result || "OK" }]
       };
@@ -104,10 +104,20 @@ server.tool("sketch-induction",
   // TODO: we only make methodName optional because OpenAI makes calls missing this parameter.
   { fileInput: z.string(), methodName: z.string().optional() },
   async ({ fileInput, methodName }) => {
-    let result = !methodName ? "Error: missing parameter methodName" : await dafnySketcher(fileInput, "--sketch induction --method " + methodName);
+    let result = !methodName ? "Error: missing parameter methodName" : await dafnySketcher(fileInput, ["--sketch", "induction_search", "--method", methodName]);
     if (result.includes("// Error: No method resolved.")) {
       result = "Error: No method resolved. Either the method name could not be found or there is a parse error early on. Use show-errors tool for details on errors.";
     }
+    return {
+      content: [{ type: "text", text: result }]
+    };
+  }
+);
+
+server.tool("sketch-assertions",
+  { fileInput: z.string(), line: z.number().optional() },
+  async ({ fileInput, line }) => {
+    let result = line === undefined || line < 0 ? "Error: missing parameter line number" : await dafnySketcher(fileInput, ["--sketch", "assertions", "--line", line]);
     return {
       content: [{ type: "text", text: result }]
     };
