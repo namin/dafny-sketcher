@@ -152,7 +152,7 @@ namespace DafnySketcherCli {
             return;
           }
 
-          var req  = new SketchRequest(dafnyProgram, source, method, sketchType, startLine, prompt);
+          var req  = new SketchRequest(dafnyProgram, source, method, sketchType, startLine, 0/* indent */, prompt);
           var resp = await sketcher.GenerateSketch(req);
           var sketch = resp.Sketch;
           var result = sketch;
