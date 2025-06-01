@@ -14,7 +14,7 @@ def drive_program(p: str) -> str:
         todo = sketcher.sketch_next_todo(p)
         if todo is None:
             return p
-        xp = implementer(p, llm_implementer(p, todo), todo)
+        xp = dispatch_implementer(p, todo)
         if xp is None:
             print("Didn't solve todo")
             continue
@@ -35,6 +35,25 @@ def spec_maker(idea: str) -> str:
         print("Errors in spec maker:", e)
         return None
     return p
+
+def dispatch_implementer(p: str, todo) -> str:
+    if todo['type'] == 'function':
+        return implementer(p, llm_implementer(p, todo), todo)
+    elif todo['type'] == 'lemma':
+        return lemma_implementer(p, todo)
+
+def lemma_implementer(p: str, todo) -> str:
+    xp = implementer(p, "", todo)
+    if xp:
+        print("Empty proof works!")
+        return xp
+    x = sketcher.sketch_induction(p, todo['name'])
+    xp = implementer(p, x, todo)
+    if xp:
+        print("Induction sketcher works!")
+        return xp
+    # TODO: could also try passing in the sketch as a starting point
+    return implementer(p, llm_implementer(p, todo), todo)
 
 def llm_implementer(p: str, todo) -> str:
     prompt = prompt_function_implementer(p, todo['name']) if todo['type'] == 'function' else prompt_lemma_implementer(p, todo['name'])
@@ -95,7 +114,43 @@ function optimize(e: Expr): Expr
 lemma {:axiom} optimizePreservesSemantics(e: Expr, env: Environment)
 ensures eval(optimize(e), env) == eval(e, env)
 """
-    #result = drive_ex(idea)
-    result = drive_program(spec)
-    print("FINAL RESULT")
-    print(result)
+
+    program_without_proof = """datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+type Environment = string -> int
+
+function eval(e: Expr, env: Environment): int
+{
+  match e
+  case Const(val) => val
+  case Var(name) => env(name)
+  case Add(e1, e2) => eval(e1, env) + eval(e2, env)
+}
+
+function optimize(e: Expr): Expr
+{
+  match e
+  case Add(e1, e2) =>
+    var o1 := optimize(e1);
+    var o2 := optimize(e2);
+    if o2 == Const(0) then o1 else
+    if o1 == Const(0) then o2 else Add(o1, o2)
+  case _ => e
+}
+
+lemma {:axiom} optimizePreservesSemantics(e: Expr, env: Environment)
+ensures eval(optimize(e), env) == eval(e, env)
+"""
+
+    p = spec
+    e = sketcher.show_errors(p)
+    if e is not None:
+        print("Errors")
+        print(e)
+    else:
+      result = drive_program(p)
+      print("FINAL RESULT")
+      print(result)
