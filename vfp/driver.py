@@ -132,9 +132,13 @@ def insert_progam_todo(todo, p, x):
     return xp
 
 def prompt_spec_maker(idea: str) -> str:
-    return f"You are translating an idea for a Dafny program into a specification, consisting of datatypes, function signatures (without implementation bodies) and lemmas (for lemmas only, using the {{:axiom}} annotation after lemma keyword and without body). Here is the idea:\n{idea}\n\nPlease output the specification without using an explicit module. Omit the bodies for functions and lemmas -- Do not even include the outer braces. Provide the program spec, starting with a line \"// BEGIN DAFNY\", ending with a line \"// END DAFNY\"." + """\n
+    return f"You are translating an idea for a Dafny program into a specification, consisting of datatypes, function signatures (without implementation bodies) and lemmas (for lemmas only, using the {{:axiom}} attribute after lemma keyword and without body). Here is the idea:\n{idea}\n\nPlease output the specification without using an explicit module. Omit the bodies for functions and lemmas -- Do not even include the outer braces.  Please keep a comment before each function to explain what it should do. Provide the program spec, starting with a line \"// BEGIN DAFNY\", ending with a line \"// END DAFNY\"." + """\n
 General hints about Dafny:
-Do not generally use semicolons at the end of lines."""
+Do not generally use semicolons at the end of lines.
+The attribute {:axiom} comes after the lemma keyword, and should not be used for functions. Example:
+lemma {:axiom} lemma_zero_neutral(i: int)
+ensures i + 0 == i
+"""
 
 def prompt_function_implementer(program: str, name: str) -> str:
     return f"You are implementing a function in a Dafny program that is specified but not fully implemented. The current program is\n{program}\n\nThe function to implement is {name}. Please just provide the body of the function (without the outer braces), starting with a line \"// BEGIN DAFNY\", ending with a line \"// END DAFNY\".\nSome hints about Dafny:\n" + """
