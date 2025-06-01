@@ -38,7 +38,7 @@ def spec_maker(idea: str) -> str:
 
 def dispatch_implementer(p: str, todo) -> str:
     if todo['type'] == 'function':
-        return implementer(p, llm_implementer(p, todo), todo)
+        return llm_implementer(p, todo)
     elif todo['type'] == 'lemma':
         return lemma_implementer(p, todo)
 
@@ -53,16 +53,28 @@ def lemma_implementer(p: str, todo) -> str:
         print("Induction sketcher works!")
         return xp
     # TODO: could also try passing in the sketch as a starting point
-    return implementer(p, llm_implementer(p, todo), todo)
+    return llm_implementer(p, todo)
 
-def llm_implementer(p: str, todo) -> str:
+def llm_implementer(p: str, todo, prev: str = None) -> str:
     prompt = prompt_function_implementer(p, todo['name']) if todo['type'] == 'function' else prompt_lemma_implementer(p, todo['name'])
+    if prev is not None:
+        prompt += f"FYI only, a previous attempt on this {todo['type']} had the following errors:\n{prev}"
     r = generate(prompt)
     print(r)
     x = extract_dafny_program(r)
     if x is not None:
         x = extract_dafny_body(x, todo)
-    return x
+    xp = insert_progam_todo(todo, p, x)
+    if xp is None:
+        print("Couldn't patch program")
+        return None
+    e = sketcher.show_errors(xp)
+    if e is not None:
+        print("Errors in implementer:", e)
+        if prev is None:
+            return llm_implementer(p, todo, e)
+        return None
+    return xp
 
 
 def extract_dafny_body(x: str, todo) -> str:
@@ -103,7 +115,7 @@ def insert_progam_todo(todo, p, x):
     return xp
 
 def prompt_spec_maker(idea: str) -> str:
-    return f"You are translating an idea for a Dafny program into a specification, consisting of datatypes, function signatures (without implementation bodies) and lemmas (using the {{:axiom}} annotation after lemma keyword and without body). Here is the idea:\n{idea}\n\nPlease output the specification without using an explicit module. Omit the bodies for functions and lemmas -- Do not even include the outer braces."
+    return f"You are translating an idea for a Dafny program into a specification, consisting of datatypes, function signatures (without implementation bodies) and lemmas (for lemmas only, using the {{:axiom}} annotation after lemma keyword and without body). Here is the idea:\n{idea}\n\nPlease output the specification without using an explicit module. Omit the bodies for functions and lemmas -- Do not even include the outer braces."
 
 def prompt_function_implementer(program: str, name: str) -> str:
     return f"You are implementing a function in a Dafny program that is specified but not fully implemented. The current program is\n{program}\n\nThe function to implement is {name}. Please just provide the body of the function (without the outer braces)."
@@ -159,6 +171,7 @@ lemma {:axiom} optimizePreservesSemantics(e: Expr, env: Environment)
 ensures eval(optimize(e), env) == eval(e, env)
 """
 
+    print('GIVEN SPEC')
     p = spec
     e = sketcher.show_errors(p)
     if e is not None:
@@ -166,5 +179,10 @@ ensures eval(optimize(e), env) == eval(e, env)
         print(e)
     else:
       result = drive_program(p)
-      print("FINAL RESULT")
+      print("FINAL RESULT GIVEN SPEC")
       print(result)
+    print('--------------------------------')
+    print('GIVEN IDEA')
+    result = drive_ex(idea)
+    print("FINAL RESULT GIVEN IDEA")
+    print(result)
