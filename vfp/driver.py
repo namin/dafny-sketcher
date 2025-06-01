@@ -1,3 +1,4 @@
+import re
 from llm import default_generate as generate
 import sketcher
 
@@ -79,7 +80,11 @@ def llm_implementer(p: str, todo, prev: str = None) -> str:
         return None
     return xp
 
+def remove_think_blocks(text):
+    return re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL)
+
 def extract_dafny_program(text: str) -> str:
+    text = remove_think_blocks(text)
     """Extract the Dafny program between the markers."""
     start_marker = '// BEGIN DAFNY'
     end_marker = '// END DAFNY'
@@ -127,10 +132,32 @@ def insert_progam_todo(todo, p, x):
     return xp
 
 def prompt_spec_maker(idea: str) -> str:
-    return f"You are translating an idea for a Dafny program into a specification, consisting of datatypes, function signatures (without implementation bodies) and lemmas (for lemmas only, using the {{:axiom}} annotation after lemma keyword and without body). Here is the idea:\n{idea}\n\nPlease output the specification without using an explicit module. Omit the bodies for functions and lemmas -- Do not even include the outer braces. Provide the program spec, starting with a line \"// BEGIN DAFNY\", ending with a line \"// END DAFNY\"."
+    return f"You are translating an idea for a Dafny program into a specification, consisting of datatypes, function signatures (without implementation bodies) and lemmas (for lemmas only, using the {{:axiom}} annotation after lemma keyword and without body). Here is the idea:\n{idea}\n\nPlease output the specification without using an explicit module. Omit the bodies for functions and lemmas -- Do not even include the outer braces. Provide the program spec, starting with a line \"// BEGIN DAFNY\", ending with a line \"// END DAFNY\"." + """\n
+General hints about Dafny:
+Do not generally use semicolons at the end of lines."""
 
 def prompt_function_implementer(program: str, name: str) -> str:
-    return f"You are implementing a function in a Dafny program that is specified but not fully implemented. The current program is\n{program}\n\nThe function to implement is {name}. Please just provide the body of the function (without the outer braces), starting with a line \"// BEGIN DAFNY\", ending with a line \"// END DAFNY\"."
+    return f"You are implementing a function in a Dafny program that is specified but not fully implemented. The current program is\n{program}\n\nThe function to implement is {name}. Please just provide the body of the function (without the outer braces), starting with a line \"// BEGIN DAFNY\", ending with a line \"// END DAFNY\".\nSome hints about Dafny:\n" + """
+The syntax for pattern match in Dafny is
+match e
+case Case1(arg1, arg2) => result1
+case Case2(arg1) => result2
+case _ => result3
+You'll also need to have braces surrounding a result if is made of complex statements such as variable assignments.
+For nested pattern matches, put the nested pattern match in parentheses:
+match e1
+case Case1(e2, ) => (
+  match e2
+  case Case2(c2) => result 2
+)
+case _ => result3
+
+The syntax for variable assignment is
+var x := e;
+
+Variable assignments is one of the rare cases where semicolons are needed.
+Do not use semicolons at the end of lines otherwise.
+"""
 
 def prompt_lemma_implementer(program: str, name: str) -> str:
     return f"You are implementing a lemma in a Dafny program that is specified but not fully implemented. The current program is\n{program}\n\nThe lemma to implement is {name}. Please just provide the body of the lemma (without the outer braces), starting with a line \"// BEGIN DAFNY\", ending with a line \"// END DAFNY\"."
