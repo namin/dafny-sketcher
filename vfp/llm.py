@@ -156,11 +156,11 @@ def extract_code_blocks(response: str) -> List[str]:
         lines = [lines[i] for i in range(0, len(lines)) if i % 2 == 0]
         lines = ["\n".join(line.split('\n')[1:]) if '\n' in line else line for line in lines]
         blocks = lines
-    elif "`" in response:
-        lines = response.split("`")[1:]
-        lines = [lines[i] for i in range(0, len(lines)) if i % 2 == 0]
-        lines = ["\n".join(line) if '\n' in line else line for line in lines]
-        blocks = lines
+    #elif "`" in response:
+    #    lines = response.split("`")[1:]
+    #    lines = [lines[i] for i in range(0, len(lines)) if i % 2 == 0]
+    #    lines = ["\n".join(line) if '\n' in line else line for line in lines]
+    #    blocks = lines
     else:
         code = response.strip()
         blocks = [code]
@@ -168,6 +168,7 @@ def extract_code_blocks(response: str) -> List[str]:
 
 def extract_dafny_program(text: str) -> str:
     blocks = extract_code_blocks(text)
-    if len(blocks) != 1:
-        return None
-    return blocks[0]
+    return blocks[0] if blocks else None
+
+if __name__ == '__main__':
+    print(generators.keys())

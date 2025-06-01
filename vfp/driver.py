@@ -64,6 +64,9 @@ def llm_implementer(p: str, todo, prev: str = None) -> str:
     x = extract_dafny_program(r)
     if x is not None:
         x = extract_dafny_body(x, todo)
+    if x is None:
+        print("Missing Dafny program")
+        return None
     xp = insert_progam_todo(todo, p, x)
     if xp is None:
         print("Couldn't patch program")
