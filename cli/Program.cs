@@ -1,15 +1,12 @@
-using System;
-using System.Collections.Generic;
+
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.Diagnostics;
-using System.IO;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Microsoft.Dafny;
 using static Microsoft.Dafny.DafnyMain;
-using System.Linq;
-using Std.Wrappers;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace DafnySketcherCli {
   class Program {
@@ -144,6 +141,11 @@ namespace DafnySketcherCli {
             Console.WriteLine($"{name}:{ln}:{col} {msg}{snippet}");
           }
 
+        } else if (sketchType == "todo") {
+          var todos = ListTODOs(dafnyProgram);
+          var json = JsonSerializer.Serialize(todos);
+          await Console.Out.WriteLineAsync(json);
+
         } else {
           var sketcher = ISketcher.Create(sketchType, reporter);
           if (sketcher is null) {
@@ -184,5 +186,49 @@ namespace DafnySketcherCli {
       });
       return await root.InvokeAsync(args);
     }
+
+    public static List<TODO> ListTODOs(Microsoft.Dafny.Program dafnyProgram) {
+      var todos = new List<TODO>();
+      if (dafnyProgram.DefaultModuleDef is DefaultModuleDefinition defaultModule) {
+        foreach (var topLevelDecl in defaultModule.TopLevelDecls) {
+          if (topLevelDecl is TopLevelDeclWithMembers classDecl) {
+            foreach (var member in classDecl.Members) {
+                if (member is MethodOrFunction m) {
+                  string? type = null;
+                  if (m.HasAxiomAttribute) {
+                    type = "lemma";
+                  } else if (m is Function f) {
+                    if (f.Body == null) {
+                      type = "function";
+                    }
+                  }
+                  if (type != null) {
+                    todos.Add(new TODO {
+                        Name = m.Name,
+                        InsertLine = m.EndToken.line,
+                        InsertColumn = m.EndToken.col,
+                        Type = type,
+                    });
+                  }
+                }
+              }
+            }
+          }
+      }
+      return todos;
+    }
+  }
+  public class TODO {
+    [JsonPropertyName("name")]
+    required public string Name { get; set; }
+    
+    [JsonPropertyName("insertLine")]
+    required public int InsertLine { get; set; }
+    
+    [JsonPropertyName("insertColumn")]
+    required public int InsertColumn { get; set; }
+    
+    [JsonPropertyName("type")]
+    required public string Type { get; set; }
   }
 }
