@@ -60,6 +60,20 @@ def llm_implementer(p: str, todo) -> str:
     r = generate(prompt)
     print(r)
     x = extract_dafny_program(r)
+    if x is not None:
+        x = extract_dafny_body(x, todo)
+    return x
+
+
+def extract_dafny_body(x: str, todo) -> str:
+    if todo['type'] in x:
+        start = x.find('{')
+        if start == -1:
+            sign = todo['insertLine'] - todo['startLine'] + 1
+            lines = x.split('\n')
+            return '\n'.join(lines[sign:])
+        else:
+            return x[x.index('{')+1:x.rindex('}')-1]
     return x
 
 def implementer(p: str, x: str, todo) -> str:
