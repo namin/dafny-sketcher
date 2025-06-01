@@ -1,4 +1,4 @@
-from llm import default_generate as generate, extract_dafny_program
+from llm import default_generate as generate
 import sketcher
 
 def drive_ex(ex):
@@ -79,6 +79,15 @@ def llm_implementer(p: str, todo, prev: str = None) -> str:
         return None
     return xp
 
+def extract_dafny_program(text: str) -> str:
+    """Extract the Dafny program between the markers."""
+    start_marker = '// BEGIN DAFNY'
+    end_marker = '// END DAFNY'
+    start_idx = text.find(start_marker)
+    end_idx = text.find(end_marker)
+    if start_idx == -1 or end_idx == -1:
+        return None
+    return text[start_idx + len(start_marker):end_idx].strip()
 
 def extract_dafny_body(x: str, todo) -> str:
     if todo['type'] in x:
@@ -118,13 +127,13 @@ def insert_progam_todo(todo, p, x):
     return xp
 
 def prompt_spec_maker(idea: str) -> str:
-    return f"You are translating an idea for a Dafny program into a specification, consisting of datatypes, function signatures (without implementation bodies) and lemmas (for lemmas only, using the {{:axiom}} annotation after lemma keyword and without body). Here is the idea:\n{idea}\n\nPlease output the specification without using an explicit module. Omit the bodies for functions and lemmas -- Do not even include the outer braces."
+    return f"You are translating an idea for a Dafny program into a specification, consisting of datatypes, function signatures (without implementation bodies) and lemmas (for lemmas only, using the {{:axiom}} annotation after lemma keyword and without body). Here is the idea:\n{idea}\n\nPlease output the specification without using an explicit module. Omit the bodies for functions and lemmas -- Do not even include the outer braces. Provide the program spec, starting with a line \"// BEGIN DAFNY\", ending with a line \"// END DAFNY\"."
 
 def prompt_function_implementer(program: str, name: str) -> str:
-    return f"You are implementing a function in a Dafny program that is specified but not fully implemented. The current program is\n{program}\n\nThe function to implement is {name}. Please just provide the body of the function (without the outer braces)."
+    return f"You are implementing a function in a Dafny program that is specified but not fully implemented. The current program is\n{program}\n\nThe function to implement is {name}. Please just provide the body of the function (without the outer braces), starting with a line \"// BEGIN DAFNY\", ending with a line \"// END DAFNY\"."
 
 def prompt_lemma_implementer(program: str, name: str) -> str:
-    return f"You are implementing a lemma in a Dafny program that is specified but not fully implemented. The current program is\n{program}\n\nThe lemma to implement is {name}. Please just provide the body of the lemma (without the outer braces)."
+    return f"You are implementing a lemma in a Dafny program that is specified but not fully implemented. The current program is\n{program}\n\nThe lemma to implement is {name}. Please just provide the body of the lemma (without the outer braces), starting with a line \"// BEGIN DAFNY\", ending with a line \"// END DAFNY\"."
 
 if __name__ == "__main__":
     idea = "Write (1) a datatype for arithmetic expressions, comparising constants, variables, and binary additions, (2) an evaluator function that takes an expression and an environment (function mapping variable to value) and return an integer value, (3) an optimizer function that removes addition by zero, (4) a lemma that ensures the optimizer preserves the semantics as defined by the evaluator."

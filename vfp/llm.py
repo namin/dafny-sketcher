@@ -166,9 +166,5 @@ def extract_code_blocks(response: str) -> List[str]:
         blocks = [code]
     return blocks
 
-def extract_dafny_program(text: str) -> str:
-    blocks = extract_code_blocks(text)
-    return blocks[0] if blocks else None
-
 if __name__ == '__main__':
     print(generators.keys())
