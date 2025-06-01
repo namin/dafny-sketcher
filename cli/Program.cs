@@ -205,6 +205,8 @@ namespace DafnySketcherCli {
                   if (type != null) {
                     todos.Add(new TODO {
                         Name = m.Name,
+                        startLine = m.StartToken.line,
+                        startColumn = m.StartToken.col,
                         InsertLine = m.EndToken.line,
                         InsertColumn = m.EndToken.col,
                         Type = type,
@@ -221,7 +223,10 @@ namespace DafnySketcherCli {
   public class TODO {
     [JsonPropertyName("name")]
     required public string Name { get; set; }
-    
+    [JsonPropertyName("startLine")]
+    required public int startLine { get; set; }
+    [JsonPropertyName("startColumn")]
+    required public int startColumn { get; set; }
     [JsonPropertyName("insertLine")]
     required public int InsertLine { get; set; }
     
