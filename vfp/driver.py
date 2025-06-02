@@ -52,18 +52,19 @@ def lemma_implementer(p: str, todo) -> str:
     if xp:
         print("Empty proof works!")
         return xp
-    x = sketcher.sketch_induction(insert_progam_todo(todo, p, ""), todo['name'])
+    x = sketcher.sketch_induction(insert_program_todo(todo, p, ""), todo['name'])
     xp = implementer(p, x, todo)
     if xp:
         print("Induction sketcher works!")
         return xp
-    # TODO: could also try passing in the sketch as a starting point
-    return llm_implementer(p, todo)
+    return llm_implementer(p, todo, hint="This induction sketch didn't work on its own, but could be a good starting point:\n" + x)
 
-def llm_implementer(p: str, todo, prev: str = None) -> str:
+def llm_implementer(p: str, todo, prev: str = None, hint: str = None) -> str:
     prompt = prompt_function_implementer(p, todo['name']) if todo['type'] == 'function' else prompt_lemma_implementer(p, todo['name'])
+    if hint is not None:
+        prompt += "\n" + hint
     if prev is not None:
-        prompt += f"FYI only, a previous attempt on this {todo['type']} had the following errors:\n{prev}"
+        prompt += f"\nFYI only, a previous attempt on this {todo['type']} had the following errors:\n{prev}"
     r = generate(prompt)
     print(r)
     x = extract_dafny_program(r)
@@ -72,7 +73,7 @@ def llm_implementer(p: str, todo, prev: str = None) -> str:
     if x is None:
         print("Missing Dafny program")
         return None
-    xp = insert_progam_todo(todo, p, x)
+    xp = insert_program_todo(todo, p, x)
     if xp is None:
         print("Couldn't patch program")
         return None
@@ -113,7 +114,7 @@ def implementer(p: str, x: str, todo) -> str:
     if x is None:
         print("Missing Dafny program")
         return None
-    xp = insert_progam_todo(todo, p, x)
+    xp = insert_program_todo(todo, p, x)
     if xp is None:
         print("Couldn't patch program")
         return None
@@ -123,7 +124,7 @@ def implementer(p: str, x: str, todo) -> str:
         return None
     return xp
 
-def insert_progam_todo(todo, p, x):
+def insert_program_todo(todo, p, x):
     line = todo['insertLine']
     lines = p.split('\n')
     lines[line-1] = lines[line-1] + "\n{\n" + x + "\n}\n"
