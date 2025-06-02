@@ -52,7 +52,7 @@ def lemma_implementer(p: str, todo) -> str:
     if xp:
         print("Empty proof works!")
         return xp
-    x = sketcher.sketch_induction(p, todo['name'])
+    x = sketcher.sketch_induction(insert_progam_todo(todo, p, ""), todo['name'])
     xp = implementer(p, x, todo)
     if xp:
         print("Induction sketcher works!")
