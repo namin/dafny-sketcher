@@ -1,4 +1,5 @@
 import re
+from typing import Optional
 from llm import default_generate as generate
 import sketcher
 
@@ -10,8 +11,10 @@ def drive_ex(ex):
     print(p)
     return drive_program(p)
 
-def drive_program(p: str) -> str:
-    while True:
+def drive_program(p: str, max_iterations: Optional[int] = None) -> str:
+    i = 0
+    while max_iterations is None or i < max_iterations:
+        i += 1
         todo = sketcher.sketch_next_todo(p)
         if todo is None:
             return p
@@ -22,6 +25,7 @@ def drive_program(p: str) -> str:
         p = xp
         print("PROGRAM")
         print(p)
+    print(f'Solved in {i} iterations')
     return p
 
 def spec_maker(idea: str) -> str:
