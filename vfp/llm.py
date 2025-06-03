@@ -136,14 +136,15 @@ if GEMINI_API_KEY:
     except ModuleNotFoundError:
         generate = dummy_generate('google-genai')
     if generate is None:
-        def generate(prompt, max_tokens=1000, temperature=1.0, model="gemini-2.5-flash-preview-04-17"):
+        model = os.environ.get('GEMINI_MODEL', "gemini-2.5-flash-preview-04-17")
+        def generate(prompt, max_tokens=1000, temperature=1.0, model=model):
             debug(f"Prompt:\n{prompt}")
             debug(f"Sending request to Google Gemini (model={model}, max_tokens={max_tokens}, temp={temperature})")
             
             client = genai.Client(api_key=GEMINI_API_KEY)
 
             response = client.models.generate_content(
-                model='gemini-2.0-flash', contents=prompt
+                model=model, contents=prompt
             )
             text = response.text
             debug("Received response from Google Gemini")
