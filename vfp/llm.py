@@ -7,6 +7,8 @@ GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
 OLLAMA_API_KEY = os.environ.get('OLLAMA_API_KEY')
 PROJECT_ID = os.environ.get('PROJECT_ID') # for Google Cloud
 DEBUG_LLM = os.environ.get('DEBUG_LLM')
+LLM_PROVIDER = os.environ.get('LLM_PROVIDER')
+GEMINI_MODEL = os.environ.get('GEMINI_MODEL', "gemini-2.5-flash-preview-05-20")
 
 def debug(msg: str):
     if DEBUG_LLM:
@@ -31,15 +33,13 @@ if PROJECT_ID:
         from anthropic import AnthropicVertex
     except ModuleNotFoundError:
         generate = dummy_generate('anthropic[vertex]')
-
     if generate is None:
-        LOCATION="us-east5"
         model = os.environ.get('ANTHROPIC_MODEL', 'claude-sonnet-4@20250514')
         def generate(prompt, max_tokens=1000, temperature=1.0, model=model):
             debug(f"Prompt:\n{prompt}")
             print(f"Sending request to Anthropic Vertex (model={model}, max_tokens={max_tokens}, temp={temperature})")
 
-            client = AnthropicVertex(region=LOCATION, project_id=PROJECT_ID)
+            client = AnthropicVertex(region="us-east5", project_id=PROJECT_ID)
 
             message = client.messages.create(
                 model=model,
@@ -61,8 +61,27 @@ if PROJECT_ID:
             print("Received response from Anthropic Vertex")
             print(f"Response:\n{message}")
             return message.content[0].text
-
     generators['claude_vertex'] = generate
+
+    generate = None
+    try:
+        from google import genai
+    except ModuleNotFoundError:
+        generate = dummy_generate('google-genai')
+
+    if generate is None:
+        def generate(prompt, max_tokens=1000, temperature=1.0, model=GEMINI_MODEL):
+            print(f"Sending request to Gemini Vertex (model={model}, max_tokens={max_tokens}, temp={temperature})")
+
+            client = genai.Client(vertexai=True, project=PROJECT_ID, location="us-central1")
+            response = client.models.generate_content(
+                model=model, contents=prompt
+            )
+            text = response.text
+            print("Received response from Google Gemini")
+            print(f"Response:\n{text}")
+            return text
+    generators['gemini_vertex'] = generate
 
 if OPENAI_API_KEY:
     generate = None
@@ -136,8 +155,7 @@ if GEMINI_API_KEY:
     except ModuleNotFoundError:
         generate = dummy_generate('google-genai')
     if generate is None:
-        model = os.environ.get('GEMINI_MODEL', "gemini-2.5-flash-preview-04-17")
-        def generate(prompt, max_tokens=1000, temperature=1.0, model=model):
+        def generate(prompt, max_tokens=1000, temperature=1.0, model=GEMINI_MODEL):
             debug(f"Prompt:\n{prompt}")
             debug(f"Sending request to Google Gemini (model={model}, max_tokens={max_tokens}, temp={temperature})")
             
@@ -183,12 +201,14 @@ if OLLAMA_API_KEY:
     generators['ollama'] = generate
 
 def pick_generate():
-    gs = [generators[key]for key in generators.keys() if key is not None]
+    if LLM_PROVIDER:
+        return LLM_PROVIDER, generators[LLM_PROVIDER]
+    gs = [(key, generators[key]) for key in generators.keys() if key is not None]
     if gs:
         return gs[0]
     raise ValueError("No generators available")
 
-default_generate = pick_generate()
+default_provider, default_generate = pick_generate()
 
 
 def extract_code_blocks(response: str) -> List[str]:
@@ -211,4 +231,5 @@ def extract_code_blocks(response: str) -> List[str]:
     return blocks
 
 if __name__ == '__main__':
-    print(generators.keys())
+    print('available providers:', list(generators.keys()))
+    print('picked provider:', default_provider)
