@@ -68,13 +68,13 @@ def llm_implementer(p: str, todo, prev: str = None, hint: str = None, done: list
         prompt += f"\nFYI only, a previous attempt on this {todo['type']} had the following errors:\n{prev}"
     done_functions = [u['name'] for u in done if u['type'] == 'function'] if done else []
     if done_functions:
-        prompt += f"\nIf you think it's impossible to implement {todo['name']} without re-implementing one of the previous functions, you can write in one line\n//EDIT <function name>\n where <function name> is one of the following: " + ", ".join(done_functions) + f" to ask to re-implement the function instead of implementing {todo['name']}."
+        prompt += f"\nIf you think it's impossible to implement {todo['name']} without re-implementing one of the previous functions, you can write in one line\n// EDIT <function name>\n where <function name> is one of the following: " + ", ".join(done_functions) + f" to ask to re-implement the function instead of implementing {todo['name']}."
     r = generate(prompt)
     print(r)
     edit_function = extract_edit_function(r, done_functions)
     if edit_function is not None:
         print('EDIT', edit_function)
-        return llm_implementer(p, [u for u in done if u['name'] == edit_function][0], prev=r, done=done, hint=f"You chose to re-implement {edit_function} instead of implementing {todo['name']}.")
+        return llm_implementer(p, [u for u in done if u['name'] == edit_function][0], hint=f"You chose to re-implement {edit_function} instead of implementing {todo['name']}.")
     x = extract_dafny_program(r)
     if x is not None:
         x = extract_dafny_body(x, todo)
@@ -97,7 +97,7 @@ def remove_think_blocks(text):
     return re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL)
 
 def extract_edit_function(text: str, functions: List[str]) -> Optional[str]:
-    pattern = re.compile(r'^\s*//EDIT\s+(\w+)', re.MULTILINE)
+    pattern = re.compile(r'^\s*// EDIT\s+(\w+)', re.MULTILINE)
     matches = pattern.findall(text)
     results = [fn for fn in matches if fn in functions]
     return results[0] if results else None
@@ -140,14 +140,15 @@ def implementer(p: str, x: str, todo) -> str:
 
 def insert_program_todo(todo, p, x):
     if todo['status'] == 'done':
-        return replace_text_between_positions(p, (todo['insertLine'], todo['insertColumn']), (todo['endLine'], todo['endColumn']), "{\n" + x + "\n}")
-    line = todo['insertLine']
-    lines = p.split('\n')
-    lines[line-1] = lines[line-1] + "\n{\n" + x + "\n}\n"
-    if todo['type'] == 'lemma':
-        line_lemma = todo['startLine']
-        lines[line_lemma-1] = lines[line_lemma-1].replace('{:axiom}', '')
-    xp = '\n'.join(lines)
+        xp = replace_text_between_positions(p, (todo['insertLine'], todo['insertColumn']), (todo['endLine'], todo['endColumn']), "\n" + x + "\n}")
+    else:
+        line = todo['insertLine']
+        lines = p.split('\n')
+        lines[line-1] = lines[line-1] + "\n{\n" + x + "\n}\n"
+        if todo['type'] == 'lemma':
+            line_lemma = todo['startLine']
+            lines[line_lemma-1] = lines[line_lemma-1].replace('{:axiom}', '')
+        xp = '\n'.join(lines)
     print("XP")
     print(xp)
     return xp

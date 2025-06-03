@@ -200,6 +200,22 @@ if OLLAMA_API_KEY:
 
     generators['ollama'] = generate
 
+def multiline_input():
+    print("Enter your input (end with an empty line):")
+    lines = []
+    while True:
+        line = input()
+        if line == "":
+            break
+        lines.append(line)
+    return "\n".join(lines)
+
+if LLM_PROVIDER=='user':
+    def generate(prompt, max_tokens=1000, temperature=1.0, model=None):
+        print(f"Prompt:\n{prompt}")
+        return multiline_input()
+    generators['user'] = generate
+
 def pick_generate():
     if LLM_PROVIDER:
         return LLM_PROVIDER, generators[LLM_PROVIDER]
