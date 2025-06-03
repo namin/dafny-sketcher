@@ -58,7 +58,7 @@ def lemma_implementer(p: str, todo, done) -> str:
     if xp:
         print("Induction sketcher works!")
         return xp
-    return llm_implementer(p, todo, done=done, hint="This induction sketch didn't work on its own, but could be a good starting point:\n" + x)
+    return llm_implementer(p, todo, done=done, hint="This induction sketch did NOT work on its own, but could be a good starting point if you vary/augment it:\n" + x)
 
 def llm_implementer(p: str, todo, prev: str = None, hint: str = None, done: list[object] = None) -> str:
     prompt = prompt_function_implementer(p, todo['name']) if todo['type'] == 'function' else prompt_lemma_implementer(p, todo['name'])
@@ -68,11 +68,12 @@ def llm_implementer(p: str, todo, prev: str = None, hint: str = None, done: list
         prompt += f"\nFYI only, a previous attempt on this {todo['type']} had the following errors:\n{prev}"
     done_functions = [u['name'] for u in done if u['type'] == 'function'] if done else []
     if done_functions:
-        prompt += f"\nIf you want to revisit one of the previous functions instead, you can write in one line\n//EDIT <function name>\n where <function name> is one of the following:\n" + "\n".join(done_functions)
+        prompt += f"\nIf you think it's impossible to implement {todo['name']} without re-implementing one of the previous functions, you can write in one line\n//EDIT <function name>\n where <function name> is one of the following: " + ", ".join(done_functions) + f" to ask to re-implement the function instead of implementing {todo['name']}."
     r = generate(prompt)
     print(r)
     edit_function = extract_edit_function(r, done_functions)
     if edit_function is not None:
+        print('EDIT', edit_function)
         return llm_implementer(p, [u for u in done if u['name'] == edit_function][0], prev=r, done=done, hint=f"You chose to re-implement {edit_function} instead of implementing {todo['name']}.")
     x = extract_dafny_program(r)
     if x is not None:
@@ -258,18 +259,56 @@ lemma {:axiom} optimizePreservesSemantics(e: Expr, env: Environment)
 ensures eval(optimize(e), env) == eval(e, env)
 """
 
-    print('GIVEN SPEC')
-    p = spec
-    e = sketcher.show_errors(p)
-    if e is not None:
-        print("Errors")
-        print(e)
-    else:
-      result = drive_program(p)
-      print("FINAL RESULT GIVEN SPEC")
-      print(result)
-    print('--------------------------------')
-    print('GIVEN IDEA')
-    result = drive_ex(idea)
-    print("FINAL RESULT GIVEN IDEA")
-    print(result)
+    program_with_bugs = """datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+predicate optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+function optimize(e: Expr): Expr
+{
+  match e
+  case Add(Const(0), e2) => optimize(e2)
+  case Add(e1, Const(0)) => optimize(e1)
+  case Add(e1, e2) => Add(optimize(e1), optimize(e2))
+  case _ => e
+}
+
+lemma {:axiom} optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+"""
+
+    if True:
+        print('GIVEN PROGRAM WITH BUGS')
+        p = program_with_bugs
+        e = sketcher.show_errors(p)
+        if e is not None:
+            print("Errors")
+            print(e)
+        else:
+            result = drive_program(p)
+
+    if False:
+        print('GIVEN SPEC')
+        p = spec
+        e = sketcher.show_errors(p)
+        if e is not None:
+            print("Errors")
+            print(e)
+        else:
+            result = drive_program(p)
+            print("FINAL RESULT GIVEN SPEC")
+            print(result)
+            print('--------------------------------')
+            print('GIVEN IDEA')
+            result = drive_ex(idea)
+            print("FINAL RESULT GIVEN IDEA")
+            print(result)
