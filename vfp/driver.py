@@ -1,5 +1,5 @@
 import re
-from typing import Optional
+from typing import List, Optional
 from llm import default_generate as generate
 import sketcher
 
@@ -16,9 +16,10 @@ def drive_program(p: str, max_iterations: Optional[int] = None) -> str:
     while max_iterations is None or i < max_iterations:
         i += 1
         todo = sketcher.sketch_next_todo(p)
+        done = sketcher.sketch_done(p)
         if todo is None:
             return p
-        xp = dispatch_implementer(p, todo)
+        xp = dispatch_implementer(p, todo, done)
         if xp is None:
             print("Didn't solve todo")
             continue
@@ -41,13 +42,13 @@ def spec_maker(idea: str) -> str:
         return None
     return p
 
-def dispatch_implementer(p: str, todo) -> str:
+def dispatch_implementer(p: str, todo, done) -> str:
     if todo['type'] == 'function':
         return llm_implementer(p, todo)
     elif todo['type'] == 'lemma':
-        return lemma_implementer(p, todo)
+        return lemma_implementer(p, todo, done)
 
-def lemma_implementer(p: str, todo) -> str:
+def lemma_implementer(p: str, todo, done) -> str:
     xp = implementer(p, "", todo)
     if xp:
         print("Empty proof works!")
@@ -57,16 +58,22 @@ def lemma_implementer(p: str, todo) -> str:
     if xp:
         print("Induction sketcher works!")
         return xp
-    return llm_implementer(p, todo, hint="This induction sketch didn't work on its own, but could be a good starting point:\n" + x)
+    return llm_implementer(p, todo, done=done, hint="This induction sketch didn't work on its own, but could be a good starting point:\n" + x)
 
-def llm_implementer(p: str, todo, prev: str = None, hint: str = None) -> str:
+def llm_implementer(p: str, todo, prev: str = None, hint: str = None, done: list[object] = None) -> str:
     prompt = prompt_function_implementer(p, todo['name']) if todo['type'] == 'function' else prompt_lemma_implementer(p, todo['name'])
     if hint is not None:
         prompt += "\n" + hint
     if prev is not None:
         prompt += f"\nFYI only, a previous attempt on this {todo['type']} had the following errors:\n{prev}"
+    done_functions = [u['name'] for u in done if u['type'] == 'function'] if done else []
+    if done_functions:
+        prompt += f"\nIf you want to revisit one of the previous functions instead, you can write in one line\n//EDIT <function name>\n where <function name> is one of the following:\n" + "\n".join(done_functions)
     r = generate(prompt)
     print(r)
+    edit_function = extract_edit_function(r, done_functions)
+    if edit_function is not None:
+        return llm_implementer(p, [u for u in done if u['name'] == edit_function][0], prev=r, done=done, hint=f"You chose to re-implement {edit_function} instead of implementing {todo['name']}.")
     x = extract_dafny_program(r)
     if x is not None:
         x = extract_dafny_body(x, todo)
@@ -87,6 +94,12 @@ def llm_implementer(p: str, todo, prev: str = None, hint: str = None) -> str:
 
 def remove_think_blocks(text):
     return re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL)
+
+def extract_edit_function(text: str, functions: List[str]) -> Optional[str]:
+    pattern = re.compile(r'^\s*//EDIT\s+(\w+)', re.MULTILINE)
+    matches = pattern.findall(text)
+    results = [fn for fn in matches if fn in functions]
+    return results[0] if results else None
 
 def extract_dafny_program(text: str) -> str:
     text = remove_think_blocks(text)
@@ -125,6 +138,8 @@ def implementer(p: str, x: str, todo) -> str:
     return xp
 
 def insert_program_todo(todo, p, x):
+    if todo['status'] == 'done':
+        return replace_text_between_positions(p, (todo['insertLine'], todo['insertColumn']), (todo['endLine'], todo['endColumn']), "{\n" + x + "\n}")
     line = todo['insertLine']
     lines = p.split('\n')
     lines[line-1] = lines[line-1] + "\n{\n" + x + "\n}\n"
@@ -135,6 +150,30 @@ def insert_program_todo(todo, p, x):
     print("XP")
     print(xp)
     return xp
+
+def replace_text_between_positions(text: str, start: tuple[int, int], end: tuple[int, int], replacement: str) -> str:
+    lines = text.splitlines()
+
+    start_line, start_col = start
+    end_line, end_col = end
+
+    # Convert to 0-based indices
+    start_line -= 1
+    end_line -= 1
+
+    if start_line == end_line:
+        # Replacement is within a single line
+        lines[start_line] = (
+            lines[start_line][:start_col] +
+            replacement +
+            lines[start_line][end_col:]
+        )
+    else:
+        # Replacement spans multiple lines
+        lines[start_line] = lines[start_line][:start_col] + replacement + lines[end_line][end_col:]
+        del lines[start_line + 1:end_line + 1]
+
+    return '\n'.join(lines)
 
 def prompt_spec_maker(idea: str) -> str:
     return f"You are translating an idea for a Dafny program into a specification, consisting of datatypes, function signatures (without implementation bodies) and lemmas (for lemmas only, using the {{:axiom}} attribute after lemma keyword and without body). Here is the idea:\n{idea}\n\nPlease output the specification without using an explicit module. Omit the bodies for functions and lemmas -- Do not even include the outer braces.  Please keep a comment before each function to explain what it should do. Provide the program spec, starting with a line \"// BEGIN DAFNY\", ending with a line \"// END DAFNY\"." + """\n

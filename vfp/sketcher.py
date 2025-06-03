@@ -104,7 +104,7 @@ def sketch_induction(file_input: str, method_name: Optional[str] = None) -> str:
     
     return result
 
-def sketch_todo(file_input: str) -> str:
+def sketch_todo(file_input: str) -> list[object]:
     """
     List todos for a specific file.
     
@@ -115,7 +115,7 @@ def sketch_todo(file_input: str) -> str:
         TODOs as JSON
     """
     result = dafny_sketcher(file_input, ['--sketch', 'todo'])
-    return json.loads(result) if result else None
+    return json.loads(result) if result else []
 
 def sketch_next_todo(file_input: str) -> Optional[str]:
     """
@@ -131,6 +131,19 @@ def sketch_next_todo(file_input: str) -> Optional[str]:
     if not todos:
         return None
     return todos[0]
+
+def sketch_done(file_input: str) -> list[object]:
+    """
+    List implemented units for a specific file.
+    
+    Args:
+        file_input: String content of the Dafny file
+    
+    Returns:
+        Units as JSON
+    """
+    result = dafny_sketcher(file_input, ['--sketch', 'done'])
+    return json.loads(result) if result else None
 
 if __name__ == "__main__":
     print(sketch_todo("""

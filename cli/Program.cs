@@ -145,7 +145,10 @@ namespace DafnySketcherCli {
           var todos = ListTODOs(dafnyProgram);
           var json = JsonSerializer.Serialize(todos);
           await Console.Out.WriteLineAsync(json);
-
+        } else if (sketchType == "done") {
+          var units = ListImplementedUnits(dafnyProgram);
+          var json = JsonSerializer.Serialize(units);
+          await Console.Out.WriteLineAsync(json);
         } else {
           var sketcher = ISketcher.Create(sketchType, reporter);
           if (sketcher is null) {
@@ -187,8 +190,8 @@ namespace DafnySketcherCli {
       return await root.InvokeAsync(args);
     }
 
-    public static List<TODO> ListTODOs(Microsoft.Dafny.Program dafnyProgram) {
-      var todos = new List<TODO>();
+    public static List<Unit> ListTODOs(Microsoft.Dafny.Program dafnyProgram) {
+      var todos = new List<Unit>();
       if (dafnyProgram.DefaultModuleDef is DefaultModuleDefinition defaultModule) {
         foreach (var topLevelDecl in defaultModule.TopLevelDecls) {
           if (topLevelDecl is TopLevelDeclWithMembers classDecl) {
@@ -203,13 +206,17 @@ namespace DafnySketcherCli {
                     }
                   }
                   if (type != null) {
-                    todos.Add(new TODO {
-                        Name = m.Name,
-                        startLine = m.StartToken.line,
-                        startColumn = m.StartToken.col,
-                        InsertLine = m.EndToken.line,
-                        InsertColumn = m.EndToken.col,
-                        Type = type,
+                    todos.Add(new Unit
+                    {
+                      Name = m.Name,
+                      startLine = m.StartToken.line,
+                      startColumn = m.StartToken.col,
+                      InsertLine = m.EndToken.line,
+                      InsertColumn = m.EndToken.col,
+                      EndLine = m.EndToken.line,
+                      EndColumn = m.EndToken.col,
+                      Type = type,
+                      Status = "todo"
                     });
                   }
                 }
@@ -219,8 +226,48 @@ namespace DafnySketcherCli {
       }
       return todos;
     }
+    public static List<Unit> ListImplementedUnits(Microsoft.Dafny.Program dafnyProgram) {
+        var units = new List<Unit>();
+        if (dafnyProgram.DefaultModuleDef is DefaultModuleDefinition defaultModule) {
+          foreach (var topLevelDecl in defaultModule.TopLevelDecls) {
+            if (topLevelDecl is TopLevelDeclWithMembers classDecl) {
+              foreach (var member in classDecl.Members) {
+                  if (member is MethodOrFunction m) {
+                    string? type = null;
+                    if (m is Function f)
+                    {
+                      if (f.Body != null)
+                      {
+                        type = "function";
+                      }
+                    }
+                    else if (!m.HasAxiomAttribute && m.IsGhost) {
+                      type = "lemma";
+                    }
+                    if (type != null) {
+                      units.Add(new Unit
+                      {
+                        Name = m.Name,
+                        startLine = m.StartToken.line,
+                        startColumn = m.StartToken.col,
+                        InsertLine = m.BodyStartTok.line,
+                        InsertColumn = m.BodyStartTok.col,
+                        EndLine = m.EndToken.line,
+                        EndColumn = m.EndToken.col,
+                        Type = type,
+                        Status = "done"
+                      });
+                    }
+                  }
+                }
+              }
+            }
+        }
+        return units;
+      }
   }
-  public class TODO {
+  public class Unit
+  {
     [JsonPropertyName("name")]
     required public string Name { get; set; }
     [JsonPropertyName("startLine")]
@@ -229,11 +276,16 @@ namespace DafnySketcherCli {
     required public int startColumn { get; set; }
     [JsonPropertyName("insertLine")]
     required public int InsertLine { get; set; }
-    
     [JsonPropertyName("insertColumn")]
     required public int InsertColumn { get; set; }
-    
+    [JsonPropertyName("endLine")]
+    required public int EndLine { get; set; }
+
+    [JsonPropertyName("endColumn")]
+    required public int EndColumn { get; set; }
     [JsonPropertyName("type")]
     required public string Type { get; set; }
+    [JsonPropertyName("status")]
+    required public string Status { get; set; }
   }
 }
