@@ -196,10 +196,10 @@ case _ => result3
 You'll also need to have braces surrounding a result if is made of complex statements such as variable assignments.
 For nested pattern matches, put the nested pattern match in parentheses:
 match e1
-case Case1(e2, ) => (
-  match e2
-  case Case2(c2) => result 2
-)
+case Case1(e2, _) =>
+  (match e2
+   case Case2(c2) => result 2
+  )
 case _ => result3
 
 The syntax for variable assignment is
@@ -287,9 +287,18 @@ lemma {:axiom} optimizeOptimal(e: Expr)
 ensures optimal(optimize(e))
 """
 
+    program_with_obvious_bug = """
+function magic_number(): int {
+    33
+}
+
+lemma {:axiom} magic_number_is_42()
+ensures magic_number() == 42
+"""
+
     if True:
         print('GIVEN PROGRAM WITH BUGS')
-        p = program_with_bugs
+        p = program_with_obvious_bug
         e = sketcher.show_errors(p)
         if e is not None:
             print("Errors")
