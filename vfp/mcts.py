@@ -83,11 +83,7 @@ def main(spec, expansion_count = 20):
     print(montecarlo.solution)
 
 if __name__ == "__main__":
-    from tests import program_with_obvious_bug, program_with_bugs
-    
-    #main(program_with_obvious_bug)
-
-    main(program_with_bugs)
-
+    import tests
+    tests.run(main)
     #import bench_solve
     #bench_solve.main(main)

@@ -221,30 +221,10 @@ def prompt_lemma_implementer(program: str, name: str) -> str:
     return f"You are implementing a lemma in a Dafny program that is specified but not fully implemented. The current program is\n{program}\n\nThe lemma to implement is {name}. Please just provide the body of the lemma (without the outer braces), starting with a line \"// BEGIN DAFNY\", ending with a line \"// END DAFNY\"."
 
 if __name__ == "__main__":
-    from tests import program_with_obvious_bug, spec, idea
-    if True:
-        print('GIVEN PROGRAM WITH BUGS')
-        p = program_with_obvious_bug
-        e = sketcher.show_errors(p)
-        if e is not None:
-            print("Errors")
-            print(e)
-        else:
-            result = drive_program(p)
-
+    import tests
+    tests.run(drive_program)
     if False:
-        print('GIVEN SPEC')
-        p = spec
-        e = sketcher.show_errors(p)
-        if e is not None:
-            print("Errors")
-            print(e)
-        else:
-            result = drive_program(p)
-            print("FINAL RESULT GIVEN SPEC")
-            print(result)
-            print('--------------------------------')
-            print('GIVEN IDEA')
-            result = drive_ex(idea)
-            print("FINAL RESULT GIVEN IDEA")
-            print(result)
+        print('GIVEN IDEA')
+        result = drive_ex(tests.idea)
+        print("FINAL RESULT GIVEN IDEA")
+        print(result)

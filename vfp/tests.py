@@ -80,3 +80,14 @@ function magic_number(): int {
 lemma {:axiom} magic_number_is_42()
 ensures magic_number() == 42
 """
+
+def run(solver):
+    if True:
+        print('GIVEN PROGRAM WITH SUBTLE BUGS')
+        solver(program_with_bugs)
+    if False:
+        print('GIVEN PROGRAM WITH BUGS')
+        solver(program_with_obvious_bug)
+    if False:
+        print('GIVEN SPEC')
+        solver(spec)
