@@ -95,6 +95,10 @@ def llm_implementer(p: str, todo, prev: str = None, hint: str = None, done: list
         if prev is None:
             return llm_implementer(p, todo, e)
         return None
+    # TODO: this should be caught as warning by sketcher
+    if 'assume' in xp:
+        print("Forbid assumes")
+        return None
     return xp
 
 def remove_think_blocks(text):
