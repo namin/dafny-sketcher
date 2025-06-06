@@ -60,6 +60,8 @@ def child_finder(node, montecarlo):
         assert n>=1
         if n>1:
             edit_function = pick_edit_function(p, done_functions)
+            if edit_function is None:
+                edit_function = done_functions[-1] # arbitrary
         else:
             edit_function = done_functions[0]
         print('edit function', edit_function)
