@@ -15,7 +15,7 @@ class State:
 
 def pick_edit_function(program, done_functions):
     prompt = f"You have to choose a function to re-implement among those already implemented. The current program is\n{program}\n\n."
-    prompt += "Only write in one line\n// EDIT <function name>\n where <function name> is one of the following: " + ", ".join(done_functions) + f" to specify which function to re-implement."
+    prompt += "Only write in one line\n// EDIT <function name>\n where <function name> is one of the following: " + ", ".join(done_functions) + f" to specify which function to re-implement. Be honest and choose to re-implement a buggy function instead of changing the spirit of the spec."
     r = generate(prompt)
     edit_function = driver.extract_edit_function(r, done_functions)
     return edit_function # may be None
