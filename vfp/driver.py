@@ -142,13 +142,28 @@ def implementer(p: str, x: str, todo) -> str:
         return None
     return xp
 
+def line_col_to_offset(lines: list[str], line: int, col: int) -> int:
+    return sum(len(l) for l in lines[:line - 1]) + (col - 1)
+
+def line_col_to_start_offset(p: str,lines: list[str], line: int, col: int) -> int:
+    return line_col_to_offset(lines, line, col)
+
+def line_col_to_end_offset(p: str, lines: list[str], line: int, col: int) -> int:
+    return line_col_to_offset(lines, line, col)+1
+
 def erase_implementation(p: str, todo) -> str:
     assert todo['type'] == 'function'
-    return replace_text_between_positions(p, (todo['insertLine'], todo['insertColumn']), (todo['endLine'], todo['endColumn']), "")
+    lines = p.splitlines(keepends=True)
+    start_offset = line_col_to_start_offset(p, lines, todo['insertLine'], todo['insertColumn'])
+    end_offset = line_col_to_end_offset(p, lines, todo['endLine'], todo['endColumn'])
+    return p[:start_offset] + p[end_offset:]
 
 def insert_program_todo(todo, p, x):
     if todo['status'] == 'done':
-        xp = replace_text_between_positions(p, (todo['insertLine'], todo['insertColumn']), (todo['endLine'], todo['endColumn']), "\n" + x + "\n}")
+        lines = p.splitlines(keepends=True)
+        start_offset = line_col_to_start_offset(p,lines, todo['insertLine'], todo['insertColumn'])
+        end_offset = line_col_to_end_offset(p, lines, todo['endLine'], todo['endColumn'])
+        xp = p[:start_offset] + "{\n" + x + "\n}" + p[end_offset:]
     else:
         line = todo['insertLine']
         lines = p.split('\n')
@@ -160,30 +175,6 @@ def insert_program_todo(todo, p, x):
     print("XP")
     print(xp)
     return xp
-
-def replace_text_between_positions(text: str, start: tuple[int, int], end: tuple[int, int], replacement: str) -> str:
-    lines = text.splitlines()
-
-    start_line, start_col = start
-    end_line, end_col = end
-
-    # Convert to 0-based indices
-    start_line -= 1
-    end_line -= 1
-
-    if start_line == end_line:
-        # Replacement is within a single line
-        lines[start_line] = (
-            lines[start_line][:start_col] +
-            replacement +
-            lines[start_line][end_col:]
-        )
-    else:
-        # Replacement spans multiple lines
-        lines[start_line] = lines[start_line][:start_col] + replacement + lines[end_line][end_col:]
-        del lines[start_line + 1:end_line + 1]
-
-    return '\n'.join(lines)
 
 def prompt_spec_maker(idea: str) -> str:
     return f"You are translating an idea for a Dafny program into a specification, consisting of datatypes, function signatures (without implementation bodies) and lemmas (for lemmas only, using the {{:axiom}} attribute after lemma keyword and without body). Here is the idea:\n{idea}\n\nPlease output the specification without using an explicit module. Omit the bodies for functions and lemmas -- Do not even include the outer braces.  Please keep a comment before each function to explain what it should do. Provide the program spec, starting with a line \"// BEGIN DAFNY\", ending with a line \"// END DAFNY\"." + """\n
