@@ -74,7 +74,11 @@ def llm_implementer(p: str, todo, prev: str = None, hint: str = None, done: list
     edit_function = extract_edit_function(r, done_functions)
     if edit_function is not None:
         print('EDIT', edit_function)
-        return llm_implementer(p, [u for u in done if u['name'] == edit_function][0], hint=f"You chose to re-implement {edit_function} instead of implementing {todo['name']}.")
+        edit_todo = [u for u in done if u['name'] == edit_function][0]
+        xp = llm_implementer(p, edit_todo, hint=f"You chose to re-implement {edit_function} instead of implementing {todo['name']}.")
+        if xp is None:
+            return erase_implementation(xp, edit_todo)
+        return xp
     x = extract_dafny_program(r)
     if x is not None:
         x = extract_dafny_body(x, todo)
@@ -137,6 +141,10 @@ def implementer(p: str, x: str, todo) -> str:
         print("Errors in implementer:", e)
         return None
     return xp
+
+def erase_implementation(p: str, todo) -> str:
+    assert todo['type'] == 'function'
+    return replace_text_between_positions(p, (todo['insertLine'], todo['insertColumn']), (todo['endLine'], todo['endColumn']), "")
 
 def insert_program_todo(todo, p, x):
     if todo['status'] == 'done':
