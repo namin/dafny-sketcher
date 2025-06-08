@@ -89,7 +89,7 @@ namespace DafnySketcherCli {
         }
 
         // 4) Instantiate the sketcher and fire it
-        if (sketchType == "errors") { 
+        if (sketchType.StartsWith("errors")) { 
           // 2) Invoke `dafny verify` normally and capture its text output
           var psi = new ProcessStartInfo("dafny", $"verify \"{filePath}\"") {
             RedirectStandardOutput = true,
@@ -104,11 +104,13 @@ namespace DafnySketcherCli {
 
           // 3) Pull out lines like: file.dfy(line,col): Error: message
           var diagnostics = new List<(int line, int col, string msg)>();
-          // Match any line containing "(line,col):" followed by an optional "Error:" and the message
-          var regex = new Regex(@"\((\d+),(\d+)\):\s*(?:Error:)?\s*(.*)");
+          bool includeWarnings = sketchType.Contains("warnings");
+
+          string pattern = $@"\((\d+),(\d+)\):\s*(?:(?:Error:){(includeWarnings ? "|Warning:" : "")})\s*(.*)";
+          var regex = new Regex(pattern);
           foreach (var rawLine in allText.Split('\n')) {
             //await Console.Error.WriteLineAsync($"DEBUG LINE: {rawLine}");
-            if (!rawLine.Contains("Error:")) {
+            if (!rawLine.Contains("Error:") && !(includeWarnings && rawLine.Contains("Warning:"))) {
               continue;
             }
             var errLine = rawLine.Trim();
