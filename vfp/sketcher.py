@@ -79,7 +79,7 @@ def show_errors(file_input: str) -> Optional[str]:
     Returns:
         Error information or "OK" if no errors
     """
-    result = dafny_sketcher(file_input, ['--sketch', 'errors'])
+    result = dafny_sketcher(file_input, ['--sketch', 'errors_warnings'])
     return result or None
 
 

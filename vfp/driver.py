@@ -40,10 +40,6 @@ def spec_maker(idea: str) -> str:
     if e is not None:
         print("Errors in spec maker:", e)
         return None
-    # TODO: this should be caught as warning by sketcher
-    if 'assume' in p:
-        print("Forbid assumes")
-        return None
     return p
 
 def dispatch_implementer(p: str, todo, done) -> str:
@@ -94,10 +90,6 @@ def llm_implementer(p: str, todo, prev: str = None, hint: str = None, done: list
         print("Errors in implementer:", e)
         if prev is None:
             return llm_implementer(p, todo, e)
-        return None
-    # TODO: this should be caught as warning by sketcher
-    if 'assume' in xp:
-        print("Forbid assumes")
         return None
     return xp
 
