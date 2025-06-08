@@ -73,12 +73,7 @@ def llm_implementer(p: str, todo, prev: str = None, hint: str = None, done: list
     print(r)
     edit_function = extract_edit_function(r, done_functions)
     if edit_function is not None:
-        print('EDIT', edit_function)
-        edit_todo = [u for u in done if u['name'] == edit_function][0]
-        xp = llm_implementer(p, edit_todo, hint=f"You chose to re-implement {edit_function} instead of implementing {todo['name']}.")
-        if xp is None:
-            return erase_implementation(xp, edit_todo)
-        return xp
+        return llm_edit_function(p, todo, done, edit_function)
     x = extract_dafny_program(r)
     if x is not None:
         x = extract_dafny_body(x, todo)
@@ -95,6 +90,14 @@ def llm_implementer(p: str, todo, prev: str = None, hint: str = None, done: list
         if prev is None:
             return llm_implementer(p, todo, e)
         return None
+    return xp
+
+def llm_edit_function(p: str, todo, done, edit_function) -> str:
+    print('EDIT', edit_function)
+    edit_todo = [u for u in done if u['name'] == edit_function][0]
+    xp = llm_implementer(p, edit_todo, hint=f"You chose to re-implement {edit_function} instead of implementing {todo['name']}.")
+    if xp is None or xp == p:
+        return erase_implementation(p, edit_todo)
     return xp
 
 def remove_think_blocks(text):
@@ -156,7 +159,11 @@ def erase_implementation(p: str, todo) -> str:
     lines = p.splitlines(keepends=True)
     start_offset = line_col_to_start_offset(p, lines, todo['insertLine'], todo['insertColumn'])
     end_offset = line_col_to_end_offset(p, lines, todo['endLine'], todo['endColumn'])
-    return p[:start_offset] + p[end_offset:]
+    xp = p[:start_offset] + p[end_offset:]
+    print("ERASE")
+    print("from", start_offset, "to", end_offset)
+    print(xp)
+    return xp
 
 def insert_program_todo(todo, p, x):
     if todo['status'] == 'done':

@@ -64,12 +64,9 @@ def child_finder(node, montecarlo):
                 edit_function = done_functions[-1] # arbitrary
         else:
             edit_function = done_functions[0]
-        print('edit function', edit_function)
-        edit_todo = [u for u in done if u['name'] == edit_function][0]
-        xp = driver.llm_implementer(p, edit_todo, hint=f"You chose to re-implement {edit_function} instead of implementing {todo['name']}.")
+        xp = driver.llm_edit_function(p, todo, done, edit_function)
         if xp is None:
             print("Didn't solve edit")
-            add_standard_node(node, driver.erase_implementation(p, edit_todo))
         else:
             add_standard_node(node, xp)
 
