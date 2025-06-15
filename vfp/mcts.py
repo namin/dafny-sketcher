@@ -78,6 +78,7 @@ def main(spec, expansion_count = 20):
 
     print("CHOSEN SOLUTION")
     print(montecarlo.solution)
+    return montecarlo.solution
 
 if __name__ == "__main__":
     import tests
