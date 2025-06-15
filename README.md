@@ -27,7 +27,7 @@ The submodules are forked (namin) branches (sketcher) of the Dafny repositories:
 #### Configuration
 You can specify by environment export `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, or else Ollama is assumed available by default.
 
-Note: for VSCode, that environment variable has to be specified in the environment where VSCode is started. So for example, a terminal for the ide-vscode directory:
+Note: for VSCode, that environment variable has to be specified in the environment where VSCode is started. So for example, from a terminal in the ide-vscode directory:
 ```
 export GEMINI_API_KEY=your_key
 code .
