@@ -1,4 +1,4 @@
-# dafny-sketcher
+# Dafny Sketcher
 piggy-backing on the Dafny language implementation to explore interactive semi-automated verified program synthesis, combining LLMs and symbolic reasoning
 
 Besides the dev setup to use Dafny Sketcher in a VSCode extension, Dafny Sketcher is available through a [CLI](cli), an [MCP](mcp), [agents](agents), and [vfp](vfp) (a testbed for verified functional programming).
