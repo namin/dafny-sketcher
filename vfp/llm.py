@@ -201,7 +201,7 @@ if OLLAMA_API_KEY:
 
     generators['ollama'] = generate
 
-if MLX_API_KEY:
+if MLX_API_KEY and (len(generators) < 2 or LLM_PROVIDER == 'mlx'):
     generate = None
     try:
         from mlx_lm import load

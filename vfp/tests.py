@@ -72,6 +72,26 @@ lemma {:axiom} optimizeOptimal(e: Expr)
 ensures optimal(optimize(e))
 """
 
+spec_opt = """datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+predicate optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+function optimize(e: Expr): Expr
+
+lemma {:axiom} optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+"""
+
 program_with_obvious_bug = """
 function magic_number(): int {
     33
@@ -90,4 +110,4 @@ def run(solver):
         solver(program_with_obvious_bug)
     if True:
         print('GIVEN SPEC')
-        solver(spec)
+        solver(spec_opt)
