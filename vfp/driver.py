@@ -212,7 +212,7 @@ The syntax for variable assignment is
 var x := e;
 
 Variable assignments is one of the rare cases where semicolons are needed.
-Do not use semicolons at the end of lines otherwise.
+Only use semicolons at the end of lines where you are assigning a variable.
 """
 
 def prompt_lemma_implementer(program: str, name: str) -> str:
