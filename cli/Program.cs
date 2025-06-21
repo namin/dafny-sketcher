@@ -240,7 +240,11 @@ namespace DafnySketcherCli {
                     {
                       if (f.Body != null)
                       {
-                        type = "function";
+                        var isSpec = f.Attributes != null && f.Attributes.Name == "spec";
+                        if (!isSpec)
+                        {
+                          type = "function";
+                        }
                       }
                     }
                     else if (!m.HasAxiomAttribute && m.IsGhost) {

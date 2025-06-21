@@ -50,7 +50,7 @@ program_with_bugs = """datatype Expr =
   | Var(name: string)
   | Add(left: Expr, right: Expr)
 
-predicate optimal(e: Expr)
+predicate {:spec}optimal(e: Expr)
 {
   match e
   case Add(Const(0), _) => false
@@ -77,7 +77,7 @@ spec_opt = """datatype Expr =
   | Var(name: string)
   | Add(left: Expr, right: Expr)
 
-predicate optimal(e: Expr)
+predicate {:spec} optimal(e: Expr)
 {
   match e
   case Add(Const(0), _) => false
