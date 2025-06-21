@@ -82,12 +82,12 @@ ensures magic_number() == 42
 """
 
 def run(solver):
-    if True:
+    if False:
         print('GIVEN PROGRAM WITH SUBTLE BUGS')
         solver(program_with_bugs)
     if False:
         print('GIVEN PROGRAM WITH BUGS')
         solver(program_with_obvious_bug)
-    if False:
+    if True:
         print('GIVEN SPEC')
         solver(spec)

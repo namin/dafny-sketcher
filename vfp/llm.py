@@ -5,6 +5,7 @@ ANTHROPIC_API_KEY = os.environ.get('ANTHROPIC_API_KEY')
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
 GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
 OLLAMA_API_KEY = os.environ.get('OLLAMA_API_KEY')
+MLX_API_KEY = os.environ.get('MLX_API_KEY')
 PROJECT_ID = os.environ.get('PROJECT_ID') # for Google Cloud
 DEBUG_LLM = os.environ.get('DEBUG_LLM')
 LLM_PROVIDER = os.environ.get('LLM_PROVIDER')
@@ -178,7 +179,7 @@ if OLLAMA_API_KEY:
     except ModuleNotFoundError:
         generate = dummy_generate('ollama', extra=", or package 'anthropic' while setting ANTHROPIC_API_KEY")
     if generate is None:
-        model = os.environ.get('OLLAMA_MODEL', 'gemma3:27b-it-qat')
+        model = os.environ.get('OLLAMA_MODEL', 'qwen2.5:14b')
         def generate(prompt, max_tokens=1000, temperature=1.0, model=model):
             debug(f"Prompt:\n{prompt}")
             debug(f"Sending request to Ollama (model={model}, max_tokens={max_tokens}, temp={temperature})")
@@ -199,6 +200,32 @@ if OLLAMA_API_KEY:
                 return None
 
     generators['ollama'] = generate
+
+if MLX_API_KEY:
+    generate = None
+    try:
+        from mlx_lm import load
+        from mlx_lm import generate as mlx_generate
+    except ModuleNotFoundError:
+        generate = dummy_generate('mlx-lm')
+    if generate is None:
+        model_name = os.environ.get('MLX_MODEL', 'mlx-community/Qwen2.5-14B-Instruct-4bit')
+        model, tokenizer = load(model_name)
+        def generate(prompt, max_tokens=1000, temperature=1.0, model=model):
+
+            debug(f"Prompt:\n{prompt}")
+            debug(f"Sending request to MLX (model={model_name}, max_tokens={max_tokens}, temp={temperature})")
+
+            try:
+                response = mlx_generate(model, tokenizer, prompt=prompt)
+                debug("Received response from MLX")
+                debug(f"Response:\n{response}")
+                return response
+            except Exception as e:
+                debug(f"Error generating response: {e}")
+                return None
+
+    generators['mlx'] = generate
 
 def multiline_input():
     print("Enter your input (end with an empty line):")
