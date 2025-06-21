@@ -9,7 +9,7 @@ MLX_API_KEY = os.environ.get('MLX_API_KEY')
 PROJECT_ID = os.environ.get('PROJECT_ID') # for Google Cloud
 DEBUG_LLM = os.environ.get('DEBUG_LLM')
 LLM_PROVIDER = os.environ.get('LLM_PROVIDER')
-GEMINI_MODEL = os.environ.get('GEMINI_MODEL', "gemini-2.5-flash-preview-05-20")
+GEMINI_MODEL = os.environ.get('GEMINI_MODEL', "gemini-2.5-flash")
 
 def debug(msg: str):
     if DEBUG_LLM:
