@@ -101,6 +101,33 @@ lemma {:axiom} magic_number_is_42()
 ensures magic_number() == 42
 """
 
+spec_all = """datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+type Environment = string -> int
+
+function eval(e: Expr, env: Environment): int
+
+function optimize(e: Expr): Expr
+
+lemma {:axiom} optimizePreservesSemantics(e: Expr, env: Environment)
+ensures eval(optimize(e), env) == eval(e, env)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+lemma {:axiom} optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+"""
+
 def run(solver):
     if False:
         print('GIVEN PROGRAM WITH SUBTLE BUGS')
@@ -110,4 +137,4 @@ def run(solver):
         solver(program_with_obvious_bug)
     if True:
         print('GIVEN SPEC')
-        solver(spec_opt)
+        solver(spec_all)
