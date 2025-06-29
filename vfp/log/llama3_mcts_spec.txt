@@ -1,0 +1,1039 @@
+GIVEN SPEC
+// BEGIN DAFNY
+match e
+case Const(v) => v
+case Var(n) => env(n)
+case Add(e1, e2) =>
+  {
+    var result1 := eval(e1, env);
+    var result2 := eval(e2, env);
+    result1 + result2;
+  }
+// END DAFNY
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+type Environment = string -> int
+
+function eval(e: Expr, env: Environment): int
+{
+match e
+case Const(v) => v
+case Var(n) => env(n)
+case Add(e1, e2) =>
+  {
+    var result1 := eval(e1, env);
+    var result2 := eval(e2, env);
+    result1 + result2;
+  }
+}
+
+
+function optimize(e: Expr): Expr
+
+lemma {:axiom} optimizePreservesSemantics(e: Expr, env: Environment)
+ensures eval(optimize(e), env) == eval(e, env)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+lemma {:axiom} optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+
+Errors in implementer: <global>:17:21 rbrace expected -- in line: result1 + result2;
+
+// BEGIN DAFNY
+match e
+case Const(value) => value
+case Var(name) => env(name)
+case Add(left, right) =>
+  {
+    var leftValue := eval(left, env);
+    var rightValue := eval(right, env);
+    leftValue + rightValue;
+  }
+// END DAFNY
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+type Environment = string -> int
+
+function eval(e: Expr, env: Environment): int
+{
+match e
+case Const(value) => value
+case Var(name) => env(name)
+case Add(left, right) =>
+  {
+    var leftValue := eval(left, env);
+    var rightValue := eval(right, env);
+    leftValue + rightValue;
+  }
+}
+
+
+function optimize(e: Expr): Expr
+
+lemma {:axiom} optimizePreservesSemantics(e: Expr, env: Environment)
+ensures eval(optimize(e), env) == eval(e, env)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+lemma {:axiom} optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+
+Errors in implementer: <global>:17:26 rbrace expected -- in line: leftValue + rightValue;
+
+Didn't solve todo
+// BEGIN DAFNY
+match e
+case Const(value) => value
+case Var(name) => env(name)
+case Add(left, right) =>
+  {
+    var lValue := eval(left, env);
+    var rValue := eval(right, env);
+    lValue + rValue;
+  }
+// END DAFNY
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+type Environment = string -> int
+
+function eval(e: Expr, env: Environment): int
+{
+match e
+case Const(value) => value
+case Var(name) => env(name)
+case Add(left, right) =>
+  {
+    var lValue := eval(left, env);
+    var rValue := eval(right, env);
+    lValue + rValue;
+  }
+}
+
+
+function optimize(e: Expr): Expr
+
+lemma {:axiom} optimizePreservesSemantics(e: Expr, env: Environment)
+ensures eval(optimize(e), env) == eval(e, env)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+lemma {:axiom} optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+
+Errors in implementer: <global>:17:19 rbrace expected -- in line: lValue + rValue;
+
+// BEGIN DAFNY
+match e
+case Const(value) => value
+case Var(name) => env(name)
+case Add(left, right) =>
+  var leftValue := eval(left, env);
+  var rightValue := eval(right, env);
+  leftValue + rightValue;
+
+// END DAFNY
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+type Environment = string -> int
+
+function eval(e: Expr, env: Environment): int
+{
+match e
+case Const(value) => value
+case Var(name) => env(name)
+case Add(left, right) =>
+  var leftValue := eval(left, env);
+  var rightValue := eval(right, env);
+  leftValue + rightValue;
+}
+
+
+function optimize(e: Expr): Expr
+
+lemma {:axiom} optimizePreservesSemantics(e: Expr, env: Environment)
+ensures eval(optimize(e), env) == eval(e, env)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+lemma {:axiom} optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+
+Errors in implementer: <global>:16:24 rbrace expected -- in line: leftValue + rightValue;
+
+Didn't solve todo
+// BEGIN DAFNY
+match e
+case Const(value) => value
+case Var(name) => env(name)
+case Add(left, right) =>
+  {
+    var leftValue := eval(left, env);
+    var rightValue := eval(right, env);
+    leftValue + rightValue;
+  }
+// END DAFNY
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+type Environment = string -> int
+
+function eval(e: Expr, env: Environment): int
+{
+match e
+case Const(value) => value
+case Var(name) => env(name)
+case Add(left, right) =>
+  {
+    var leftValue := eval(left, env);
+    var rightValue := eval(right, env);
+    leftValue + rightValue;
+  }
+}
+
+
+function optimize(e: Expr): Expr
+
+lemma {:axiom} optimizePreservesSemantics(e: Expr, env: Environment)
+ensures eval(optimize(e), env) == eval(e, env)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+lemma {:axiom} optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+
+Errors in implementer: <global>:17:26 rbrace expected -- in line: leftValue + rightValue;
+
+// BEGIN DAFNY
+match e
+case Const(value) => value
+case Var(name) => env(name)
+case Add(left, right) =>
+  {
+    var leftValue := eval(left, env);
+    var rightValue := eval(right, env);
+    leftValue + rightValue;
+  }
+// END DAFNY
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+type Environment = string -> int
+
+function eval(e: Expr, env: Environment): int
+{
+match e
+case Const(value) => value
+case Var(name) => env(name)
+case Add(left, right) =>
+  {
+    var leftValue := eval(left, env);
+    var rightValue := eval(right, env);
+    leftValue + rightValue;
+  }
+}
+
+
+function optimize(e: Expr): Expr
+
+lemma {:axiom} optimizePreservesSemantics(e: Expr, env: Environment)
+ensures eval(optimize(e), env) == eval(e, env)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+lemma {:axiom} optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+
+Errors in implementer: <global>:17:26 rbrace expected -- in line: leftValue + rightValue;
+
+Didn't solve todo
+// BEGIN DAFNY
+match e
+case Const(v) => v
+case Var(n) => env(n)
+case Add(e1, e2) =>
+  {
+    var result1 := eval(e1, env);
+    var result2 := eval(e2, env);
+    result1 + result2;
+  }
+// END DAFNY
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+type Environment = string -> int
+
+function eval(e: Expr, env: Environment): int
+{
+match e
+case Const(v) => v
+case Var(n) => env(n)
+case Add(e1, e2) =>
+  {
+    var result1 := eval(e1, env);
+    var result2 := eval(e2, env);
+    result1 + result2;
+  }
+}
+
+
+function optimize(e: Expr): Expr
+
+lemma {:axiom} optimizePreservesSemantics(e: Expr, env: Environment)
+ensures eval(optimize(e), env) == eval(e, env)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+lemma {:axiom} optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+
+Errors in implementer: <global>:17:21 rbrace expected -- in line: result1 + result2;
+
+// BEGIN DAFNY
+match e
+case Const(value) => value
+case Var(name) => env(name)
+case Add(left, right) =>
+  var leftValue := eval(left, env);
+  var rightValue := eval(right, env);
+  leftValue + rightValue
+// END DAFNY
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+type Environment = string -> int
+
+function eval(e: Expr, env: Environment): int
+{
+match e
+case Const(value) => value
+case Var(name) => env(name)
+case Add(left, right) =>
+  var leftValue := eval(left, env);
+  var rightValue := eval(right, env);
+  leftValue + rightValue
+}
+
+
+function optimize(e: Expr): Expr
+
+lemma {:axiom} optimizePreservesSemantics(e: Expr, env: Environment)
+ensures eval(optimize(e), env) == eval(e, env)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+lemma {:axiom} optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+
+// BEGIN DAFNY
+match e
+case Const(value) => 
+  e
+case Var(name) => 
+  e
+case Add(left, right) =>
+  (match left, right
+   case Const(0), _ => right
+   case _, Const(0) => left
+   case _ => 
+     {
+       var newLeft := optimize(left);
+       var newRight := optimize(right);
+       Add(newLeft, newRight)
+     }
+  )
+// END DAFNY
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+type Environment = string -> int
+
+function eval(e: Expr, env: Environment): int
+{
+match e
+case Const(value) => value
+case Var(name) => env(name)
+case Add(left, right) =>
+  var leftValue := eval(left, env);
+  var rightValue := eval(right, env);
+  leftValue + rightValue
+}
+
+
+function optimize(e: Expr): Expr
+{
+match e
+case Const(value) => 
+  e
+case Var(name) => 
+  e
+case Add(left, right) =>
+  (match left, right
+   case Const(0), _ => right
+   case _, Const(0) => left
+   case _ => 
+     {
+       var newLeft := optimize(left);
+       var newRight := optimize(right);
+       Add(newLeft, newRight)
+     }
+  )
+}
+
+
+lemma {:axiom} optimizePreservesSemantics(e: Expr, env: Environment)
+ensures eval(optimize(e), env) == eval(e, env)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+lemma {:axiom} optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+
+Errors in implementer: <global>:29:3 closeparen expected -- in line: case Const(0), _ => right
+<global>:29:16 darrow expected -- in line: case Const(0), _ => right
+
+// BEGIN DAFNY
+match e
+case Add(left, right) =>
+  var optimizedLeft := optimize(left);
+  var optimizedRight := optimize(right);
+  match (optimizedLeft, optimizedRight)
+  case (Const(0), r) => r
+  case (l, Const(0)) => l
+  case _ => Add(optimizedLeft, optimizedRight)
+case _ => e
+// END DAFNY
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+type Environment = string -> int
+
+function eval(e: Expr, env: Environment): int
+{
+match e
+case Const(value) => value
+case Var(name) => env(name)
+case Add(left, right) =>
+  var leftValue := eval(left, env);
+  var rightValue := eval(right, env);
+  leftValue + rightValue
+}
+
+
+function optimize(e: Expr): Expr
+{
+match e
+case Add(left, right) =>
+  var optimizedLeft := optimize(left);
+  var optimizedRight := optimize(right);
+  match (optimizedLeft, optimizedRight)
+  case (Const(0), r) => r
+  case (l, Const(0)) => l
+  case _ => Add(optimizedLeft, optimizedRight)
+case _ => e
+}
+
+
+lemma {:axiom} optimizePreservesSemantics(e: Expr, env: Environment)
+ensures eval(optimize(e), env) == eval(e, env)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+lemma {:axiom} optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+
+Errors in implementer: <global>:30:0 this branch is redundant -- in line: case _ => e
+<global>:22:0 missing case in match expression: Var(_) -- in line: match e
+<global>:22:0 missing case in match expression: Const(_) -- in line: match e
+
+Didn't solve todo
+// BEGIN DAFNY
+match e
+case Const(value) => e
+case Var(name) => e
+case Add(left, right) =>
+  {
+    var leftOptimized := optimize(left);
+    var rightOptimized := optimize(right);
+    match (leftOptimized, rightOptimized)
+    case (Const(0), _) => rightOptimized
+    case (_, Const(0)) => leftOptimized
+    case _ => Add(leftOptimized, rightOptimized)
+  }
+// END DAFNY
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+type Environment = string -> int
+
+function eval(e: Expr, env: Environment): int
+{
+match e
+case Const(value) => value
+case Var(name) => env(name)
+case Add(left, right) =>
+  var leftValue := eval(left, env);
+  var rightValue := eval(right, env);
+  leftValue + rightValue
+}
+
+
+function optimize(e: Expr): Expr
+{
+match e
+case Const(value) => e
+case Var(name) => e
+case Add(left, right) =>
+  {
+    var leftOptimized := optimize(left);
+    var rightOptimized := optimize(right);
+    match (leftOptimized, rightOptimized)
+    case (Const(0), _) => rightOptimized
+    case (_, Const(0)) => leftOptimized
+    case _ => Add(leftOptimized, rightOptimized)
+  }
+}
+
+
+lemma {:axiom} optimizePreservesSemantics(e: Expr, env: Environment)
+ensures eval(optimize(e), env) == eval(e, env)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+lemma {:axiom} optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+
+Errors in implementer: <global>:26:2 type of case bodies do not agree (found set<Expr>, previous types Expr)
+
+// BEGIN DAFNY
+match e
+case Const(value) => 
+  e
+case Var(name) =>
+  e
+case Add(left, right) => 
+  var leftOpt := optimize(left);
+  var rightOpt := optimize(right);
+  if (leftOpt == Const(0))
+    then
+      rightOpt
+    else if (rightOpt == Const(0))
+    then
+      leftOpt
+    else
+      Add(leftOpt, rightOpt)
+// END DAFNY
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+type Environment = string -> int
+
+function eval(e: Expr, env: Environment): int
+{
+match e
+case Const(value) => value
+case Var(name) => env(name)
+case Add(left, right) =>
+  var leftValue := eval(left, env);
+  var rightValue := eval(right, env);
+  leftValue + rightValue
+}
+
+
+function optimize(e: Expr): Expr
+{
+match e
+case Const(value) => 
+  e
+case Var(name) =>
+  e
+case Add(left, right) => 
+  var leftOpt := optimize(left);
+  var rightOpt := optimize(right);
+  if (leftOpt == Const(0))
+    then
+      rightOpt
+    else if (rightOpt == Const(0))
+    then
+      leftOpt
+    else
+      Add(leftOpt, rightOpt)
+}
+
+
+lemma {:axiom} optimizePreservesSemantics(e: Expr, env: Environment)
+ensures eval(optimize(e), env) == eval(e, env)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+lemma {:axiom} optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+type Environment = string -> int
+
+function eval(e: Expr, env: Environment): int
+{
+match e
+case Const(value) => value
+case Var(name) => env(name)
+case Add(left, right) =>
+  var leftValue := eval(left, env);
+  var rightValue := eval(right, env);
+  leftValue + rightValue
+}
+
+
+function optimize(e: Expr): Expr
+{
+match e
+case Const(value) => 
+  e
+case Var(name) =>
+  e
+case Add(left, right) => 
+  var leftOpt := optimize(left);
+  var rightOpt := optimize(right);
+  if (leftOpt == Const(0))
+    then
+      rightOpt
+    else if (rightOpt == Const(0))
+    then
+      leftOpt
+    else
+      Add(leftOpt, rightOpt)
+}
+
+
+lemma  optimizePreservesSemantics(e: Expr, env: Environment)
+ensures eval(optimize(e), env) == eval(e, env)
+{
+
+}
+
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+lemma {:axiom} optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+
+Empty proof works!
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+type Environment = string -> int
+
+function eval(e: Expr, env: Environment): int
+{
+match e
+case Const(value) => value
+case Var(name) => env(name)
+case Add(left, right) =>
+  var leftValue := eval(left, env);
+  var rightValue := eval(right, env);
+  leftValue + rightValue
+}
+
+
+function optimize(e: Expr): Expr
+{
+match e
+case Const(value) => 
+  e
+case Var(name) =>
+  e
+case Add(left, right) => 
+  var leftOpt := optimize(left);
+  var rightOpt := optimize(right);
+  if (leftOpt == Const(0))
+    then
+      rightOpt
+    else if (rightOpt == Const(0))
+    then
+      leftOpt
+    else
+      Add(leftOpt, rightOpt)
+}
+
+
+lemma  optimizePreservesSemantics(e: Expr, env: Environment)
+ensures eval(optimize(e), env) == eval(e, env)
+{
+
+}
+
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+lemma  optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+{
+
+}
+
+
+Errors in implementer: optimizeOptimal:59:0 a postcondition could not be proved on this return path
+
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+type Environment = string -> int
+
+function eval(e: Expr, env: Environment): int
+{
+match e
+case Const(value) => value
+case Var(name) => env(name)
+case Add(left, right) =>
+  var leftValue := eval(left, env);
+  var rightValue := eval(right, env);
+  leftValue + rightValue
+}
+
+
+function optimize(e: Expr): Expr
+{
+match e
+case Const(value) => 
+  e
+case Var(name) =>
+  e
+case Add(left, right) => 
+  var leftOpt := optimize(left);
+  var rightOpt := optimize(right);
+  if (leftOpt == Const(0))
+    then
+      rightOpt
+    else if (rightOpt == Const(0))
+    then
+      leftOpt
+    else
+      Add(leftOpt, rightOpt)
+}
+
+
+lemma  optimizePreservesSemantics(e: Expr, env: Environment)
+ensures eval(optimize(e), env) == eval(e, env)
+{
+
+}
+
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+lemma  optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+{
+
+}
+
+
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+type Environment = string -> int
+
+function eval(e: Expr, env: Environment): int
+{
+match e
+case Const(value) => value
+case Var(name) => env(name)
+case Add(left, right) =>
+  var leftValue := eval(left, env);
+  var rightValue := eval(right, env);
+  leftValue + rightValue
+}
+
+
+function optimize(e: Expr): Expr
+{
+match e
+case Const(value) => 
+  e
+case Var(name) =>
+  e
+case Add(left, right) => 
+  var leftOpt := optimize(left);
+  var rightOpt := optimize(right);
+  if (leftOpt == Const(0))
+    then
+      rightOpt
+    else if (rightOpt == Const(0))
+    then
+      leftOpt
+    else
+      Add(leftOpt, rightOpt)
+}
+
+
+lemma  optimizePreservesSemantics(e: Expr, env: Environment)
+ensures eval(optimize(e), env) == eval(e, env)
+{
+
+}
+
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+lemma  optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+{
+    // Structural induction on e
+    match e {
+        case Const(value) => {
+        }
+        case Var(name) => {
+        }
+        case Add(left, right) => {
+            optimizeOptimal(left);
+            optimizeOptimal(right);
+        }
+    }
+
+
+}
+
+
+Induction sketcher works!
+CHOSEN SOLUTION
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+type Environment = string -> int
+
+function eval(e: Expr, env: Environment): int
+{
+match e
+case Const(value) => value
+case Var(name) => env(name)
+case Add(left, right) =>
+  var leftValue := eval(left, env);
+  var rightValue := eval(right, env);
+  leftValue + rightValue
+}
+
+
+function optimize(e: Expr): Expr
+{
+match e
+case Const(value) => 
+  e
+case Var(name) =>
+  e
+case Add(left, right) => 
+  var leftOpt := optimize(left);
+  var rightOpt := optimize(right);
+  if (leftOpt == Const(0))
+    then
+      rightOpt
+    else if (rightOpt == Const(0))
+    then
+      leftOpt
+    else
+      Add(leftOpt, rightOpt)
+}
+
+
+lemma  optimizePreservesSemantics(e: Expr, env: Environment)
+ensures eval(optimize(e), env) == eval(e, env)
+{
+
+}
+
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+lemma  optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+{
+    // Structural induction on e
+    match e {
+        case Const(value) => {
+        }
+        case Var(name) => {
+        }
+        case Add(left, right) => {
+            optimizeOptimal(left);
+            optimizeOptimal(right);
+        }
+    }
+
+
+}
+
+
