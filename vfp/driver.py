@@ -58,6 +58,11 @@ def lemma_implementer(p: str, todo, done) -> str:
     if xp:
         print("Induction sketcher works!")
         return xp
+    ip = insert_program_todo(todo, p, x) # could use "" instead of x?
+    cs = sketcher.sketch_counterexamples(ip, todo['name'])
+    if cs:
+        # TODO: could force the edit further
+        return llm_implementer(p, todo, done=done, hint="We found the following counterexamples to the lemma:\n" + "\n".join(cs) + "\nConsider editing the code instead of continuing to prove an impossible lemma.")
     return llm_implementer(p, todo, done=done, hint="This induction sketch did NOT work on its own, but could be a good starting point if you vary/augment it:\n" + x)
 
 def llm_implementer(p: str, todo, prev: str = None, hint: str = None, done: list[object] = None) -> str:
