@@ -1,0 +1,1341 @@
+GIVEN PROGRAM WITH SUBTLE BUGS
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+function optimize(e: Expr): Expr
+{
+  match e
+  case Add(Const(0), e2) => optimize(e2)
+  case Add(e1, Const(0)) => optimize(e1)
+  case Add(e1, e2) => Add(optimize(e1), optimize(e2))
+  case _ => e
+}
+
+lemma  optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+{
+
+}
+
+
+Errors in implementer: optimizeOptimal:26:0 a postcondition could not be proved on this return path
+
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+function optimize(e: Expr): Expr
+{
+  match e
+  case Add(Const(0), e2) => optimize(e2)
+  case Add(e1, Const(0)) => optimize(e1)
+  case Add(e1, e2) => Add(optimize(e1), optimize(e2))
+  case _ => e
+}
+
+lemma  optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+{
+
+}
+
+
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+function optimize(e: Expr): Expr
+{
+  match e
+  case Add(Const(0), e2) => optimize(e2)
+  case Add(e1, Const(0)) => optimize(e1)
+  case Add(e1, e2) => Add(optimize(e1), optimize(e2))
+  case _ => e
+}
+
+lemma  optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+{
+    // Structural induction on e
+    match e {
+        case Const(value) => {
+        }
+        case Var(name) => {
+        }
+        case Add(left, right) => {
+            optimizeOptimal(left);
+            optimizeOptimal(right);
+        }
+    }
+
+
+}
+
+
+Errors in implementer: optimizeOptimal:33:8 a postcondition could not be proved on this return path -- in line: case Add(left, right) => {
+
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+function optimize(e: Expr): Expr
+{
+  match e
+  case Add(Const(0), e2) => optimize(e2)
+  case Add(e1, Const(0)) => optimize(e1)
+  case Add(e1, e2) => Add(optimize(e1), optimize(e2))
+  case _ => e
+}
+
+lemma  optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+{
+    // Structural induction on e
+    match e {
+        case Const(value) => {
+        }
+        case Var(name) => {
+        }
+        case Add(left, right) => {
+            optimizeOptimal(left);
+            optimizeOptimal(right);
+        }
+    }
+
+
+}
+
+
+DEBUG: Prompt:
+You are implementing a lemma in a Dafny program that is specified but not fully implemented. The current program is
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+function optimize(e: Expr): Expr
+{
+  match e
+  case Add(Const(0), e2) => optimize(e2)
+  case Add(e1, Const(0)) => optimize(e1)
+  case Add(e1, e2) => Add(optimize(e1), optimize(e2))
+  case _ => e
+}
+
+lemma {:axiom} optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+
+
+The lemma to implement is optimizeOptimal. Please just provide the body of the lemma (without the outer braces), starting with a line "// BEGIN DAFNY", ending with a line "// END DAFNY".
+We found the following counterexamples to the lemma:
+Expr.Add(Expr.Add(Expr.Const(0), Expr.Const(0)), Expr.Add(Expr.Const(0), Expr.Const(0))) == e
+Expr.Add(Expr.Add(Expr.Const(0), Expr.Const(0)), Expr.Add(Expr.Const(0), Expr.Const(15))) == e
+Consider editing the code instead of continuing to prove an impossible lemma.
+If you think it's impossible to implement optimizeOptimal without re-implementing one of the previous functions, you can write in one line
+// EDIT <function name>
+ where <function name> is one of the following: optimize to ask to re-implement the function instead of implementing optimizeOptimal.
+DEBUG: Sending request to Ollama (model=llama3.3, max_tokens=1000, temp=1.0)
+DEBUG: Received response from Ollama
+DEBUG: Response:
+// BEGIN DAFNY
+match e
+case Add(e1, e2) =>
+  assert optimal(optimize(e1));
+  assert optimal(optimize(e2));
+  case Add(Const(0), _) => 
+  case Add(_, Const(0)) => 
+  case _ => 
+case _ => 
+
+// EDIT optimize
+// END DAFNY
+// BEGIN DAFNY
+match e
+case Add(e1, e2) =>
+  assert optimal(optimize(e1));
+  assert optimal(optimize(e2));
+  case Add(Const(0), _) => 
+  case Add(_, Const(0)) => 
+  case _ => 
+case _ => 
+
+// EDIT optimize
+// END DAFNY
+EDIT optimize
+DEBUG: Prompt:
+You are implementing a function in a Dafny program that is specified but not fully implemented. The current program is
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+function optimize(e: Expr): Expr
+{
+  match e
+  case Add(Const(0), e2) => optimize(e2)
+  case Add(e1, Const(0)) => optimize(e1)
+  case Add(e1, e2) => Add(optimize(e1), optimize(e2))
+  case _ => e
+}
+
+lemma {:axiom} optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+
+
+The function to implement is optimize. Please just provide the body of the function (without the outer braces), starting with a line "// BEGIN DAFNY", ending with a line "// END DAFNY".
+Some hints about Dafny:
+
+The syntax for pattern match in Dafny is
+match e
+case Case1(arg1, arg2) => result1
+case Case2(arg1) => result2
+case _ => result3
+You'll also need to have braces surrounding a result if is made of complex statements such as variable assignments.
+For nested pattern matches, put the nested pattern match in parentheses:
+match e1
+case Case1(e2, _) =>
+  (match e2
+   case Case2(c2) => result 2
+  )
+case _ => result3
+
+The syntax for variable assignment is
+var x := e;
+
+Variable assignments is one of the rare cases where semicolons are needed.
+Only use semicolons at the end of lines where you are assigning a variable.
+
+You chose to re-implement optimize instead of implementing optimizeOptimal.
+DEBUG: Sending request to Ollama (model=llama3.3, max_tokens=1000, temp=1.0)
+DEBUG: Received response from Ollama
+DEBUG: Response:
+// BEGIN DAFNY
+match e
+case Add(Const(0), e2) => 
+  {
+    var optimizedE2 := optimize(e2);
+    optimizedE2;
+  }
+case Add(e1, Const(0)) =>
+  {
+    var optimizedE1 := optimize(e1);
+    optimizedE1;
+  }
+case Add(e1, e2) =>
+  {
+    var optimizedE1 := optimize(e1);
+    var optimizedE2 := optimize(e2);
+    Add(optimizedE1, optimizedE2)
+  }
+case Var(name) => 
+  {
+    e
+  }
+case Const(value) =>
+  {
+    e
+  }
+
+// END DAFNY
+// BEGIN DAFNY
+match e
+case Add(Const(0), e2) => 
+  {
+    var optimizedE2 := optimize(e2);
+    optimizedE2;
+  }
+case Add(e1, Const(0)) =>
+  {
+    var optimizedE1 := optimize(e1);
+    optimizedE1;
+  }
+case Add(e1, e2) =>
+  {
+    var optimizedE1 := optimize(e1);
+    var optimizedE2 := optimize(e2);
+    Add(optimizedE1, optimizedE2)
+  }
+case Var(name) => 
+  {
+    e
+  }
+case Const(value) =>
+  {
+    e
+  }
+
+// END DAFNY
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+function optimize(e: Expr): Expr
+{
+match e
+case Add(Const(0), e2) => 
+  {
+    var optimizedE2 := optimize(e2);
+    optimizedE2;
+  }
+case Add(e1, Const(0)) =>
+  {
+    var optimizedE1 := optimize(e1);
+    optimizedE1;
+  }
+case Add(e1, e2) =>
+  {
+    var optimizedE1 := optimize(e1);
+    var optimizedE2 := optimize(e2);
+    Add(optimizedE1, optimizedE2)
+  }
+case Var(name) => 
+  {
+    e
+  }
+case Const(value) =>
+  {
+    e
+  }
+}
+
+lemma {:axiom} optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+
+Errors in implementer: <global>:21:15 rbrace expected -- in line: optimizedE2;
+
+DEBUG: Prompt:
+You are implementing a function in a Dafny program that is specified but not fully implemented. The current program is
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+function optimize(e: Expr): Expr
+{
+  match e
+  case Add(Const(0), e2) => optimize(e2)
+  case Add(e1, Const(0)) => optimize(e1)
+  case Add(e1, e2) => Add(optimize(e1), optimize(e2))
+  case _ => e
+}
+
+lemma {:axiom} optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+
+
+The function to implement is optimize. Please just provide the body of the function (without the outer braces), starting with a line "// BEGIN DAFNY", ending with a line "// END DAFNY".
+Some hints about Dafny:
+
+The syntax for pattern match in Dafny is
+match e
+case Case1(arg1, arg2) => result1
+case Case2(arg1) => result2
+case _ => result3
+You'll also need to have braces surrounding a result if is made of complex statements such as variable assignments.
+For nested pattern matches, put the nested pattern match in parentheses:
+match e1
+case Case1(e2, _) =>
+  (match e2
+   case Case2(c2) => result 2
+  )
+case _ => result3
+
+The syntax for variable assignment is
+var x := e;
+
+Variable assignments is one of the rare cases where semicolons are needed.
+Only use semicolons at the end of lines where you are assigning a variable.
+
+FYI only, a previous attempt on this function had the following errors:
+<global>:21:15 rbrace expected -- in line: optimizedE2;
+
+DEBUG: Sending request to Ollama (model=llama3.3, max_tokens=1000, temp=1.0)
+DEBUG: Received response from Ollama
+DEBUG: Response:
+// BEGIN DAFNY
+match e
+case Add(e1, e2) =>
+  {
+    var optimizedE1 := optimize(e1);
+    var optimizedE2 := optimize(e2);
+    match (optimizedE1, optimizedE2)
+    case (Const(0), _) => optimizedE2
+    case (_, Const(0)) => optimizedE1
+    case _ => Add(optimizedE1, optimizedE2)
+  }
+case _ => e
+// END DAFNY
+// BEGIN DAFNY
+match e
+case Add(e1, e2) =>
+  {
+    var optimizedE1 := optimize(e1);
+    var optimizedE2 := optimize(e2);
+    match (optimizedE1, optimizedE2)
+    case (Const(0), _) => optimizedE2
+    case (_, Const(0)) => optimizedE1
+    case _ => Add(optimizedE1, optimizedE2)
+  }
+case _ => e
+// END DAFNY
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+function optimize(e: Expr): Expr
+{
+match e
+case Add(e1, e2) =>
+  {
+    var optimizedE1 := optimize(e1);
+    var optimizedE2 := optimize(e2);
+    match (optimizedE1, optimizedE2)
+    case (Const(0), _) => optimizedE2
+    case (_, Const(0)) => optimizedE1
+    case _ => Add(optimizedE1, optimizedE2)
+  }
+case _ => e
+}
+
+lemma {:axiom} optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+
+Errors in implementer: <global>:27:10 type of case bodies do not agree (found Expr, previous types set<Expr>) -- in line: case _ => e
+<global>:15:9 Function body type mismatch (expected Expr, got set<Expr>) -- in line: function optimize(e: Expr): Expr
+
+ERASE
+from 309 to 472
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+function optimize(e: Expr): Expr
+
+
+lemma {:axiom} optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+
+DEBUG: Prompt:
+You are implementing a function in a Dafny program that is specified but not fully implemented. The current program is
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+function optimize(e: Expr): Expr
+
+
+lemma {:axiom} optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+
+
+The function to implement is optimize. Please just provide the body of the function (without the outer braces), starting with a line "// BEGIN DAFNY", ending with a line "// END DAFNY".
+Some hints about Dafny:
+
+The syntax for pattern match in Dafny is
+match e
+case Case1(arg1, arg2) => result1
+case Case2(arg1) => result2
+case _ => result3
+You'll also need to have braces surrounding a result if is made of complex statements such as variable assignments.
+For nested pattern matches, put the nested pattern match in parentheses:
+match e1
+case Case1(e2, _) =>
+  (match e2
+   case Case2(c2) => result 2
+  )
+case _ => result3
+
+The syntax for variable assignment is
+var x := e;
+
+Variable assignments is one of the rare cases where semicolons are needed.
+Only use semicolons at the end of lines where you are assigning a variable.
+
+DEBUG: Sending request to Ollama (model=llama3.3, max_tokens=1000, temp=1.0)
+DEBUG: Received response from Ollama
+DEBUG: Response:
+// BEGIN DAFNY
+match e
+case Add(Const(0), e2) => optimize(e2)
+case Add(e1, Const(0)) => optimize(e1)
+case Add(e1, e2) =>
+  {
+    var optE1 := optimize(e1);
+    var optE2 := optimize(e2);
+    Add(optE1, optE2)
+  }
+case _ => e
+// END DAFNY
+// BEGIN DAFNY
+match e
+case Add(Const(0), e2) => optimize(e2)
+case Add(e1, Const(0)) => optimize(e1)
+case Add(e1, e2) =>
+  {
+    var optE1 := optimize(e1);
+    var optE2 := optimize(e2);
+    Add(optE1, optE2)
+  }
+case _ => e
+// END DAFNY
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+function optimize(e: Expr): Expr
+{
+match e
+case Add(Const(0), e2) => optimize(e2)
+case Add(e1, Const(0)) => optimize(e1)
+case Add(e1, e2) =>
+  {
+    var optE1 := optimize(e1);
+    var optE2 := optimize(e2);
+    Add(optE1, optE2)
+  }
+case _ => e
+}
+
+
+
+lemma {:axiom} optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+
+Errors in implementer: <global>:21:2 type of case bodies do not agree (found set<Expr>, previous types Expr)
+
+DEBUG: Prompt:
+You are implementing a function in a Dafny program that is specified but not fully implemented. The current program is
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+function optimize(e: Expr): Expr
+
+
+lemma {:axiom} optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+
+
+The function to implement is optimize. Please just provide the body of the function (without the outer braces), starting with a line "// BEGIN DAFNY", ending with a line "// END DAFNY".
+Some hints about Dafny:
+
+The syntax for pattern match in Dafny is
+match e
+case Case1(arg1, arg2) => result1
+case Case2(arg1) => result2
+case _ => result3
+You'll also need to have braces surrounding a result if is made of complex statements such as variable assignments.
+For nested pattern matches, put the nested pattern match in parentheses:
+match e1
+case Case1(e2, _) =>
+  (match e2
+   case Case2(c2) => result 2
+  )
+case _ => result3
+
+The syntax for variable assignment is
+var x := e;
+
+Variable assignments is one of the rare cases where semicolons are needed.
+Only use semicolons at the end of lines where you are assigning a variable.
+
+FYI only, a previous attempt on this function had the following errors:
+<global>:21:2 type of case bodies do not agree (found set<Expr>, previous types Expr)
+
+DEBUG: Sending request to Ollama (model=llama3.3, max_tokens=1000, temp=1.0)
+DEBUG: Received response from Ollama
+DEBUG: Response:
+// BEGIN DAFNY
+match e
+case Const(_) => e
+case Var(_) => e
+case Add(left, right) =>
+  {
+    var optimizedLeft := optimize(left);
+    var optimizedRight := optimize(right);
+    match (optimizedLeft, optimizedRight)
+    case (Add(_, _), _) | (_, Add(_, _)) => Add(optimize(optimizedLeft), optimize(optimizedRight))
+    case (Const(0), e2) => e2
+    case (e1, Const(0)) => e1
+    case _ => Add(optimizedLeft, optimizedRight)
+  }
+// END DAFNY
+// BEGIN DAFNY
+match e
+case Const(_) => e
+case Var(_) => e
+case Add(left, right) =>
+  {
+    var optimizedLeft := optimize(left);
+    var optimizedRight := optimize(right);
+    match (optimizedLeft, optimizedRight)
+    case (Add(_, _), _) | (_, Add(_, _)) => Add(optimize(optimizedLeft), optimize(optimizedRight))
+    case (Const(0), e2) => e2
+    case (e1, Const(0)) => e1
+    case _ => Add(optimizedLeft, optimizedRight)
+  }
+// END DAFNY
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+function optimize(e: Expr): Expr
+{
+match e
+case Const(_) => e
+case Var(_) => e
+case Add(left, right) =>
+  {
+    var optimizedLeft := optimize(left);
+    var optimizedRight := optimize(right);
+    match (optimizedLeft, optimizedRight)
+    case (Add(_, _), _) | (_, Add(_, _)) => Add(optimize(optimizedLeft), optimize(optimizedRight))
+    case (Const(0), e2) => e2
+    case (e1, Const(0)) => e1
+    case _ => Add(optimizedLeft, optimizedRight)
+  }
+}
+
+
+
+lemma {:axiom} optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+
+Errors in implementer: <global>:21:2 type of case bodies do not agree (found set<Expr>, previous types Expr)
+
+Didn't solve todo
+DEBUG: Prompt:
+You are implementing a function in a Dafny program that is specified but not fully implemented. The current program is
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+function optimize(e: Expr): Expr
+
+
+lemma {:axiom} optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+
+
+The function to implement is optimize. Please just provide the body of the function (without the outer braces), starting with a line "// BEGIN DAFNY", ending with a line "// END DAFNY".
+Some hints about Dafny:
+
+The syntax for pattern match in Dafny is
+match e
+case Case1(arg1, arg2) => result1
+case Case2(arg1) => result2
+case _ => result3
+You'll also need to have braces surrounding a result if is made of complex statements such as variable assignments.
+For nested pattern matches, put the nested pattern match in parentheses:
+match e1
+case Case1(e2, _) =>
+  (match e2
+   case Case2(c2) => result 2
+  )
+case _ => result3
+
+The syntax for variable assignment is
+var x := e;
+
+Variable assignments is one of the rare cases where semicolons are needed.
+Only use semicolons at the end of lines where you are assigning a variable.
+
+DEBUG: Sending request to Ollama (model=llama3.3, max_tokens=1000, temp=1.0)
+DEBUG: Received response from Ollama
+DEBUG: Response:
+// BEGIN DAFNY
+match e
+case Add(e1, e2) => 
+  var opt_e1 := optimize(e1);
+  var opt_e2 := optimize(e2);
+  match (opt_e1, opt_e2)
+  case (Add(_, _), _) =>
+    if (opt_e1 == Const(0))
+      then opt_e2
+      else if (opt_e2 == Const(0)) 
+        then opt_e1
+        else Add(opt_e1, opt_e2)
+  case (_, Add(_, _)) =>
+    if (opt_e1 == Const(0))
+      then opt_e2
+      else if (opt_e2 == Const(0))
+        then opt_e1
+        else Add(opt_e1, opt_e2)
+  case _ => 
+    if (opt_e1 == Const(0))
+      then opt_e2
+      else if (opt_e2 == Const(0)) 
+        then opt_e1
+        else Add(opt_e1, opt_e2)
+case _ => e;
+// END DAFNY
+// BEGIN DAFNY
+match e
+case Add(e1, e2) => 
+  var opt_e1 := optimize(e1);
+  var opt_e2 := optimize(e2);
+  match (opt_e1, opt_e2)
+  case (Add(_, _), _) =>
+    if (opt_e1 == Const(0))
+      then opt_e2
+      else if (opt_e2 == Const(0)) 
+        then opt_e1
+        else Add(opt_e1, opt_e2)
+  case (_, Add(_, _)) =>
+    if (opt_e1 == Const(0))
+      then opt_e2
+      else if (opt_e2 == Const(0))
+        then opt_e1
+        else Add(opt_e1, opt_e2)
+  case _ => 
+    if (opt_e1 == Const(0))
+      then opt_e2
+      else if (opt_e2 == Const(0)) 
+        then opt_e1
+        else Add(opt_e1, opt_e2)
+case _ => e;
+// END DAFNY
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+function optimize(e: Expr): Expr
+{
+match e
+case Add(e1, e2) => 
+  var opt_e1 := optimize(e1);
+  var opt_e2 := optimize(e2);
+  match (opt_e1, opt_e2)
+  case (Add(_, _), _) =>
+    if (opt_e1 == Const(0))
+      then opt_e2
+      else if (opt_e2 == Const(0)) 
+        then opt_e1
+        else Add(opt_e1, opt_e2)
+  case (_, Add(_, _)) =>
+    if (opt_e1 == Const(0))
+      then opt_e2
+      else if (opt_e2 == Const(0))
+        then opt_e1
+        else Add(opt_e1, opt_e2)
+  case _ => 
+    if (opt_e1 == Const(0))
+      then opt_e2
+      else if (opt_e2 == Const(0)) 
+        then opt_e1
+        else Add(opt_e1, opt_e2)
+case _ => e;
+}
+
+
+
+lemma {:axiom} optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+
+Errors in implementer: <global>:40:11 rbrace expected -- in line: case _ => e;
+
+DEBUG: Prompt:
+You are implementing a function in a Dafny program that is specified but not fully implemented. The current program is
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+function optimize(e: Expr): Expr
+
+
+lemma {:axiom} optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+
+
+The function to implement is optimize. Please just provide the body of the function (without the outer braces), starting with a line "// BEGIN DAFNY", ending with a line "// END DAFNY".
+Some hints about Dafny:
+
+The syntax for pattern match in Dafny is
+match e
+case Case1(arg1, arg2) => result1
+case Case2(arg1) => result2
+case _ => result3
+You'll also need to have braces surrounding a result if is made of complex statements such as variable assignments.
+For nested pattern matches, put the nested pattern match in parentheses:
+match e1
+case Case1(e2, _) =>
+  (match e2
+   case Case2(c2) => result 2
+  )
+case _ => result3
+
+The syntax for variable assignment is
+var x := e;
+
+Variable assignments is one of the rare cases where semicolons are needed.
+Only use semicolons at the end of lines where you are assigning a variable.
+
+FYI only, a previous attempt on this function had the following errors:
+<global>:40:11 rbrace expected -- in line: case _ => e;
+
+DEBUG: Sending request to Ollama (model=llama3.3, max_tokens=1000, temp=1.0)
+DEBUG: Received response from Ollama
+DEBUG: Response:
+// BEGIN DAFNY
+match e
+case Const(_) => e
+case Var(_) => e
+case Add(left, right) =>
+  var leftOpt := optimize(left);
+  var rightOpt := optimize(right);
+  match (leftOpt, rightOpt)
+  case (Add(_, _), _) => 
+    {
+      if optimal(leftOpt) && optimal(rightOpt)
+      then Add(leftOpt, rightOpt)
+      else optimize(Add(leftOpt, rightOpt))
+    }
+  case (_, Add(_, _)) =>
+    {
+      if optimal(leftOpt) && optimal(rightOpt)
+      then Add(leftOpt, rightOpt)
+      else optimize(Add(leftOpt, rightOpt))
+    }
+  case (Const(0), _) => rightOpt
+  case (_, Const(0)) => leftOpt
+  case _ => Add(leftOpt, rightOpt)
+// END DAFNY
+// BEGIN DAFNY
+match e
+case Const(_) => e
+case Var(_) => e
+case Add(left, right) =>
+  var leftOpt := optimize(left);
+  var rightOpt := optimize(right);
+  match (leftOpt, rightOpt)
+  case (Add(_, _), _) => 
+    {
+      if optimal(leftOpt) && optimal(rightOpt)
+      then Add(leftOpt, rightOpt)
+      else optimize(Add(leftOpt, rightOpt))
+    }
+  case (_, Add(_, _)) =>
+    {
+      if optimal(leftOpt) && optimal(rightOpt)
+      then Add(leftOpt, rightOpt)
+      else optimize(Add(leftOpt, rightOpt))
+    }
+  case (Const(0), _) => rightOpt
+  case (_, Const(0)) => leftOpt
+  case _ => Add(leftOpt, rightOpt)
+// END DAFNY
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+function optimize(e: Expr): Expr
+{
+match e
+case Const(_) => e
+case Var(_) => e
+case Add(left, right) =>
+  var leftOpt := optimize(left);
+  var rightOpt := optimize(right);
+  match (leftOpt, rightOpt)
+  case (Add(_, _), _) => 
+    {
+      if optimal(leftOpt) && optimal(rightOpt)
+      then Add(leftOpt, rightOpt)
+      else optimize(Add(leftOpt, rightOpt))
+    }
+  case (_, Add(_, _)) =>
+    {
+      if optimal(leftOpt) && optimal(rightOpt)
+      then Add(leftOpt, rightOpt)
+      else optimize(Add(leftOpt, rightOpt))
+    }
+  case (Const(0), _) => rightOpt
+  case (_, Const(0)) => leftOpt
+  case _ => Add(leftOpt, rightOpt)
+}
+
+
+
+lemma {:axiom} optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+
+Errors in implementer: <global>:36:24 type of case bodies do not agree (found Expr, previous types set<Expr>) -- in line: case (Const(0), _) => rightOpt
+<global>:37:24 type of case bodies do not agree (found Expr, previous types set<Expr>) -- in line: case (_, Const(0)) => leftOpt
+<global>:38:15 type of case bodies do not agree (found Expr, previous types set<Expr>) -- in line: case _ => Add(leftOpt, rightOpt)
+<global>:21:2 type of case bodies do not agree (found set<Expr>, previous types Expr) -- in line: var leftOpt := optimize(left);
+
+Didn't solve todo
+DEBUG: Prompt:
+You are implementing a function in a Dafny program that is specified but not fully implemented. The current program is
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+function optimize(e: Expr): Expr
+
+
+lemma {:axiom} optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+
+
+The function to implement is optimize. Please just provide the body of the function (without the outer braces), starting with a line "// BEGIN DAFNY", ending with a line "// END DAFNY".
+Some hints about Dafny:
+
+The syntax for pattern match in Dafny is
+match e
+case Case1(arg1, arg2) => result1
+case Case2(arg1) => result2
+case _ => result3
+You'll also need to have braces surrounding a result if is made of complex statements such as variable assignments.
+For nested pattern matches, put the nested pattern match in parentheses:
+match e1
+case Case1(e2, _) =>
+  (match e2
+   case Case2(c2) => result 2
+  )
+case _ => result3
+
+The syntax for variable assignment is
+var x := e;
+
+Variable assignments is one of the rare cases where semicolons are needed.
+Only use semicolons at the end of lines where you are assigning a variable.
+
+DEBUG: Sending request to Ollama (model=llama3.3, max_tokens=1000, temp=1.0)
+DEBUG: Received response from Ollama
+DEBUG: Response:
+// BEGIN DAFNY
+match e
+case Add(left, right) =>
+  var optimizedLeft := optimize(left);
+  var optimizedRight := optimize(right);
+  if optimizedLeft == Const(0)
+    then optimizedRight
+  else if optimizedRight == Const(0)
+    then optimizedLeft
+  else Add(optimizedLeft, optimizedRight)
+case _ => e
+// END DAFNY
+// BEGIN DAFNY
+match e
+case Add(left, right) =>
+  var optimizedLeft := optimize(left);
+  var optimizedRight := optimize(right);
+  if optimizedLeft == Const(0)
+    then optimizedRight
+  else if optimizedRight == Const(0)
+    then optimizedLeft
+  else Add(optimizedLeft, optimizedRight)
+case _ => e
+// END DAFNY
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+function optimize(e: Expr): Expr
+{
+match e
+case Add(left, right) =>
+  var optimizedLeft := optimize(left);
+  var optimizedRight := optimize(right);
+  if optimizedLeft == Const(0)
+    then optimizedRight
+  else if optimizedRight == Const(0)
+    then optimizedLeft
+  else Add(optimizedLeft, optimizedRight)
+case _ => e
+}
+
+
+
+lemma {:axiom} optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+function optimize(e: Expr): Expr
+{
+match e
+case Add(left, right) =>
+  var optimizedLeft := optimize(left);
+  var optimizedRight := optimize(right);
+  if optimizedLeft == Const(0)
+    then optimizedRight
+  else if optimizedRight == Const(0)
+    then optimizedLeft
+  else Add(optimizedLeft, optimizedRight)
+case _ => e
+}
+
+
+
+lemma  optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+{
+
+}
+
+
+Errors in implementer: optimizeOptimal:33:0 a postcondition could not be proved on this return path
+
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+function optimize(e: Expr): Expr
+{
+match e
+case Add(left, right) =>
+  var optimizedLeft := optimize(left);
+  var optimizedRight := optimize(right);
+  if optimizedLeft == Const(0)
+    then optimizedRight
+  else if optimizedRight == Const(0)
+    then optimizedLeft
+  else Add(optimizedLeft, optimizedRight)
+case _ => e
+}
+
+
+
+lemma  optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+{
+
+}
+
+
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+function optimize(e: Expr): Expr
+{
+match e
+case Add(left, right) =>
+  var optimizedLeft := optimize(left);
+  var optimizedRight := optimize(right);
+  if optimizedLeft == Const(0)
+    then optimizedRight
+  else if optimizedRight == Const(0)
+    then optimizedLeft
+  else Add(optimizedLeft, optimizedRight)
+case _ => e
+}
+
+
+
+lemma  optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+{
+    // Structural induction on e
+    match e {
+        case Const(value) => {
+        }
+        case Var(name) => {
+        }
+        case Add(left, right) => {
+            optimizeOptimal(left);
+            optimizeOptimal(right);
+        }
+    }
+
+
+}
+
+
+Induction sketcher works!
+CHOSEN SOLUTION
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+function optimize(e: Expr): Expr
+{
+match e
+case Add(left, right) =>
+  var optimizedLeft := optimize(left);
+  var optimizedRight := optimize(right);
+  if optimizedLeft == Const(0)
+    then optimizedRight
+  else if optimizedRight == Const(0)
+    then optimizedLeft
+  else Add(optimizedLeft, optimizedRight)
+case _ => e
+}
+
+
+
+lemma  optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+{
+    // Structural induction on e
+    match e {
+        case Const(value) => {
+        }
+        case Var(name) => {
+        }
+        case Add(left, right) => {
+            optimizeOptimal(left);
+            optimizeOptimal(right);
+        }
+    }
+
+
+}
+
+
