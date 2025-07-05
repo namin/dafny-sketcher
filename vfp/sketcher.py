@@ -95,7 +95,7 @@ def sketch_induction(file_input: str, method_name: Optional[str] = None) -> str:
         Induction sketch or error message
     """
     if not method_name:
-        return "Error: missing parameter methodName"
+        return "Error: missing parameter for method name"
     
     result = dafny_sketcher(file_input, ['--sketch', 'induction_search', '--method', method_name])
     
@@ -145,6 +145,25 @@ def sketch_done(file_input: str) -> list[object]:
     result = dafny_sketcher(file_input, ['--sketch', 'done'])
     return json.loads(result) if result else None
 
+def sketch_counterexamples(file_input: str, method_name: Optional[str] = None) -> List[str]:
+    """
+    Find some counterexamples for a specific method.
+
+    Args:
+        file_input: String content of the Dafny file
+        method_name: Name of the method to sketch induction for
+    
+    Returns:
+        A list of counterexamples, each a boolean condition on the paramters.
+    """
+    if not method_name:
+        return "Error: missing parameter for method name"
+
+    result = dafny_sketcher(file_input, ['--sketch', 'counterexamples', '--method', method_name])
+
+    return [x for x in result.split('\n') if x]
+
+
 if __name__ == "__main__":
     print(sketch_todo("""
     function foo()
@@ -187,3 +206,36 @@ function optimize(e: Expr): Expr { e }
 lemma {:axiom} optimizePreservesSemantics(e: Expr, env: Environment)
 ensures eval(optimize(e), env) == eval(e, env)
 """))
+
+    program_with_bugs = """datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+function optimize(e: Expr): Expr
+{
+  match e
+  case Add(Const(0), e2) => optimize(e2)
+  case Add(e1, Const(0)) => optimize(e1)
+  case Add(e1, e2) => Add(optimize(e1), optimize(e2))
+  case _ => e
+}
+
+lemma optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+{
+}
+"""
+    print(sketch_counterexamples(program_with_bugs, "optimizeOptimal"))
+    # TODO: let's see if we need this to work with axioms.
+    #import tests
+    #print(sketch_counterexamples(tests.program_with_bugs, "optimizeOptimal"))
