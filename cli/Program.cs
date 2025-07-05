@@ -50,7 +50,7 @@ namespace DafnySketcherCli {
         Microsoft.Dafny.Program? dafnyProgram = null;
         String? dafnyError = null;
         if (filePath is not null) {
-          await File.ReadAllTextAsync(filePath);
+          source = await File.ReadAllTextAsync(filePath);
 
           // Parse & resolve using HandleDafnyFile and the new ParseCheck API
           // Load the file through the DafnyMain helper, so it respects search paths, includes, etc.
