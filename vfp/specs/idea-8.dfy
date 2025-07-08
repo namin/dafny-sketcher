@@ -11,5 +11,5 @@ ensures contains(l, element) <==> contains(reverse(l), element)
 lemma {:axiom} reverse_involutes<T>(l: List<T>)
 ensures reverse(reverse(l)) == l
 
-//Helper function to check if an element exists in a list.
+// Helper function to check if an element exists in a list.
 function contains<T>(l: List<T>, element: T): bool
