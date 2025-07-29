@@ -171,7 +171,7 @@ def erase_implementation(p: str, todo) -> str:
     return xp
 
 def insert_program_todo(todo, p, x):
-    if todo['status'] == 'done':
+    if todo['status'] != 'todo':
         lines = p.splitlines(keepends=True)
         start_offset = line_col_to_start_offset(p,lines, todo['insertLine'], todo['insertColumn'])
         end_offset = line_col_to_end_offset(p, lines, todo['endLine'], todo['endColumn'])
