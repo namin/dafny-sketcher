@@ -50,6 +50,20 @@ def insert_program_todo(todo, p, x):
     print(xp)
     return xp
 
+def prompt_fine_implementer(todo, code, body):
+    return f"""
+You are improvemening piecemal the implementation of lemma {todo['name']} in the following Dafny program:
+{code}
+
+Pick a block in the lemma {todo['name']}, for example block *1*, and re-implement the block with by starting with line
+// BEGIN DAFNY BLOCK 1
+and ending with line
+// END DAFNY BLOCK 1
+where you replace 1 with the block number you choose among the body of lemma {todo['name']},
+which is:
+{body}
+"""
+
 if __name__ == "__main__":
     demo = None
     with open('examples/StlcDemo.dfy', 'r') as file:
@@ -69,3 +83,5 @@ if __name__ == "__main__":
     print(b)
     print('REPLACED BODY')
     print(insert_program_todo(todo, demo, b))
+    print('PROMPT')
+    print(prompt_fine_implementer(todo, demo, b))
