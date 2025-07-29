@@ -1,5 +1,5 @@
 import re
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from llm import default_generate as generate
 import sketcher
 import driver
@@ -38,9 +38,41 @@ def fine_implementer(p: str, todo) -> Optional[str]:
     print(ip)
     print('ERRORS')
     errors = show_errors_todo(ip, todo)
+    prompt = prompt_fine_implementer(todo, ip, b, errors)
     print('PROMPT')
-    print(prompt_fine_implementer(todo, p, b, errors))
-    return None
+    print(prompt)
+    r = generate(prompt)
+    print(r)
+    ox = extract_dafny_block(r)
+    if ox is None:
+        return None
+    (n, x) = ox
+    return remove_all_block_markers(replace_block_in_program(ip, n, x))
+
+def remove_all_block_markers(ip: Optional[str]) -> Optional[str]:
+    """Remove all block markers of the form /*n*/ from the input string."""
+    if ip is None:
+        return None
+    return re.sub(r'/\*\d+\*/', '', ip)
+
+def replace_block_in_program(p: str, n: int, x: str) -> Optional[str]:
+    """Replace the content inside a strictly formatted block like {/*n*/.../*n*/}, preserving the markers."""
+    pattern = re.compile(rf'(\{{/\*{n}\*/)(.*?)(/\*{n}\*/\}})', re.DOTALL)
+    match = pattern.search(p)
+    if not match:
+        return None
+    return p[:match.start()] + match.group(1) + x + match.group(3) + p[match.end():]
+
+def extract_dafny_block(text: str) -> Optional[Tuple[int, str]]:
+    """Extract the Dafny block number and content between the markers."""
+    text = driver.remove_think_blocks(text)
+    pattern = r'// BEGIN DAFNY BLOCK (\d+)(.*?)// END DAFNY BLOCK \1'
+    match = re.search(pattern, text, re.DOTALL)
+    if not match:
+        return None
+    block_num = int(match.group(1))
+    block_content = match.group(2).strip()
+    return (block_num, block_content)
 
 def annotate_body(b: str) -> str:
     s = ""
@@ -86,7 +118,7 @@ where you replace 1 with the block number you choose among the body of lemma {to
 which is:
 {body}
 
-Do not include the outer blocks of the block number you choose.
+Do NOT include the outer blocks of the block number you choose, only what should go between the /*n*/ markers.
 
 The errors in the work-in-progress lemma are:
 {errors}
@@ -99,4 +131,5 @@ if __name__ == "__main__":
     todos = sketcher.sketch_todo_lemmas(demo)
     print(todos)
     todo = todos[0]
-    fine_implementer(demo, todo)
+    xp = fine_implementer(demo, todo)
+    print(xp)
