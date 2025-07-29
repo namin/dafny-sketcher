@@ -47,12 +47,21 @@ def fine_implementer(p: str, todo) -> Optional[str]:
     if ox is None:
         return None
     (n, x) = ox
-    return remove_all_block_markers(replace_block_in_program(ip, n, x))
-
-def remove_all_block_markers(ip: Optional[str]) -> Optional[str]:
-    """Remove all block markers of the form /*n*/ from the input string."""
-    if ip is None:
+    xp = replace_block_in_program(ip, n, x)
+    if xp is None:
         return None
+    xp = remove_all_block_markers(xp)
+    print('XP')
+    print(xp)
+    x_errors = show_errors_todo(xp, todo)
+    print('XP ERRORS')
+    print(x_errors)
+    if x_errors.count('\n') > errors.count('\n'):
+        return None
+    return xp
+
+def remove_all_block_markers(ip: str) -> str:
+    """Remove all block markers of the form /*n*/ from the input string."""
     return re.sub(r'/\*\d+\*/', '', ip)
 
 def replace_block_in_program(p: str, n: int, x: str) -> Optional[str]:
@@ -100,7 +109,7 @@ def insert_program_todo(todo, p, x):
     return xp
 
 def show_errors_todo(p, todo):
-    lines = sketcher.show_errors(p).splitlines()
+    lines = (sketcher.show_errors(p) or "").splitlines()
     name = todo['name']
     lemma_lines = [line for line in lines if line.startswith(name+":")]
     return "\n".join(lemma_lines)
