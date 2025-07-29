@@ -50,7 +50,13 @@ def insert_program_todo(todo, p, x):
     print(xp)
     return xp
 
-def prompt_fine_implementer(todo, code, body):
+def show_errors_todo(p, todo):
+    lines = sketcher.show_errors(p).splitlines()
+    name = todo['name']
+    lemma_lines = [line for line in lines if line.startswith(name+":")]
+    return "\n".join(lemma_lines)
+
+def prompt_fine_implementer(todo, code, body, errors):
     return f"""
 You are improvemening piecemal the implementation of lemma {todo['name']} in the following Dafny program:
 {code}
@@ -62,6 +68,11 @@ and ending with line
 where you replace 1 with the block number you choose among the body of lemma {todo['name']},
 which is:
 {body}
+
+Do not include the outer blocks of the block number you choose.
+
+The errors in the work-in-progress lemma are:
+{errors}
 """
 
 if __name__ == "__main__":
@@ -81,7 +92,10 @@ if __name__ == "__main__":
     print('ANNOTATED BODY')
     b = annotate_body(body)
     print(b)
+    ip = insert_program_todo(todo, demo, b)
     print('REPLACED BODY')
-    print(insert_program_todo(todo, demo, b))
+    print(ip)
+    print('ERRORS')
+    errors = show_errors_todo(ip, todo)
     print('PROMPT')
-    print(prompt_fine_implementer(todo, demo, b))
+    print(prompt_fine_implementer(todo, demo, b, errors))
