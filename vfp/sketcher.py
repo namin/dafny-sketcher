@@ -104,6 +104,19 @@ def sketch_induction(file_input: str, method_name: Optional[str] = None) -> str:
     
     return result
 
+def sketch_todo_lemmas(file_input: str) -> list[object]:
+    """
+    List lemma todos for a specific file.
+    
+    Args:
+        file_input: String content of the Dafny file
+    
+    Returns:
+        TODOs as JSON
+    """
+    result = dafny_sketcher(file_input, ['--sketch', 'todo_lemmas'])
+    return json.loads(result) if result else []
+
 def sketch_todo(file_input: str) -> list[object]:
     """
     List todos for a specific file.
@@ -165,6 +178,10 @@ def sketch_counterexamples(file_input: str, method_name: Optional[str] = None) -
 
 
 if __name__ == "__main__":
+    with open('examples/StlcDemo.dfy', 'r') as file:
+        print(sketch_todo_lemmas(file.read()))
+
+if False:
     print(sketch_todo("""
     function foo()
     lemma {:axiom} bar()

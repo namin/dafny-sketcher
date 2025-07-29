@@ -3,8 +3,24 @@ from driver import drive_program
 import mcts
 import sketcher
 
+def custom_sorted(fs):
+    order = [6, 9, 2, 5, 8, 4]
+    order_map = {num: idx for idx, num in enumerate(order)}
+
+    def key(file):
+        stem = file.stem  # e.g., "idea-5"
+        try:
+            num_str = stem.rsplit('-', 1)[1]  # get part after last '-'
+            num = int(num_str)
+        except (IndexError, ValueError):
+            num = None
+
+        return order_map.get(num, float('inf'))  # if not in `order`, go to the end
+
+    return sorted(fs, key=key)
+
 def main(solver):
-    for file in sorted(Path('specs').glob('*.dfy')):
+    for file in custom_sorted(Path('specs').glob('*.dfy')):
         if Path('programs/' + file.name).exists():
             print(f"Skipping {file} because solution already exists")
             continue

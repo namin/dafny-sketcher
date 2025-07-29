@@ -129,12 +129,12 @@ ensures optimal(optimize(e))
 """
 
 def run(solver):
-    if False:
+    if True:
         print('GIVEN PROGRAM WITH SUBTLE BUGS')
         solver(program_with_bugs)
     if False:
         print('GIVEN PROGRAM WITH BUGS')
         solver(program_with_obvious_bug)
-    if True:
+    if False:
         print('GIVEN SPEC')
         solver(spec_all)
