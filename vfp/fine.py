@@ -23,6 +23,23 @@ def drive_program(p: str, max_iterations: Optional[int] = None) -> str:
     return p
 
 def fine_implementer(p: str, todo) -> Optional[str]:
+    lines = p.splitlines(keepends=True)
+    start_offset = driver.line_col_to_start_offset(p, lines, todo['insertLine'], todo['insertColumn'])
+    end_offset = driver.line_col_to_end_offset(p, lines, todo['endLine'], todo['endColumn'])
+    print(start_offset, end_offset)
+    body = p[start_offset:end_offset]
+    print('BODY')
+    print(body)
+    print('ANNOTATED BODY')
+    b = annotate_body(body)
+    print(b)
+    ip = insert_program_todo(todo, p, b)
+    print('REPLACED BODY')
+    print(ip)
+    print('ERRORS')
+    errors = show_errors_todo(ip, todo)
+    print('PROMPT')
+    print(prompt_fine_implementer(todo, p, b, errors))
     return None
 
 def annotate_body(b: str) -> str:
@@ -82,20 +99,4 @@ if __name__ == "__main__":
     todos = sketcher.sketch_todo_lemmas(demo)
     print(todos)
     todo = todos[0]
-    lines = demo.splitlines(keepends=True)
-    start_offset = driver.line_col_to_start_offset(demo, lines, todo['insertLine'], todo['insertColumn'])
-    end_offset = driver.line_col_to_end_offset(demo, lines, todo['endLine'], todo['endColumn'])
-    print(start_offset, end_offset)
-    body = demo[start_offset:end_offset]
-    print('BODY')
-    print(body)
-    print('ANNOTATED BODY')
-    b = annotate_body(body)
-    print(b)
-    ip = insert_program_todo(todo, demo, b)
-    print('REPLACED BODY')
-    print(ip)
-    print('ERRORS')
-    errors = show_errors_todo(ip, todo)
-    print('PROMPT')
-    print(prompt_fine_implementer(todo, demo, b, errors))
+    fine_implementer(demo, todo)
