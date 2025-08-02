@@ -1,0 +1,690 @@
+GIVEN PROGRAM WITH SUBTLE BUGS
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+function optimize(e: Expr): Expr
+{
+  match e
+  case Add(Const(0), e2) => optimize(e2)
+  case Add(e1, Const(0)) => optimize(e1)
+  case Add(e1, e2) => Add(optimize(e1), optimize(e2))
+  case _ => e
+}
+
+lemma  optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+{
+
+}
+
+
+Errors in implementer: optimizeOptimal:26:0 a postcondition could not be proved on this return path
+
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+function optimize(e: Expr): Expr
+{
+  match e
+  case Add(Const(0), e2) => optimize(e2)
+  case Add(e1, Const(0)) => optimize(e1)
+  case Add(e1, e2) => Add(optimize(e1), optimize(e2))
+  case _ => e
+}
+
+lemma  optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+{
+
+}
+
+
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+function optimize(e: Expr): Expr
+{
+  match e
+  case Add(Const(0), e2) => optimize(e2)
+  case Add(e1, Const(0)) => optimize(e1)
+  case Add(e1, e2) => Add(optimize(e1), optimize(e2))
+  case _ => e
+}
+
+lemma  optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+{
+    // Structural induction on e
+    match e {
+        case Const(value) => {
+        }
+        case Var(name) => {
+        }
+        case Add(left, right) => {
+            optimizeOptimal(left);
+            optimizeOptimal(right);
+        }
+    }
+
+
+}
+
+
+Errors in implementer: optimizeOptimal:33:8 a postcondition could not be proved on this return path -- in line: case Add(left, right) => {
+
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+function optimize(e: Expr): Expr
+{
+  match e
+  case Add(Const(0), e2) => optimize(e2)
+  case Add(e1, Const(0)) => optimize(e1)
+  case Add(e1, e2) => Add(optimize(e1), optimize(e2))
+  case _ => e
+}
+
+lemma  optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+{
+    // Structural induction on e
+    match e {
+        case Const(value) => {
+        }
+        case Var(name) => {
+        }
+        case Add(left, right) => {
+            optimizeOptimal(left);
+            optimizeOptimal(right);
+        }
+    }
+
+
+}
+
+
+// EDIT optimize
+// The lemma cannot be proven because the current optimize function doesn't preserve the optimal property.
+// For example, optimize(Add(Const(0), Add(Const(0), Const(0)))) produces Add(Const(0), Const(0)),
+// which is not optimal according to the predicate (since it has a zero addend).
+// The optimize function needs to be redefined to properly handle all cases.
+EDIT optimize
+// BEGIN DAFNY
+match e
+case Add(Const(0), e2) => optimize(e2)
+case Add(e1, Const(0)) => optimize(e1)
+case Add(e1, e2) => Add(optimize(e1), optimize(e2))
+case _ => e
+// END DAFNY
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+function optimize(e: Expr): Expr
+{
+match e
+case Add(Const(0), e2) => optimize(e2)
+case Add(e1, Const(0)) => optimize(e1)
+case Add(e1, e2) => Add(optimize(e1), optimize(e2))
+case _ => e
+}
+
+lemma {:axiom} optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+function optimize(e: Expr): Expr
+{
+match e
+case Add(Const(0), e2) => optimize(e2)
+case Add(e1, Const(0)) => optimize(e1)
+case Add(e1, e2) => Add(optimize(e1), optimize(e2))
+case _ => e
+}
+
+lemma  optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+{
+
+}
+
+
+Errors in implementer: optimizeOptimal:26:0 a postcondition could not be proved on this return path
+
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+function optimize(e: Expr): Expr
+{
+match e
+case Add(Const(0), e2) => optimize(e2)
+case Add(e1, Const(0)) => optimize(e1)
+case Add(e1, e2) => Add(optimize(e1), optimize(e2))
+case _ => e
+}
+
+lemma  optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+{
+
+}
+
+
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+function optimize(e: Expr): Expr
+{
+match e
+case Add(Const(0), e2) => optimize(e2)
+case Add(e1, Const(0)) => optimize(e1)
+case Add(e1, e2) => Add(optimize(e1), optimize(e2))
+case _ => e
+}
+
+lemma  optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+{
+    // Structural induction on e
+    match e {
+        case Const(value) => {
+        }
+        case Var(name) => {
+        }
+        case Add(left, right) => {
+            optimizeOptimal(left);
+            optimizeOptimal(right);
+        }
+    }
+
+
+}
+
+
+Errors in implementer: optimizeOptimal:33:8 a postcondition could not be proved on this return path -- in line: case Add(left, right) => {
+
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+function optimize(e: Expr): Expr
+{
+match e
+case Add(Const(0), e2) => optimize(e2)
+case Add(e1, Const(0)) => optimize(e1)
+case Add(e1, e2) => Add(optimize(e1), optimize(e2))
+case _ => e
+}
+
+lemma  optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+{
+    // Structural induction on e
+    match e {
+        case Const(value) => {
+        }
+        case Var(name) => {
+        }
+        case Add(left, right) => {
+            optimizeOptimal(left);
+            optimizeOptimal(right);
+        }
+    }
+
+
+}
+
+
+// EDIT optimize
+// The lemma cannot be proven because the current optimize function doesn't actually produce optimal expressions.
+// For example, optimize(Add(Const(0), Add(Const(0), Const(0)))) produces Add(Const(0), Add(Const(0), Const(0))),
+// which is not optimal according to the predicate since it contains Add(Const(0), _) subexpressions.
+// The optimize function needs to be re-implemented to actually produce optimal expressions.
+EDIT optimize
+// BEGIN DAFNY
+match e
+case Add(Const(0), e2) => optimize(e2)
+case Add(e1, Const(0)) => optimize(e1)
+case Add(e1, e2) => Add(optimize(e1), optimize(e2))
+case _ => e
+// END DAFNY
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+function optimize(e: Expr): Expr
+{
+match e
+case Add(Const(0), e2) => optimize(e2)
+case Add(e1, Const(0)) => optimize(e1)
+case Add(e1, e2) => Add(optimize(e1), optimize(e2))
+case _ => e
+}
+
+lemma {:axiom} optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+
+ERASE
+from 309 to 462
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+function optimize(e: Expr): Expr
+
+
+lemma {:axiom} optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+
+// BEGIN DAFNY
+match e
+case Const(v) => Const(v)
+case Var(n) => Var(n)
+case Add(e1, e2) =>
+  var optimizedLeft := optimize(e1);
+  var optimizedRight := optimize(e2);
+  match (optimizedLeft, optimizedRight)
+  case (Const(0), _) => optimizedRight
+  case (_, Const(0)) => optimizedLeft
+  case _ => Add(optimizedLeft, optimizedRight)
+  end match
+end match
+// END DAFNY
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+function optimize(e: Expr): Expr
+{
+match e
+case Const(v) => Const(v)
+case Var(n) => Var(n)
+case Add(e1, e2) =>
+  var optimizedLeft := optimize(e1);
+  var optimizedRight := optimize(e2);
+  match (optimizedLeft, optimizedRight)
+  case (Const(0), _) => optimizedRight
+  case (_, Const(0)) => optimizedLeft
+  case _ => Add(optimizedLeft, optimizedRight)
+  end match
+end match
+}
+
+
+
+lemma {:axiom} optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+
+Errors in implementer: <global>:27:2 rbrace expected -- in line: end match
+
+// BEGIN DAFNY
+match e
+case Const(v) => Const(v)
+case Var(n) => Var(n)
+case Add(e1, e2) =>
+  var optimizedLeft := optimize(e1);
+  var optimizedRight := optimize(e2);
+  (match (optimizedLeft, optimizedRight)
+   case (Const(0), _) => optimizedRight
+   case (_, Const(0)) => optimizedLeft
+   case _ => Add(optimizedLeft, optimizedRight)
+  )
+// END DAFNY
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+function optimize(e: Expr): Expr
+{
+match e
+case Const(v) => Const(v)
+case Var(n) => Var(n)
+case Add(e1, e2) =>
+  var optimizedLeft := optimize(e1);
+  var optimizedRight := optimize(e2);
+  (match (optimizedLeft, optimizedRight)
+   case (Const(0), _) => optimizedRight
+   case (_, Const(0)) => optimizedLeft
+   case _ => Add(optimizedLeft, optimizedRight)
+  )
+}
+
+
+
+lemma {:axiom} optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+function optimize(e: Expr): Expr
+{
+match e
+case Const(v) => Const(v)
+case Var(n) => Var(n)
+case Add(e1, e2) =>
+  var optimizedLeft := optimize(e1);
+  var optimizedRight := optimize(e2);
+  (match (optimizedLeft, optimizedRight)
+   case (Const(0), _) => optimizedRight
+   case (_, Const(0)) => optimizedLeft
+   case _ => Add(optimizedLeft, optimizedRight)
+  )
+}
+
+
+
+lemma  optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+{
+
+}
+
+
+Errors in implementer: optimizeOptimal:34:0 a postcondition could not be proved on this return path
+
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+function optimize(e: Expr): Expr
+{
+match e
+case Const(v) => Const(v)
+case Var(n) => Var(n)
+case Add(e1, e2) =>
+  var optimizedLeft := optimize(e1);
+  var optimizedRight := optimize(e2);
+  (match (optimizedLeft, optimizedRight)
+   case (Const(0), _) => optimizedRight
+   case (_, Const(0)) => optimizedLeft
+   case _ => Add(optimizedLeft, optimizedRight)
+  )
+}
+
+
+
+lemma  optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+{
+
+}
+
+
+XP
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+function optimize(e: Expr): Expr
+{
+match e
+case Const(v) => Const(v)
+case Var(n) => Var(n)
+case Add(e1, e2) =>
+  var optimizedLeft := optimize(e1);
+  var optimizedRight := optimize(e2);
+  (match (optimizedLeft, optimizedRight)
+   case (Const(0), _) => optimizedRight
+   case (_, Const(0)) => optimizedLeft
+   case _ => Add(optimizedLeft, optimizedRight)
+  )
+}
+
+
+
+lemma  optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+{
+    // Structural induction on e
+    match e {
+        case Const(value) => {
+        }
+        case Var(name) => {
+        }
+        case Add(left, right) => {
+            optimizeOptimal(left);
+            optimizeOptimal(right);
+        }
+    }
+
+
+}
+
+
+Induction sketcher works!
+CHOSEN SOLUTION
+datatype Expr =
+  | Const(value: int)
+  | Var(name: string)
+  | Add(left: Expr, right: Expr)
+
+predicate {:spec} optimal(e: Expr)
+{
+  match e
+  case Add(Const(0), _) => false
+  case Add(_, Const(0)) => false
+  case Add(e1, e2) => optimal(e1) && optimal(e2)
+  case _ => true
+}
+
+function optimize(e: Expr): Expr
+{
+match e
+case Const(v) => Const(v)
+case Var(n) => Var(n)
+case Add(e1, e2) =>
+  var optimizedLeft := optimize(e1);
+  var optimizedRight := optimize(e2);
+  (match (optimizedLeft, optimizedRight)
+   case (Const(0), _) => optimizedRight
+   case (_, Const(0)) => optimizedLeft
+   case _ => Add(optimizedLeft, optimizedRight)
+  )
+}
+
+
+
+lemma  optimizeOptimal(e: Expr)
+ensures optimal(optimize(e))
+{
+    // Structural induction on e
+    match e {
+        case Const(value) => {
+        }
+        case Var(name) => {
+        }
+        case Add(left, right) => {
+            optimizeOptimal(left);
+            optimizeOptimal(right);
+        }
+    }
+
+
+}
+
+
