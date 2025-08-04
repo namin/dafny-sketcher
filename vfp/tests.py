@@ -128,7 +128,14 @@ lemma {:axiom} optimizeOptimal(e: Expr)
 ensures optimal(optimize(e))
 """
 
+def read_file(fn):
+    with open(fn, 'r') as file:
+        return file.read()
+
 def run(solver):
+    if False:
+        print('BST')
+        solver(read_file('examples/BST.dfy'))
     if True:
         print('GIVEN PROGRAM WITH SUBTLE BUGS')
         solver(program_with_bugs)
