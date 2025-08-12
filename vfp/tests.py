@@ -160,14 +160,36 @@ module NatModule {
 }
 """
 
+nat_use_module = """
+module NatModule {
+    datatype Nat = Z | S(n: Nat)
+    function add(n1: Nat, n2: Nat): Nat
+    {
+        match n1
+        case Z => n2
+        case S(n) => S(add(n, n2))
+    }
+}
+
+module NatUseModule {
+    import NM = NatModule
+
+    lemma {:axiom} add_comm(n1: NM.Nat, n2: NM.Nat)
+    ensures NM.add(n1, n2) == NM.add(n2, n1)
+}
+"""
+
 def read_file(fn):
     with open(fn, 'r') as file:
         return file.read()
 
 def run(solver):
-    if True:
+    if False:
         print('NAT MODULE')
         solver(nat_module)
+    if True:
+        print('NAT USE MODULE')
+        solver(nat_use_module)
     if False:
         print('BST')
         solver(read_file('examples/BST.dfy'))
