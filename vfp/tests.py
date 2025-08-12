@@ -128,15 +128,50 @@ lemma {:axiom} optimizeOptimal(e: Expr)
 ensures optimal(optimize(e))
 """
 
+nat_module = """
+module NatModule {
+    datatype Nat = Z | S(n: Nat)
+    function add(n1: Nat, n2: Nat): Nat
+    {
+        match n1
+        case Z => n2
+        case S(n) => S(add(n, n2))
+    }
+
+    lemma {:axiom} add_comm(n1: Nat, n2: Nat)
+    ensures add(n1, n2) == add(n2, n1)
+}
+"""
+
+nat_module_empty_lemma_body = """
+module NatModule {
+    datatype Nat = Z | S(n: Nat)
+    function add(n1: Nat, n2: Nat): Nat
+    {
+        match n1
+        case Z => n2
+        case S(n) => S(add(n, n2))
+    }
+
+    lemma add_comm(n1: Nat, n2: Nat)
+    ensures add(n1, n2) == add(n2, n1)
+    {
+    }
+}
+"""
+
 def read_file(fn):
     with open(fn, 'r') as file:
         return file.read()
 
 def run(solver):
+    if True:
+        print('NAT MODULE')
+        solver(nat_module)
     if False:
         print('BST')
         solver(read_file('examples/BST.dfy'))
-    if True:
+    if False:
         print('GIVEN PROGRAM WITH SUBTLE BUGS')
         solver(program_with_bugs)
     if False:

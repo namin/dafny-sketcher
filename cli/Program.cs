@@ -239,42 +239,36 @@ namespace DafnySketcherCli {
       var todos = new List<Unit>();
       if (dafnyProgram.DefaultModuleDef is DefaultModuleDefinition defaultModule)
       {
-        foreach (var topLevelDecl in defaultModule.TopLevelDecls)
+        foreach (var (member, _) in defaultModule.AccessibleMembers)
         {
-          if (topLevelDecl is TopLevelDeclWithMembers classDecl)
+          if (member is MethodOrFunction m)
           {
-            foreach (var member in classDecl.Members)
+            string? type = null;
+            if (m.HasAxiomAttribute)
             {
-              if (member is MethodOrFunction m)
+              type = "lemma";
+            }
+            else if (m is Function f)
+            {
+              if (f.Body == null)
               {
-                string? type = null;
-                if (m.HasAxiomAttribute)
-                {
-                  type = "lemma";
-                }
-                else if (m is Function f)
-                {
-                  if (f.Body == null)
-                  {
-                    type = "function";
-                  }
-                }
-                if (type != null)
-                {
-                  todos.Add(new Unit
-                  {
-                    Name = m.Name,
-                    startLine = m.StartToken.line,
-                    startColumn = m.StartToken.col,
-                    InsertLine = m.EndToken.line,
-                    InsertColumn = m.EndToken.col,
-                    EndLine = m.EndToken.line,
-                    EndColumn = m.EndToken.col,
-                    Type = type,
-                    Status = "todo"
-                  });
-                }
+                type = "function";
               }
+            }
+            if (type != null)
+            {
+              todos.Add(new Unit
+              {
+                Name = m.Name,
+                startLine = m.StartToken.line,
+                startColumn = m.StartToken.col,
+                InsertLine = m.EndToken.line,
+                InsertColumn = m.EndToken.col,
+                EndLine = m.EndToken.line,
+                EndColumn = m.EndToken.col,
+                Type = type,
+                Status = "todo"
+              });
             }
           }
         }
@@ -286,46 +280,40 @@ namespace DafnySketcherCli {
       var units = new List<Unit>();
       if (dafnyProgram.DefaultModuleDef is DefaultModuleDefinition defaultModule)
       {
-        foreach (var topLevelDecl in defaultModule.TopLevelDecls)
+        foreach (var (member, _) in defaultModule.AccessibleMembers)
         {
-          if (topLevelDecl is TopLevelDeclWithMembers classDecl)
+          if (member is MethodOrFunction m)
           {
-            foreach (var member in classDecl.Members)
+            string? type = null;
+            if (m is Function f)
             {
-              if (member is MethodOrFunction m)
+              if (f.Body != null)
               {
-                string? type = null;
-                if (m is Function f)
+                var isSpec = f.Attributes != null && f.Attributes.Name == "spec";
+                if (!isSpec)
                 {
-                  if (f.Body != null)
-                  {
-                    var isSpec = f.Attributes != null && f.Attributes.Name == "spec";
-                    if (!isSpec)
-                    {
-                      type = "function";
-                    }
-                  }
-                }
-                else if (!m.HasAxiomAttribute && m.IsGhost)
-                {
-                  type = "lemma";
-                }
-                if (type != null)
-                {
-                  units.Add(new Unit
-                  {
-                    Name = m.Name,
-                    startLine = m.StartToken.line,
-                    startColumn = m.StartToken.col,
-                    InsertLine = m.BodyStartTok.line,
-                    InsertColumn = m.BodyStartTok.col,
-                    EndLine = m.EndToken.line,
-                    EndColumn = m.EndToken.col,
-                    Type = type,
-                    Status = "done"
-                  });
+                  type = "function";
                 }
               }
+            }
+            else if (!m.HasAxiomAttribute && m.IsGhost)
+            {
+              type = "lemma";
+            }
+            if (type != null)
+            {
+              units.Add(new Unit
+              {
+                Name = m.Name,
+                startLine = m.StartToken.line,
+                startColumn = m.StartToken.col,
+                InsertLine = m.BodyStartTok.line,
+                InsertColumn = m.BodyStartTok.col,
+                EndLine = m.EndToken.line,
+                EndColumn = m.EndToken.col,
+                Type = type,
+                Status = "done"
+              });
             }
           }
         }
@@ -337,30 +325,24 @@ namespace DafnySketcherCli {
       var units = new List<Unit>();
       if (dafnyProgram.DefaultModuleDef is DefaultModuleDefinition defaultModule)
       {
-        foreach (var topLevelDecl in defaultModule.TopLevelDecls)
+        foreach (var (member, _) in defaultModule.AccessibleMembers)
         {
-          if (topLevelDecl is TopLevelDeclWithMembers classDecl)
+          if (member is MethodOrFunction m)
           {
-            foreach (var member in classDecl.Members)
+            if (m.IsGhost)
             {
-              if (member is MethodOrFunction m)
+              units.Add(new Unit
               {
-                if (m.IsGhost)
-                {
-                  units.Add(new Unit
-                  {
-                    Name = m.Name,
-                    startLine = m.StartToken.line,
-                    startColumn = m.StartToken.col,
-                    InsertLine = m.BodyStartTok.line,
-                    InsertColumn = m.BodyStartTok.col,
-                    EndLine = m.EndToken.line,
-                    EndColumn = m.EndToken.col,
-                    Type = "lemma",
-                    Status = "any"
-                  });
-                }
-              }
+                Name = m.Name,
+                startLine = m.StartToken.line,
+                startColumn = m.StartToken.col,
+                InsertLine = m.BodyStartTok.line,
+                InsertColumn = m.BodyStartTok.col,
+                EndLine = m.EndToken.line,
+                EndColumn = m.EndToken.col,
+                Type = "lemma",
+                Status = "any"
+              });
             }
           }
         }

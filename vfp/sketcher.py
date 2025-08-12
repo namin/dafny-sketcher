@@ -115,6 +115,7 @@ def sketch_todo_lemmas(file_input: str) -> list[object]:
         TODOs as JSON
     """
     result = dafny_sketcher(file_input, ['--sketch', 'todo_lemmas'])
+    print(result)
     return json.loads(result) if result else []
 
 def sketch_todo(file_input: str) -> list[object]:
@@ -180,6 +181,13 @@ def sketch_counterexamples(file_input: str, method_name: Optional[str] = None) -
 if __name__ == "__main__":
     with open('examples/StlcDemo.dfy', 'r') as file:
         print(sketch_todo_lemmas(file.read()))
+
+    import tests
+    print(sketch_todo(tests.nat_module))
+    print(sketch_todo_lemmas(tests.nat_module_empty_lemma_body))
+    print(sketch_done(tests.nat_module))
+    print(show_errors(tests.nat_module_empty_lemma_body))
+    print(sketch_induction(tests.nat_module_empty_lemma_body, "add_comm"))
 
 if False:
     print(sketch_todo("""
@@ -254,5 +262,4 @@ ensures optimal(optimize(e))
 """
     print(sketch_counterexamples(program_with_bugs, "optimizeOptimal"))
     # TODO: let's see if we need this to work with axioms.
-    #import tests
     #print(sketch_counterexamples(tests.program_with_bugs, "optimizeOptimal"))
