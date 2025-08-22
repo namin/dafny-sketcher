@@ -184,6 +184,22 @@ def read_file(fn):
         return file.read()
 
 def run(solver):
+    import argparse
+    
+    parser = argparse.ArgumentParser(description='Run Dafny solver')
+    parser.add_argument('--file', type=str, help='Path to Dafny file to process')
+    
+    args = parser.parse_args()
+    
+    if args.file:
+        # Read the file and use its content with the solver
+        file_content = read_file(args.file)
+        solver(file_content)
+    else:
+        # Default behavior: run the test suite
+        run_test(solver)
+
+def run_test(solver):
     if False:
         print('NAT MODULE')
         solver(nat_module)
