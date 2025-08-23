@@ -135,8 +135,8 @@ The errors in the work-in-progress lemma are:
 
 if __name__ == "__main__":
     demo = None
-    with open('examples/StlcDemo.dfy', 'r') as file:
-        demo = file.read()
+    from tests import read_file
+    demo = read_file('bench/stlc_fine.dfy')
     todos = sketcher.sketch_todo_lemmas(demo)
     print(todos)
     todo = todos[0]
