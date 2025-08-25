@@ -1,6 +1,8 @@
 # Dafny Sketcher CLI
 
-Dafny Sketcher is a collection of routines that can help develop verified programs in Dafny.
+Dafny Sketcher CLI is a collection of routines that can help develop verified programs in Dafny.
+
+## Commands
 
 - Print errors or OK if no errors:
   `dafny-sketcher-cli --file FILE.dfy --sketch errors_warnings`
