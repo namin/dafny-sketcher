@@ -168,7 +168,7 @@ def sketch_counterexamples(file_input: str, method_name: Optional[str] = None) -
         method_name: Name of the method to sketch induction for
     
     Returns:
-        A list of counterexamples, each a boolean condition on the paramters.
+        A list of counterexamples, each a boolean condition on the parameters.
     """
     if not method_name:
         return "Error: missing parameter for method name"
