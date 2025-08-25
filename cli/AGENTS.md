@@ -6,7 +6,7 @@ Dafny Sketcher is a collection of routines that can help develop verified progra
   `dafny-sketcher-cli --file FILE.dfy --sketch errors_warnings`
 - Produce an inductive sketch for the given method lemma:
   `dafny-sketcher-cli --file FILE.dfy --sketch induction_search --method METHOD_NAME`
-- Find some counterexamples for the given method lemma, returning a (possibly empty) list of counterexamples, each a boolean condition on the paramters:
+- Find some counterexamples for the given method lemma, returning a (possibly empty) list of counterexamples, each a boolean condition on the parameters:
   `dafny-sketcher-cli --file FILE.dfy --sketch counterexamples --method METHOD_NAME`
 - List unit-level TODOs as JSON:
   `dafny-sketcher-cli --file FILE.dfy --sketch todo`
