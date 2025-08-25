@@ -55,3 +55,5 @@ dafny-sketcher-cli --file examples/opt0opt_todo.dfy --sketch induction --method 
 ```
 dafny-sketcher-cli
 ```
+
+See also [AGENTS.md](AGENTS.md).
