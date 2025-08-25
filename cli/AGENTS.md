@@ -14,5 +14,5 @@ Dafny Sketcher CLI is a collection of routines that can help develop verified pr
   `dafny-sketcher-cli --file FILE.dfy --sketch todo`
 - List implemented units as JSON:
   `dafny-sketcher-cli --file FILE.dfy --sketch done`
-- List lemmas with remaining TODOs as JSON:
+- List lemmas with remaining TODOs (for fine-grained edits) as JSON:
   `dafny-sketcher-cli --file FILE.dfy --sketch todo_lemmas`
