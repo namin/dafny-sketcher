@@ -1,6 +1,7 @@
 import os
 from typing import List
 
+AWS_BEARER_TOKEN_BEDROCK = os.environ.get('AWS_BEARER_TOKEN_BEDROCK')
 ANTHROPIC_API_KEY = os.environ.get('ANTHROPIC_API_KEY')
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
 GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
@@ -28,6 +29,44 @@ def generate(prompt, max_tokens=1000, temperature=1.0, model=None):
     return None
 generators[None] = generate
 
+if AWS_BEARER_TOKEN_BEDROCK:
+    generate = None
+    try:
+        from anthropic import AnthropicBedrock
+    except ModuleNotFoundError:
+        generate = dummy_generate('anthropic[bedrock]')
+    if generate is None:
+        # old default, because newer require provisioning
+        model = os.environ.get('ANTHROPIC_AWS_MODEL', 'anthropic.claude-3-sonnet-20240229-v1:0')
+        aws_region = os.environ.get('AWS_REGION', 'us-east-1')
+        def generate(prompt, max_tokens=1000, temperature=1.0, model=model):
+            debug(f"Prompt:\n{prompt}")
+            print(f"Sending request to Anthropic AWS (model={model}, max_tokens={max_tokens}, temp={temperature})")
+
+            client = AnthropicBedrock()
+
+            message = client.messages.create(
+                model=model,
+                max_tokens=max_tokens,
+                temperature=temperature,
+                system="You are a Dany expert.",
+                messages=[
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": prompt
+                            }
+                        ]
+                    }
+                ]
+            )
+            print("Received response from Anthropic AWS")
+            print(f"Response:\n{message}")
+            return message.content[0].text
+    generators['claude_aws'] = generate
+
 if PROJECT_ID:
     generate = None
     try:
@@ -46,7 +85,7 @@ if PROJECT_ID:
                 model=model,
                 max_tokens=max_tokens,
                 temperature=temperature,
-                system="You are an SMTLIB expert.",
+                system="You are a Dany expert.",
                 messages=[
                     {
                         "role": "user",
