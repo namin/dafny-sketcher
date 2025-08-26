@@ -1,6 +1,8 @@
 import os
 from typing import List
 
+SYSTEM_PROMPT = "You are a Dafny expert." # for Anthropic only
+
 AWS_BEARER_TOKEN_BEDROCK = os.environ.get('AWS_BEARER_TOKEN_BEDROCK')
 ANTHROPIC_API_KEY = os.environ.get('ANTHROPIC_API_KEY')
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
@@ -49,7 +51,7 @@ if AWS_BEARER_TOKEN_BEDROCK:
                 model=model,
                 max_tokens=max_tokens,
                 temperature=temperature,
-                system="You are a Dany expert.",
+                system=SYSTEM_PROMPT,
                 messages=[
                     {
                         "role": "user",
@@ -85,7 +87,7 @@ if PROJECT_ID:
                 model=model,
                 max_tokens=max_tokens,
                 temperature=temperature,
-                system="You are a Dany expert.",
+                system=SYSTEM_PROMPT,
                 messages=[
                     {
                         "role": "user",
@@ -169,7 +171,7 @@ if ANTHROPIC_API_KEY:
                 model=model,
                 max_tokens=max_tokens,
                 temperature=temperature,
-                system="You are a Dafny expert.",
+                system=SYSTEM_PROMPT,
                 messages=[
                     {
                         "role": "user",
