@@ -179,87 +179,87 @@ def sketch_counterexamples(file_input: str, method_name: Optional[str] = None) -
 
 
 if __name__ == "__main__":
-    with open('examples/StlcDemo.dfy', 'r') as file:
-        print(sketch_todo_lemmas(file.read()))
+    if False:
+        with open('examples/StlcDemo.dfy', 'r') as file:
+            print(sketch_todo_lemmas(file.read()))
 
-    import tests
-    print(sketch_todo(tests.nat_module))
-    print(sketch_todo_lemmas(tests.nat_module_empty_lemma_body))
-    print(sketch_done(tests.nat_module))
-    print(show_errors(tests.nat_module_empty_lemma_body))
-    print(sketch_induction(tests.nat_module_empty_lemma_body, "add_comm"))
+        import tests
+        print(sketch_todo(tests.nat_module))
+        print(sketch_todo_lemmas(tests.nat_module_empty_lemma_body))
+        print(sketch_done(tests.nat_module))
+        print(show_errors(tests.nat_module_empty_lemma_body))
+        print(sketch_induction(tests.nat_module_empty_lemma_body, "add_comm"))
 
-if False:
-    print(sketch_todo("""
-    function foo()
-    lemma {:axiom} bar()
-    lemma {:axiom} baz()
+    if False:
+        print(sketch_todo("""
+        function foo()
+        lemma {:axiom} bar()
+        lemma {:axiom} baz()
+        """))
+        print(sketch_next_todo("""
+        function foo()
+        lemma {:axiom} bar()
+        lemma {:axiom} baz()
+        """))
+        print(sketch_next_todo("""
+    datatype Expr =
+    | Const(value: int)
+    | Var(name: string)
+    | Add(left: Expr, right: Expr)
+
+    type Environment = string -> int
+
+    function eval(e: Expr, env: Environment): int
+
+    function optimize(e: Expr): Expr
+
+    lemma {:axiom} optimizePreservesSemantics(e: Expr, env: Environment)
+    ensures eval(optimize(e), env) == eval(e, env)
     """))
-    print(sketch_next_todo("""
-    function foo()
-    lemma {:axiom} bar()
-    lemma {:axiom} baz()
+
+        print(sketch_next_todo("""
+    datatype Expr =
+    | Const(value: int)
+    | Var(name: string)
+    | Add(left: Expr, right: Expr)
+
+    type Environment = string -> int
+
+    function eval(e: Expr, env: Environment): int { 0 }
+
+    function optimize(e: Expr): Expr { e }
+
+    lemma {:axiom} optimizePreservesSemantics(e: Expr, env: Environment)
+    ensures eval(optimize(e), env) == eval(e, env)
     """))
-    print(sketch_next_todo("""
-datatype Expr =
-  | Const(value: int)
-  | Var(name: string)
-  | Add(left: Expr, right: Expr)
 
-type Environment = string -> int
+    if True:
+        program_with_bugs = """datatype Expr =
+    | Const(value: int)
+    | Var(name: string)
+    | Add(left: Expr, right: Expr)
 
-function eval(e: Expr, env: Environment): int
+    predicate {:spec} optimal(e: Expr)
+    {
+    match e
+    case Add(Const(0), _) => false
+    case Add(_, Const(0)) => false
+    case Add(e1, e2) => optimal(e1) && optimal(e2)
+    case _ => true
+    }
 
-function optimize(e: Expr): Expr
+    function optimize(e: Expr): Expr
+    {
+    match e
+    case Add(Const(0), e2) => optimize(e2)
+    case Add(e1, Const(0)) => optimize(e1)
+    case Add(e1, e2) => Add(optimize(e1), optimize(e2))
+    case _ => e
+    }
 
-lemma {:axiom} optimizePreservesSemantics(e: Expr, env: Environment)
-ensures eval(optimize(e), env) == eval(e, env)
-"""))
-
-    print(sketch_next_todo("""
-datatype Expr =
-  | Const(value: int)
-  | Var(name: string)
-  | Add(left: Expr, right: Expr)
-
-type Environment = string -> int
-
-function eval(e: Expr, env: Environment): int { 0 }
-
-function optimize(e: Expr): Expr { e }
-
-lemma {:axiom} optimizePreservesSemantics(e: Expr, env: Environment)
-ensures eval(optimize(e), env) == eval(e, env)
-"""))
-
-    program_with_bugs = """datatype Expr =
-  | Const(value: int)
-  | Var(name: string)
-  | Add(left: Expr, right: Expr)
-
-predicate {:spec} optimal(e: Expr)
-{
-  match e
-  case Add(Const(0), _) => false
-  case Add(_, Const(0)) => false
-  case Add(e1, e2) => optimal(e1) && optimal(e2)
-  case _ => true
-}
-
-function optimize(e: Expr): Expr
-{
-  match e
-  case Add(Const(0), e2) => optimize(e2)
-  case Add(e1, Const(0)) => optimize(e1)
-  case Add(e1, e2) => Add(optimize(e1), optimize(e2))
-  case _ => e
-}
-
-lemma optimizeOptimal(e: Expr)
-ensures optimal(optimize(e))
-{
-}
-"""
-    print(sketch_counterexamples(program_with_bugs, "optimizeOptimal"))
-    # TODO: let's see if we need this to work with axioms.
-    #print(sketch_counterexamples(tests.program_with_bugs, "optimizeOptimal"))
+    lemma optimizeOptimal(e: Expr)
+    ensures optimal(optimize(e))
+    {
+    }
+    """
+        print(sketch_counterexamples(program_with_bugs, "optimizeOptimal"))

@@ -58,7 +58,7 @@ def lemma_implementer(p: str, todo, done) -> str:
     if xp:
         print("Induction sketcher works!")
         return xp
-    ip = insert_program_todo(todo, p, x) # could use "" instead of x?
+    ip = insert_program_todo(todo, p, "")
     cs = sketcher.sketch_counterexamples(ip, todo['name'])
     if cs:
         # TODO: could force the edit further
