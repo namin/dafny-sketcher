@@ -203,13 +203,13 @@ def run_test(solver):
     if False:
         print('NAT MODULE')
         solver(nat_module)
-    if True:
+    if False:
         print('NAT USE MODULE')
         solver(nat_use_module)
     if False:
         print('BST')
         solver(read_file('examples/BST.dfy'))
-    if False:
+    if True:
         print('GIVEN PROGRAM WITH SUBTLE BUGS')
         solver(program_with_bugs)
     if False:
