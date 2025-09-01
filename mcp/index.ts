@@ -114,6 +114,17 @@ server.tool("sketch-induction",
   }
 );
 
+server.tool("sketch-counterexamples",
+  // TODO: we only make methodName optional because OpenAI makes calls missing this parameter.
+  { fileInput: z.string(), methodName: z.string().optional() },
+  async ({ fileInput, methodName }) => {
+    let result = !methodName ? "Error: missing parameter methodName" : await dafnySketcher(fileInput, ["--sketch", "counterexamples", "--method", methodName]);
+    return {
+      content: [{ type: "text", text: result }]
+    };
+  }
+);
+
 server.tool("sketch-assertions",
   { fileInput: z.string(), line: z.number().optional() },
   async ({ fileInput, line }) => {
