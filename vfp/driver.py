@@ -61,11 +61,12 @@ def lemma_implementer(p: str, todo, done) -> str:
     ip = insert_program_todo(todo, p, "")
     cs = sketcher.sketch_counterexamples(ip, todo['name'])
     if cs:
+        cs_str = "\n".join(cs)
         # TODO: could force the edit further
-        return llm_implementer(p, todo, done=done, hint="We found the following counterexamples to the lemma:\n" + "\n".join(cs) + "\nConsider editing the code instead of continuing to prove an impossible lemma.")
+        return llm_implementer(p, todo, done=done, hint="We found the following counterexamples to the lemma:\n" + cs_str+ "\nConsider editing the code instead of continuing to prove an impossible lemma.", edit_hint="A previous attempt had the following counterexamples for a desired property -- consider these carefully:\n" + cs_str)
     return llm_implementer(p, todo, done=done, hint="This induction sketch did NOT work on its own, but could be a good starting point if you vary/augment it:\n" + x)
 
-def llm_implementer(p: str, todo, prev: str = None, hint: str = None, done: list[object] = None) -> str:
+def llm_implementer(p: str, todo, prev: str = None, hint: str = None, done: list[object] = None, edit_hint: str = None) -> str:
     prompt = prompt_function_implementer(p, todo['name']) if todo['type'] == 'function' else prompt_lemma_implementer(p, todo['name'])
     if hint is not None:
         prompt += "\n" + hint
@@ -78,7 +79,7 @@ def llm_implementer(p: str, todo, prev: str = None, hint: str = None, done: list
     print(r)
     edit_function = extract_edit_function(r, done_functions)
     if edit_function is not None:
-        return llm_edit_function(p, todo, done, edit_function)
+        return llm_edit_function(p, todo, done, edit_function, hint=edit_hint)
     x = extract_dafny_program(r)
     if x is not None:
         x = extract_dafny_body(x, todo)
@@ -97,10 +98,10 @@ def llm_implementer(p: str, todo, prev: str = None, hint: str = None, done: list
         return None
     return xp
 
-def llm_edit_function(p: str, todo, done, edit_function) -> str:
+def llm_edit_function(p: str, todo, done, edit_function, hint: str = None) -> str:
     print('EDIT', edit_function)
     edit_todo = [u for u in done if u['name'] == edit_function][0]
-    xp = llm_implementer(p, edit_todo, hint=f"You chose to re-implement {edit_function} instead of implementing {todo['name']}.")
+    xp = llm_implementer(p, edit_todo, hint=f"You chose to re-implement {edit_function} instead of implementing {todo['name']}." + " "+hint if hint else "")
     if xp is None or xp == p:
         return erase_implementation(p, edit_todo)
     return xp
