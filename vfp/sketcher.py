@@ -179,11 +179,14 @@ def sketch_counterexamples(file_input: str, method_name: Optional[str] = None) -
 
 
 if __name__ == "__main__":
-    if False:
-        with open('examples/StlcDemo.dfy', 'r') as file:
-            print(sketch_todo_lemmas(file.read()))
+    import tests
+    if True:
+        print('StlcDemo')
+        print(sketch_todo_lemmas(tests.read_file('examples/StlcDemo.dfy')))
+        print('OptBuggy')
+        print(sketch_todo_lemmas(tests.read_file('examples/OptBuggy.dfy')))
 
-        import tests
+    if False:
         print(sketch_todo(tests.nat_module))
         print(sketch_todo_lemmas(tests.nat_module_empty_lemma_body))
         print(sketch_done(tests.nat_module))
@@ -233,7 +236,7 @@ if __name__ == "__main__":
     ensures eval(optimize(e), env) == eval(e, env)
     """))
 
-    if True:
+    if False:
         program_with_bugs = """datatype Expr =
     | Const(value: int)
     | Var(name: string)
