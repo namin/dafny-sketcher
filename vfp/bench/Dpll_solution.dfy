@@ -551,7 +551,7 @@ lemma DpllCorrectness(fuel: nat, fm: Formula)
 }
 
 // ============ TESTING ============
-method TestCleanDesign()
+method TestDesign()
 {
   // Create a simple formula: (p ∨ ¬q) ∧ (¬p ∨ q)
   var p := Lit(true, 0);
@@ -595,7 +595,7 @@ method TestCleanDesign()
 
 method Main()
 {
-  print "DPLL SAT Solver - Clean Design\n";
+  print "DPLL SAT Solver\n";
   print "===============================\n\n";
-  TestCleanDesign();
+  TestDesign();
 }
