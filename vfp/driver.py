@@ -42,13 +42,13 @@ def spec_maker(idea: str) -> str:
         return None
     return p
 
-def dispatch_implementer(p: str, todo, done) -> str:
+def dispatch_implementer(p: str, todo, done, cache=None) -> str:
     if todo['type'] == 'function':
-        return llm_implementer(p, todo)
+        return llm_implementer(p, todo, cache=cache)
     elif todo['type'] == 'lemma':
-        return lemma_implementer(p, todo, done)
+        return lemma_implementer(p, todo, done, cache=cache)
 
-def lemma_implementer(p: str, todo, done) -> str:
+def lemma_implementer(p: str, todo, done, cache=None) -> str:
     xp = implementer(p, "", todo)
     if xp:
         print("Empty proof works!")
@@ -64,9 +64,22 @@ def lemma_implementer(p: str, todo, done) -> str:
         cs_str = "\n".join(cs)
         # TODO: could force the edit further
         return llm_implementer(p, todo, done=done, hint="We found the following counterexamples to the lemma:\n" + cs_str+ "\nConsider editing the code instead of continuing to prove an impossible lemma.", edit_hint="A previous attempt had the following counterexamples for a desired property -- consider these carefully:\n" + cs_str)
-    return llm_implementer(p, todo, done=done, hint="This induction sketch did NOT work on its own, but could be a good starting point if you vary/augment it:\n" + x)
+    return llm_implementer(p, todo, done=done, hint="This induction sketch did NOT work on its own, but could be a good starting point if you vary/augment it:\n" + x, cache=cache)
 
-def llm_implementer(p: str, todo, prev: str = None, hint: str = None, done: list[object] = None, edit_hint: str = None) -> str:
+def cache_previous_attempts(cache, todo):
+    r = ""
+    if todo['name'] in cache:
+        r = "\nPrevious attempts with errors:\n"
+        for x,e in cache[todo['name']]:
+            r += f"Code:\n{x}\nErrors:\n{e}\n"
+    return r
+
+def cache_add(cache, todo, x, e):
+    if todo['name'] not in cache:
+        cache[todo['name']] = []
+    cache[todo['name']].append((x, e))
+
+def llm_implementer(p: str, todo, prev: str = None, hint: str = None, done: list[object] = None, edit_hint: str = None, cache=None) -> str:
     prompt = prompt_function_implementer(p, todo['name']) if todo['type'] == 'function' else prompt_lemma_implementer(p, todo['name'])
     if hint is not None:
         prompt += "\n" + hint
@@ -75,11 +88,13 @@ def llm_implementer(p: str, todo, prev: str = None, hint: str = None, done: list
     done_functions = [u['name'] for u in done if u['type'] == 'function'] if done else []
     if done_functions:
         prompt += f"\nIf you think it's impossible to implement {todo['name']} without re-implementing one of the previous functions, you can write in one line\n// EDIT <function name>\n where <function name> is one of the following: " + ", ".join(done_functions) + f" to ask to re-implement the function instead of implementing {todo['name']}."
+    if cache is not None:
+        prompt += cache_previous_attempts(cache, todo)
     r = generate(prompt)
     print(r)
     edit_function = extract_edit_function(r, done_functions)
     if edit_function is not None:
-        return llm_edit_function(p, todo, done, edit_function, hint=edit_hint)
+        return llm_edit_function(p, todo, done, edit_function, hint=edit_hint, cache=cache)
     x = extract_dafny_program(r)
     if x is not None:
         x = extract_dafny_body(x, todo)
@@ -92,16 +107,18 @@ def llm_implementer(p: str, todo, prev: str = None, hint: str = None, done: list
         return None
     e = sketcher.show_errors(xp)
     if e is not None:
+        if cache is not None:
+            cache_add(cache, todo, x, e)
         print("Errors in implementer:", e)
         if prev is None:
-            return llm_implementer(p, todo, e)
+            return llm_implementer(p, todo, e, cache=cache)
         return None
     return xp
 
-def llm_edit_function(p: str, todo, done, edit_function, hint: str = None) -> str:
+def llm_edit_function(p: str, todo, done, edit_function, hint: str = None, cache=None) -> str:
     print('EDIT', edit_function)
     edit_todo = [u for u in done if u['name'] == edit_function][0]
-    xp = llm_implementer(p, edit_todo, hint=f"You chose to re-implement {edit_function} instead of implementing {todo['name']}." + " "+hint if hint else "")
+    xp = llm_implementer(p, edit_todo, hint=f"You chose to re-implement {edit_function} instead of implementing {todo['name']}." + " "+hint if hint else "", cache=cache)
     if xp is None or xp == p:
         return erase_implementation(p, edit_todo)
     return xp
