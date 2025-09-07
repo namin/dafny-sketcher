@@ -13,6 +13,13 @@ brew install dotnet@8 dotnet-sdk@8 java # Mac
 sudo apt install dotnet-sdk-8.0 java # Linux
 ```
 
+Remember to add `dotnet` and `java` to your PATH:
+
+```sh
+export PATH="/opt/homebrew/opt/java/bin:$PATH"
+export PATH="/opt/homebrew/opt/dotnet@8/bin:$PATH"
+```
+
 ### Submodules
 
 The submodules are forked (namin) branches (sketcher) of the Dafny repositories: [dafny-lang/dafny](https://github.com/dafny-lang/dafny) and [dafny-lang/ide-vscode](https://github.com/dafny-lang/ide-vscode).
