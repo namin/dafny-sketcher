@@ -9,7 +9,7 @@ Besides the dev setup to use Dafny Sketcher in a VSCode extension, Dafny Sketche
 - `git clone --recursive https://github.com/namin/dafny-sketcher.git`
 - Also make sure to install dotnet:
 ```sh
-brew install dotnet # Mac 
+brew install dotnet dotnet-sdk # Mac 
 sudo apt install dotnet-sdk-8.0 # Linux
 ```
 
