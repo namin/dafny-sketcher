@@ -3,6 +3,23 @@ from typing import List, Optional
 from llm import default_generate as generate
 import sketcher
 
+class Cache:
+    def __init__(self):
+        self.cache = {}
+
+    def previous_attempts(self, todo):
+        r = ""
+        if todo['name'] in self.cache:
+            r = "\nPrevious attempts with errors:\n"
+            for x,e in self.cache[todo['name']]:
+                r += f"Code:\n{x}\nErrors:\n{e}\n"
+        return r
+
+    def add(self, todo, x, e):
+        if todo['name'] not in self.cache:
+            self.cache[todo['name']] = []
+        self.cache[todo['name']].append((x, e))
+
 def drive_ex(ex):
     p = None
     while p is None:
@@ -66,19 +83,6 @@ def lemma_implementer(p: str, todo, done, cache=None) -> str:
         return llm_implementer(p, todo, done=done, hint="We found the following counterexamples to the lemma:\n" + cs_str+ "\nConsider editing the code instead of continuing to prove an impossible lemma.", edit_hint="A previous attempt had the following counterexamples for a desired property -- consider these carefully:\n" + cs_str)
     return llm_implementer(p, todo, done=done, hint="This induction sketch did NOT work on its own, but could be a good starting point if you vary/augment it:\n" + x, cache=cache)
 
-def cache_previous_attempts(cache, todo):
-    r = ""
-    if todo['name'] in cache:
-        r = "\nPrevious attempts with errors:\n"
-        for x,e in cache[todo['name']]:
-            r += f"Code:\n{x}\nErrors:\n{e}\n"
-    return r
-
-def cache_add(cache, todo, x, e):
-    if todo['name'] not in cache:
-        cache[todo['name']] = []
-    cache[todo['name']].append((x, e))
-
 def llm_implementer(p: str, todo, prev: str = None, hint: str = None, done: list[object] = None, edit_hint: str = None, cache=None) -> str:
     prompt = prompt_function_implementer(p, todo['name']) if todo['type'] == 'function' else prompt_lemma_implementer(p, todo['name'])
     if hint is not None:
@@ -89,7 +93,7 @@ def llm_implementer(p: str, todo, prev: str = None, hint: str = None, done: list
     if done_functions:
         prompt += f"\nIf you think it's impossible to implement {todo['name']} without re-implementing one of the previous functions, you can write in one line\n// EDIT <function name>\n where <function name> is one of the following: " + ", ".join(done_functions) + f" to ask to re-implement the function instead of implementing {todo['name']}."
     if cache is not None:
-        prompt += cache_previous_attempts(cache, todo)
+        prompt += cache.previous_attempts(todo)
     r = generate(prompt)
     print(r)
     edit_function = extract_edit_function(r, done_functions)
@@ -108,7 +112,7 @@ def llm_implementer(p: str, todo, prev: str = None, hint: str = None, done: list
     e = sketcher.show_errors(xp)
     if e is not None:
         if cache is not None:
-            cache_add(cache, todo, x, e)
+            cache.add(todo, x, e)
         print("Errors in implementer:", e)
         if prev is None:
             return llm_implementer(p, todo, e, cache=cache)

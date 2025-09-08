@@ -9,7 +9,7 @@ import sketcher
 import driver
 import fine
 
-cache = {}
+cache = driver.Cache()
 
 def add_standard_node(node, p):
     child = Node(p)
