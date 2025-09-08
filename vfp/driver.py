@@ -28,7 +28,7 @@ def drive_ex(ex):
     print(p)
     return drive_program(p)
 
-def drive_program(p: str, max_iterations: Optional[int] = None) -> str:
+def drive_program(p: str, max_iterations: Optional[int] = None, cache=None) -> str:
     i = 0
     while max_iterations is None or i < max_iterations:
         i += 1
@@ -36,7 +36,7 @@ def drive_program(p: str, max_iterations: Optional[int] = None) -> str:
         done = sketcher.sketch_done(p)
         if todo is None:
             return p
-        xp = dispatch_implementer(p, todo, done)
+        xp = dispatch_implementer(p, todo, done, cache=cache)
         if xp is None:
             print("Didn't solve todo")
             continue
