@@ -122,9 +122,10 @@ def llm_implementer(p: str, todo, prev: str = None, hint: str = None, done: list
 def llm_edit_function(p: str, todo, done, edit_function, hint: str = None, cache=None) -> str:
     print('EDIT', edit_function)
     edit_todo = [u for u in done if u['name'] == edit_function][0]
+    p = erase_implementation(p, edit_todo)
     xp = llm_implementer(p, edit_todo, hint=f"You chose to re-implement {edit_function} instead of implementing {todo['name']}." + " "+hint if hint else "", cache=cache)
-    if xp is None or xp == p:
-        return erase_implementation(p, edit_todo)
+    if xp is None:
+        return p
     return xp
 
 def remove_think_blocks(text):
