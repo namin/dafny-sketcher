@@ -10,6 +10,10 @@ import driver
 import fine
 
 cache = driver.Cache()
+if True:
+    # quick try
+    import reflexion
+    cache = reflexion.ReflexionCache()
 
 def add_standard_node(node, p):
     child = Node(p)
