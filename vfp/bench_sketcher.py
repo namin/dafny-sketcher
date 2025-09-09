@@ -1,0 +1,54 @@
+import glob
+import os
+
+import driver
+import sketcher
+import tests
+
+def main1(f, stats):
+    p = tests.read_file(f)
+    if False:
+        e = sketcher.show_errors(p)
+        if e is not None:
+            stats[f] = e
+        else:
+            stats[f] = "OK"
+    done = sketcher.sketch_done(p)
+    lemmas = [x for x in done if x['type'] == 'lemma']
+    for lemma in lemmas:
+        name = lemma['name']
+        print('lemma', name)
+        xp = driver.insert_program_todo(lemma, p, "")
+        e = sketcher.show_errors(xp)
+        if e is None:
+            print("empty proof works")
+            stats[name] = -1
+            continue
+        ip = sketcher.sketch_induction(xp, name)
+        e = sketcher.show_errors(ip)
+        if e is None:
+            print("inductive proof sketch works")
+            stats[name] = 0
+        else:
+            stats[name] = e.count('\n')
+
+def main():
+    stats = {}
+    
+    solution_files = sorted(glob.glob("bench/*_solution.dfy"))
+    solution_files = [f for f in solution_files if os.path.basename(f)[0].islower()]
+    print(len(solution_files))
+    print(solution_files)
+    for f in solution_files:
+        main1(f, stats)
+    print(stats)
+    print('total for empty proof works:', len([v for v in stats.values() if v == -1]))
+    print('total for inductive proof sketch works:', len([v for v in stats.values() if v == 0]))
+    print('total for errors:', len([v for v in stats.values() if v >= 1]))
+    print('lemmas with errors:')
+    for k, v in stats.items():
+        if v >= 1:
+            print(k)
+
+if __name__ == "__main__":
+    main()
