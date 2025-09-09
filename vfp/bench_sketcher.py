@@ -24,13 +24,14 @@ def main1(f, stats):
             print("empty proof works")
             stats[name] = -1
             continue
-        ip = sketcher.sketch_induction(xp, name)
+        ix = sketcher.sketch_induction(xp, name)
+        ip = driver.insert_program_todo(lemma, p, ix)
         e = sketcher.show_errors(ip)
         if e is None:
             print("inductive proof sketch works")
             stats[name] = 0
         else:
-            stats[name] = e.count('\n')
+            stats[name] = ix
 
 def main():
     stats = {}
@@ -42,13 +43,14 @@ def main():
     for f in solution_files:
         main1(f, stats)
     print(stats)
-    print('total for empty proof works:', len([v for v in stats.values() if v == -1]))
-    print('total for inductive proof sketch works:', len([v for v in stats.values() if v == 0]))
-    print('total for errors:', len([v for v in stats.values() if v >= 1]))
+    print('total for empty proof works:', len([v for v in stats.values() if isinstance(v, int) and v == -1]))
+    print('total for inductive proof sketch works:', len([v for v in stats.values() if isinstance(v, int) and v == 0]))
+    print('total for errors:', len([v for v in stats.values() if not isinstance(v, int)]))
     print('lemmas with errors:')
     for k, v in stats.items():
-        if v >= 1:
+        if not isinstance(v, int):
             print(k)
+            print(v)
 
 if __name__ == "__main__":
     main()
