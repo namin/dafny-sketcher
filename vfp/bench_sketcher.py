@@ -6,6 +6,7 @@ import sketcher
 import tests
 
 def main1(f, stats):
+    print('---------- Looking at file: ', f, '--------------')
     p = tests.read_file(f)
     if False:
         e = sketcher.show_errors(p)
@@ -31,7 +32,8 @@ def main1(f, stats):
             print("inductive proof sketch works")
             stats[name] = 0
         else:
-            stats[name] = ix
+            print("inductive proof failed")
+            stats[name] = 1 #stats[name] = ix
 
 def main():
     stats = {}
@@ -42,6 +44,7 @@ def main():
     print(solution_files)
     for f in solution_files:
         main1(f, stats)
+    print('FINISHED FOR LOOP')
     print(stats)
     print('total for empty proof works:', len([v for v in stats.values() if isinstance(v, int) and v == -1]))
     print('total for inductive proof sketch works:', len([v for v in stats.values() if isinstance(v, int) and v == 0]))
