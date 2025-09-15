@@ -196,17 +196,26 @@ def erase_implementation(p: str, todo) -> str:
 def insert_program_todo(todo, p, x):
     if todo['status'] != 'todo':
         lines = p.splitlines(keepends=True)
+        # Only use the insertion point, don't replace content up to endLine
         start_offset = line_col_to_start_offset(p,lines, todo['insertLine'], todo['insertColumn'])
-        end_offset = line_col_to_end_offset(p, lines, todo['endLine'], todo['endColumn'])
-        xp = p[:start_offset] + "{\n" + x + "\n}" + p[end_offset:]
+        xp = p[:start_offset] + "{\n" + x + "\n}" + p[start_offset:]
     else:
         line = todo['insertLine']
-        lines = p.split('\n')
-        lines[line-1] = lines[line-1] + "\n{\n" + x + "\n}\n"
+        lines = p.splitlines(keepends=True)
+        
+        # Ensure the target line doesn't end with newline for clean insertion
+        lines[line-1] = lines[line-1].rstrip('\n\r')
+        
+        # Create insertion lines as separate array elements
+        insertion_lines = ["\n", "{\n", x + "\n", "}\n"]
+        
+        # Insert the new lines into the array after the target line
+        lines[line:line] = insertion_lines
+        
         if todo['type'] == 'lemma':
             line_lemma = todo['startLine']
             lines[line_lemma-1] = lines[line_lemma-1].replace('{:axiom}', '')
-        xp = '\n'.join(lines)
+        xp = ''.join(lines)
     print("XP")
     print(xp)
     return xp
