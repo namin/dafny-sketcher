@@ -9,7 +9,8 @@ OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
 GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
 OLLAMA_API_KEY = os.environ.get('OLLAMA_API_KEY')
 MLX_API_KEY = os.environ.get('MLX_API_KEY')
-PROJECT_ID = os.environ.get('PROJECT_ID') # for Google Cloud
+PROJECT_ID = os.environ.get('PROJECT_ID') or os.environ.get('GOOGLE_CLOUD_PROJECT')
+CACHE_LLM = os.environ.get('CACHE_LLM')
 DEBUG_LLM = os.environ.get('DEBUG_LLM')
 LLM_PROVIDER = os.environ.get('LLM_PROVIDER')
 GEMINI_MODEL = os.environ.get('GEMINI_MODEL', "gemini-2.5-flash")
@@ -294,6 +295,34 @@ def pick_generate():
 
 default_provider, default_generate = pick_generate()
 
+if CACHE_LLM:
+    try:
+        from joblib import Memory
+        
+        cache_dir = os.environ.get('CACHE_LLM_DIR', './cache')
+        os.makedirs(cache_dir, exist_ok=True)
+        
+        memory = Memory(cache_dir, verbose=0)
+        
+        @memory.cache
+        def cached_generate_with_provider(provider, prompt, **kwargs):
+            generator = generators[provider]
+            # Filter out None values to let generator use its own defaults
+            filtered_kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return generator(prompt, **filtered_kwargs)
+        
+        original_generate = default_generate
+        
+        def cached_default_generate(prompt, **kwargs):
+            return cached_generate_with_provider(default_provider, prompt, **kwargs)
+        
+        default_generate = cached_default_generate
+        
+        debug(f"LLM caching enabled with cache directory: {cache_dir}")
+        
+    except ImportError:
+        print("joblib not available, caching disabled")
+        pass
 
 def extract_code_blocks(response: str) -> List[str]:
     """Extract code blocks from LLM response, removing markdown and explanations."""

@@ -2,7 +2,7 @@
 
 VFP relies on the Dafny Sketcher CLI -- see [sketcher.py](sketcher.py).
 
-VFP uses LLM services, importing one of `google.genai`, `openai`, `anthropic`, `ollama` -- see [llm.py](llm.py). Search for `os.environ` to see what you can set.
+VFP uses LLM services, importing one of `google.genai`, `openai`, `anthropic`, `ollama` -- see [llm.py](llm.py). Search for `os.environ` to see what you can set. Caching is available through `joblib`.
 
 Currently, there are three solvers:
 - [driver.py](driver.py) which also contain all the code surrounding a solver
