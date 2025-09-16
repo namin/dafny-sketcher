@@ -87,6 +87,20 @@ def main():
         if not isinstance(v, int):
             print(k)
             print(v)
-
+'''
 if __name__ == "__main__":
     main()
+
+'''
+
+if __name__ == "__main__":
+    stats = {}
+    # just run main1 on a single file
+    f = "bench/binary_search_spec.dfy"  # replace with your actual file
+    main1(f, stats)
+    
+    print(stats)
+    for k, v in stats.items():
+        if not isinstance(v, int):
+            print(k)
+            print(v)
