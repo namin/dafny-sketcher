@@ -87,12 +87,13 @@ def main():
         if not isinstance(v, int):
             print(k)
             print(v)
-'''
+
 if __name__ == "__main__":
     main()
 
-'''
 
+'''
+# Testing for main1
 if __name__ == "__main__":
     stats = {}
     # just run main1 on a single file
@@ -104,3 +105,5 @@ if __name__ == "__main__":
         if not isinstance(v, int):
             print(k)
             print(v)
+
+'''
