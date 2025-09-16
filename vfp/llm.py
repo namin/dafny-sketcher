@@ -127,7 +127,7 @@ if PROJECT_ID:
             print("Received response from Google Gemini")
             print(f"Response:\n{text}")
             return text
-        models['gemini_vertex'] = model
+        models['gemini_vertex'] = GEMINI_MODEL
     generators['gemini_vertex'] = generate
 
 if OPENAI_API_KEY:
@@ -216,7 +216,7 @@ if GEMINI_API_KEY:
             debug("Received response from Google Gemini")
             debug(f"Response:\n{text}")
             return text
-        models['gemini'] = model
+        models['gemini'] = GEMINI_MODEL
     generators['gemini'] = generate
 
 if OLLAMA_API_KEY:
