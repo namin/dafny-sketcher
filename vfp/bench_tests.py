@@ -14,9 +14,9 @@ def try_llm_repair(program, sketch, lemma):
     xp = driver.insert_program_todo(lemma, program, repaired)  # use the real lemma dict
     e = sketcher.show_errors(xp)
     if e is None:
-        return True, None
+        return True, None, repaired
     else:
-        return False, e
+        return False, e, repaired
 
 def main1(f, stats):
     p = tests.read_file(f)
@@ -47,35 +47,42 @@ def main1(f, stats):
             continue
 
         # Strategy 3: inductive sketch + LLM repair
-        ok, errs = try_llm_repair(xp, ix, lemma)
+        ok, errs, repaired = try_llm_repair(xp, ix, lemma)
         if ok:
             print("inductive + LLM repair works")
             stats[name] = 2
             
         else:
             print("all failed :(")
-            stats[name] = ix  # keep sketch that failed. 
-            #Q: do we want to print the sketch or the LLM update? Or both?
+            stats[name] = (ix, repaired)
+
+def print_stats(stats):
+    print(stats)
+    print('total for empty proof works:', len([v for v in stats.values() if v == 0]))
+    print('total for inductive proof sketch works:', len([v for v in stats.values() if v == 1]))
+    print('total for inductive + LLM repair works:', len([v for v in stats.values() if v == 2]))
+    print('total for errors:', len([v for v in stats.values() if not isinstance(v, int)]))
+    for k, v in stats.items():
+        if not isinstance(v, int):
+            print('--------------------------------')
+            print('lemma')
+            print(k)
+            print('with sketch')
+            print(v[0])
+            print('with LLM repair')
+            print(v[1])
+    print({k:3 if not isinstance(v, int) else v for k,v in stats.items()})
 
 def main():
-    stats = {}
-    
+    stats = {} 
     solution_files = sorted(glob.glob("bench/*_solution.dfy"))
     solution_files = [f for f in solution_files if os.path.basename(f)[0].islower()]
     print(len(solution_files))
     print(solution_files)
     for f in solution_files:
         main1(f, stats)
-    print(stats)
-    print('total for empty proof works:', len([v for v in stats.values() if v == 0]))
-    print('total for inductive proof sketch works:', len([v for v in stats.values() if v == 1]))
-    print('total for inductive + LLM repair works:', len([v for v in stats.values() if v == 2]))
-    print('total for errors:', len([v for v in stats.values() if not isinstance(v, int)]))
+    print_stats(stats)
 
-    for k, v in stats.items():
-        if not isinstance(v, int):
-            print(k)
-            print(v)
 
 if __name__ == "__main__":
     import sys
@@ -86,10 +93,5 @@ if __name__ == "__main__":
         # just run main1 on a single file
         f = sys.argv[1]
         main1(f, stats)
-        
-        for k, v in stats.items():
-            if not isinstance(v, int):
-                print(k)
-                print(v)
-        print(stats)
+        print_stats(stats)
 
