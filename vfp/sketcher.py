@@ -4,9 +4,15 @@ import subprocess
 import tempfile
 from pathlib import Path
 from typing import List, Optional
+from joblib import Memory
 
 # Environment variables
 CLI_DLL = os.environ.get('DAFNY_SKETCHER_CLI_DLL_PATH', '../cli/bin/Release/net8.0/DafnySketcherCli.dll')
+CACHE_DAFNY = os.environ.get('CACHE_DAFNY', '').lower() in ('true', '1', 'yes', 'on')
+CACHE_DIR = Path('cache/dafny_sketcher')
+
+# Initialize joblib memory cache
+memory = Memory(location=str(CACHE_DIR), verbose=0) if CACHE_DAFNY else None
 
 
 def write_content_to_temp_file(content: str) -> Optional[str]:
@@ -20,13 +26,14 @@ def write_content_to_temp_file(content: str) -> Optional[str]:
         return None
 
 
-def dafny_sketcher(file_input: str, args: List[str]) -> str:
+def _run_dafny_sketcher_core(file_input: str, args: tuple) -> str:
     """
-    Run Dafny Sketcher CLI tool on the given content.
+    Core function that runs Dafny Sketcher CLI tool. 
+    This is the function that gets cached by joblib.
     
     Args:
         file_input: String content of the Dafny file
-        args: Additional arguments to pass to the CLI tool
+        args: Tuple of arguments to pass to the CLI tool (tuple for hashability)
     
     Returns:
         Output from the CLI tool or error message
@@ -38,7 +45,7 @@ def dafny_sketcher(file_input: str, args: List[str]) -> str:
     
     try:
         # Prepare the command
-        cmd = ['dotnet', CLI_DLL, '--file', file_path] + args
+        cmd = ['dotnet', CLI_DLL, '--file', file_path] + list(args)
         
         # Run the command
         result = subprocess.run(
@@ -67,6 +74,31 @@ def dafny_sketcher(file_input: str, args: List[str]) -> str:
                 Path(file_path).unlink()
         except Exception:
             pass  # Ignore cleanup errors
+
+
+# Create cached version if caching is enabled
+_cached_run_dafny_sketcher_core = memory.cache(_run_dafny_sketcher_core) if memory else None
+
+
+def dafny_sketcher(file_input: str, args: List[str]) -> str:
+    """
+    Run Dafny Sketcher CLI tool on the given content.
+    
+    Args:
+        file_input: String content of the Dafny file
+        args: Additional arguments to pass to the CLI tool
+    
+    Returns:
+        Output from the CLI tool or error message
+    """
+    # Convert args to tuple for hashability (required by joblib)
+    args_tuple = tuple(args)
+    
+    # Use cached version if caching is enabled, otherwise use direct version
+    if _cached_run_dafny_sketcher_core:
+        return _cached_run_dafny_sketcher_core(file_input, args_tuple)
+    else:
+        return _run_dafny_sketcher_core(file_input, args_tuple)
 
 
 def show_errors(file_input: str) -> Optional[str]:
