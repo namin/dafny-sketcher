@@ -17,9 +17,9 @@ Nada's Chache?
 
 '''
 
-def try_llm_repair(program, sketch, lemma, llm_config=None):
+def try_llm_repair(program, sketch, lemma):
     """Call LLM to repair a failing inductive sketch."""
-    repaired = llm_repair.repair(program, sketch, lemma['name'], config=llm_config)
+    repaired = llm_repair.repair(program, sketch, lemma['name'])
     xp = driver.insert_program_todo(lemma, program, repaired)  # use the real lemma dict
     e = sketcher.show_errors(xp)
     if e is None:
@@ -65,7 +65,8 @@ def main1(f, stats):
             
         else:
             print("all failed :(")
-            stats[name] = ix  # keep sketch that failed
+            stats[name] = ix  # keep sketch that failed. 
+            #Q: do we want to print the sketch or the LLM update? Or both?
 
 def main():
     stats = {}
