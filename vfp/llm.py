@@ -25,6 +25,7 @@ def dummy_generate(pkg, extra=""):
     # return generate
     raise ValueError(f"Need to install pip package '{pkg}'"+extra)
 
+models = {}
 generators = {}
 
 def generate(prompt, max_tokens=1000, temperature=1.0, model=None):
@@ -68,6 +69,7 @@ if AWS_BEARER_TOKEN_BEDROCK:
             print("Received response from Anthropic AWS")
             print(f"Response:\n{message}")
             return message.content[0].text
+        models['claude_aws'] = model
     generators['claude_aws'] = generate
 
 if PROJECT_ID:
@@ -104,6 +106,7 @@ if PROJECT_ID:
             print("Received response from Anthropic Vertex")
             print(f"Response:\n{message}")
             return message.content[0].text
+        models['claude_vertex'] = model
     generators['claude_vertex'] = generate
 
     generate = None
@@ -124,6 +127,7 @@ if PROJECT_ID:
             print("Received response from Google Gemini")
             print(f"Response:\n{text}")
             return text
+        models['gemini_vertex'] = model
     generators['gemini_vertex'] = generate
 
 if OPENAI_API_KEY:
@@ -153,6 +157,7 @@ if OPENAI_API_KEY:
             debug("Received response from OpenAI")
             debug(f"Response:\n{response}")
             return response
+        models['openai'] = model
     generators['openai'] = generate
 
 if ANTHROPIC_API_KEY:
@@ -188,7 +193,7 @@ if ANTHROPIC_API_KEY:
             debug("Received response from Anthropic")
             debug(f"Response:\n{message}")
             return message.content[0].text
-
+        models['claude'] = model
     generators['claude'] = generate
 
 if GEMINI_API_KEY:
@@ -211,7 +216,7 @@ if GEMINI_API_KEY:
             debug("Received response from Google Gemini")
             debug(f"Response:\n{text}")
             return text
-
+        models['gemini'] = model
     generators['gemini'] = generate
 
 if OLLAMA_API_KEY:
@@ -221,7 +226,7 @@ if OLLAMA_API_KEY:
     except ModuleNotFoundError:
         generate = dummy_generate('ollama', extra=", or package 'anthropic' while setting ANTHROPIC_API_KEY")
     if generate is None:
-        model = os.environ.get('OLLAMA_MODEL', 'llama3.3')
+        model = os.environ.get('OLLAMA_MODEL', 'gemma3:27b')
         def generate(prompt, max_tokens=1000, temperature=1.0, model=model):
             debug(f"Prompt:\n{prompt}")
             debug(f"Sending request to Ollama (model={model}, max_tokens={max_tokens}, temp={temperature})")
@@ -240,7 +245,7 @@ if OLLAMA_API_KEY:
             except Exception as e:
                 debug(f"Error generating response: {e}")
                 return None
-
+        models['ollama'] = model
     generators['ollama'] = generate
 
 if MLX_API_KEY and (len(generators) < 2 or LLM_PROVIDER == 'mlx'):
@@ -305,17 +310,16 @@ if CACHE_LLM:
         memory = Memory(cache_dir, verbose=0)
         
         @memory.cache
-        def cached_generate_with_provider(provider, prompt, **kwargs):
+        def cached_generate_with_config(provider, default_model, prompt, **kwargs):
             generator = generators[provider]
             # Filter out None values to let generator use its own defaults
             filtered_kwargs = {k: v for k, v in kwargs.items() if v is not None}
             return generator(prompt, **filtered_kwargs)
-        
+
         original_generate = default_generate
-        
+        default_model = models[default_provider]
         def cached_default_generate(prompt, **kwargs):
-            return cached_generate_with_provider(default_provider, prompt, **kwargs)
-        
+            return cached_generate_with_config(default_provider, default_model, prompt, **kwargs)
         default_generate = cached_default_generate
         
         debug(f"LLM caching enabled with cache directory: {cache_dir}")
