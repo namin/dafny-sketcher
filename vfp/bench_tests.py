@@ -57,11 +57,8 @@ def main1(f, stats):
             stats[name] = (ix, repaired)
 
 def print_stats(stats):
+    print('STATS')
     print(stats)
-    print('total for empty proof works:', len([v for v in stats.values() if v == 0]))
-    print('total for inductive proof sketch works:', len([v for v in stats.values() if v == 1]))
-    print('total for inductive + LLM repair works:', len([v for v in stats.values() if v == 2]))
-    print('total for errors:', len([v for v in stats.values() if not isinstance(v, int)]))
     for k, v in stats.items():
         if not isinstance(v, int):
             print('--------------------------------')
@@ -71,6 +68,10 @@ def print_stats(stats):
             print(v[0])
             print('with LLM repair')
             print(v[1])
+    print('total for empty proof works:', len([v for v in stats.values() if v == 0]))
+    print('total for inductive proof sketch works:', len([v for v in stats.values() if v == 1]))
+    print('total for inductive + LLM repair works:', len([v for v in stats.values() if v == 2]))
+    print('total for errors:', len([v for v in stats.values() if not isinstance(v, int)]))
     print({k:3 if not isinstance(v, int) else v for k,v in stats.items()})
 
 def main():
