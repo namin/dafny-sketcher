@@ -6,7 +6,7 @@ import sketcher
 import tests
 
 def main1(f, stats):
-    #print('---------- Looking at file: ', f, '--------------')
+    print('---------- Looking at file: ', f, '--------------')
     p = tests.read_file(f)
     if False:
         e = sketcher.show_errors(p)
