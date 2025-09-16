@@ -8,15 +8,6 @@ import tests
 
 import llm_repair  # wrapper around llm.py
 
-'''
-TO DO:
-ADD only llm bench
-Change temp/prompting 
-Multiple LLM trys 
-Nada's Chache?
-
-'''
-
 def try_llm_repair(program, sketch, lemma):
     """Call LLM to repair a failing inductive sketch."""
     repaired = llm_repair.repair(program, sketch, lemma['name'])
@@ -27,17 +18,15 @@ def try_llm_repair(program, sketch, lemma):
     else:
         return False, e
 
-
-
-
 def main1(f, stats):
     p = tests.read_file(f)
-    if False:
+    print('PROGRAM')
+    print(p)
+    if True:
         e = sketcher.show_errors(p)
         if e is not None:
-            stats[f] = e
-        else:
-            stats[f] = "OK"
+            print('ERRORS')
+            print(e)
     done = sketcher.sketch_done(p)
     lemmas = [x for x in done if x['type'] == 'lemma']
     for lemma in lemmas:
@@ -58,7 +47,7 @@ def main1(f, stats):
             continue
 
         # Strategy 3: inductive sketch + LLM repair
-        ok, errs = try_llm_repair(p, ix, lemma)
+        ok, errs = try_llm_repair(xp, ix, lemma)
         if ok:
             print("inductive + LLM repair works")
             stats[name] = 2
@@ -89,21 +78,18 @@ def main():
             print(v)
 
 if __name__ == "__main__":
-    main()
+    import sys
+    if len(sys.argv) < 2:
+        main()
+    else:
+        stats = {}
+        # just run main1 on a single file
+        f = sys.argv[1]
+        main1(f, stats)
+        
+        for k, v in stats.items():
+            if not isinstance(v, int):
+                print(k)
+                print(v)
+        print(stats)
 
-
-'''
-# Testing for main1
-if __name__ == "__main__":
-    stats = {}
-    # just run main1 on a single file
-    f = "bench/binary_search_spec.dfy"  # replace with your actual file
-    main1(f, stats)
-    
-    print(stats)
-    for k, v in stats.items():
-        if not isinstance(v, int):
-            print(k)
-            print(v)
-
-'''

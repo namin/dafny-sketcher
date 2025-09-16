@@ -196,9 +196,9 @@ def erase_implementation(p: str, todo) -> str:
 def insert_program_todo(todo, p, x):
     if todo['status'] != 'todo':
         lines = p.splitlines(keepends=True)
-        # Only use the insertion point, don't replace content up to endLine
         start_offset = line_col_to_start_offset(p,lines, todo['insertLine'], todo['insertColumn'])
-        xp = p[:start_offset] + "{\n" + x + "\n}" + p[start_offset:]
+        end_offset = line_col_to_end_offset(p, lines, todo['endLine'], todo['endColumn'])
+        xp = p[:start_offset] + "{\n" + x + "\n}" + p[end_offset:]
     else:
         line = todo['insertLine']
         lines = p.splitlines(keepends=True)
