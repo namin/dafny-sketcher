@@ -1,11 +1,6 @@
 from typing import Dict
-from llm import default_generate as generate, extract_code_blocks
-
-
-#might be good enough, if not add in the // BEGIN DAFNY 
-def extract_dafny_program(r):
-    blocks = extract_code_blocks(r)
-    return blocks[0].strip()
+from llm import default_generate as generate
+from driver import prompt_begin_dafny, extract_dafny_program
 
 def repair(program: str, sketch: str, lemma_name: str, config=None) -> str:
     """
@@ -25,7 +20,7 @@ Here is the failing proof sketch:
 {sketch}
 
 Please provide a corrected Dafny proof body for lemma `{lemma_name}`.
-Return only valid Dafny code for the body (no explanations).
+{prompt_begin_dafny("lemma")}
 """
     response = generate(prompt)
     x = extract_dafny_program(response)
@@ -43,7 +38,7 @@ You are a Dafny expert. Here is a program:
 {program}
 
 Please complete the proof for lemma `{lemma['name']}` by providing a Dafny proof body.
-Return only valid Dafny code for the body (no explanations).
+{prompt_begin_dafny("lemma")}
 """
     response = generate(prompt)
     x = extract_dafny_program(response)
