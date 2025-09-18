@@ -350,3 +350,4 @@ def extract_code_blocks(response: str) -> List[str]:
 if __name__ == '__main__':
     print('available providers:', list(generators.keys()))
     print('picked provider:', default_provider)
+    print('default model:', models[default_provider])
