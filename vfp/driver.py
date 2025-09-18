@@ -198,7 +198,6 @@ def insert_program_todo(todo, p, x):
         #print('CASE DONE')
         lines = p.splitlines(keepends=True)
         start_offset = line_col_to_start_offset(p,lines, todo['insertLine'], todo['insertColumn'])
-        end_offset = line_col_to_end_offset(p, lines, todo['endLine'], todo['endColumn'])
         xp = p[:start_offset] + "{\n" + x + "\n}" + p[start_offset:]
     else:
         #print('CASE TODO')
