@@ -52,18 +52,7 @@ def main1(f, stats):
             stats[name] = {"status": "error", "errors": errs, "proof": proof}
 
 
-def main():
-    stats = {}
-
-    solution_files = sorted(glob.glob("bench/*_solution.dfy"))
-    # skip uppercase files (like your other script)
-    solution_files = [f for f in solution_files if os.path.basename(f)[0].islower()]
-
-    print(f"Found {len(solution_files)} solution files")
-    for f in solution_files:
-        print(f"\n=== File: {f} ===")
-        main1(f, stats)
-
+def print_stats(stats):
     # Summary
     total_ok = sum(1 for v in stats.values() if v["status"] == "success")
     total_err = sum(1 for v in stats.values() if v["status"] == "error")
@@ -82,6 +71,27 @@ def main():
             print("Errors:")
             print(result["errors"])
 
+def main():
+    stats = {}
+
+    solution_files = sorted(glob.glob("bench/*_solution.dfy"))
+    # skip uppercase files (like your other script)
+    solution_files = [f for f in solution_files if os.path.basename(f)[0].islower()]
+
+    print(f"Found {len(solution_files)} solution files")
+    for f in solution_files:
+        print(f"\n=== File: {f} ===")
+        main1(f, stats)
+    print_stats(stats)
+
 
 if __name__ == "__main__":
-    main()
+    import sys
+    if len(sys.argv) < 2:
+        main()
+    else:
+        stats = {}
+        # just run main1 on a single file
+        f = sys.argv[1]
+        main1(f, stats)
+        print_stats(stats)

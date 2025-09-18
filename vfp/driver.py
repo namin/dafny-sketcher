@@ -198,7 +198,13 @@ def insert_program_todo(todo, p, x):
         #print('CASE DONE')
         lines = p.splitlines(keepends=True)
         start_offset = line_col_to_start_offset(p,lines, todo['insertLine'], todo['insertColumn'])
-        xp = p[:start_offset] + "{\n" + x + "\n}" + p[start_offset:]
+        end_offset = line_col_to_end_offset(p, lines, todo['endLine'], todo['endColumn'])
+        after_offset = end_offset
+        to_skip = ''.join(p[start_offset:end_offset])
+        # Hack: because sometimes skipping to the end_offset swallows lemmas coming after
+        if 'lemma ' in to_skip:
+            after_offset = start_offset
+        xp = p[:start_offset] + "{\n" + x + "\n}" + p[after_offset:]
     else:
         #print('CASE TODO')
         line = todo['insertLine']
