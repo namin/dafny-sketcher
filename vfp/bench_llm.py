@@ -70,6 +70,12 @@ def print_stats(stats):
             print(result["proof"])
             print("Errors:")
             print(result["errors"])
+    
+    # end on summary repeat
+    print("\n=== Summary ===")
+    print("total lemmas:", len(stats))
+    print("successful proofs:", total_ok)
+    print("failed proofs:", total_err)
 
 def main():
     stats = {}
