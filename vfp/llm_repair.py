@@ -24,7 +24,7 @@ Please provide a corrected Dafny proof body for lemma `{lemma_name}`.
 """
     response = generate(prompt)
     x = extract_dafny_program(response)
-    return x.strip()
+    return x
 
 
 
@@ -42,4 +42,4 @@ Please complete the proof for lemma `{lemma['name']}` by providing a Dafny proof
 """
     response = generate(prompt)
     x = extract_dafny_program(response)
-    return x.strip()
+    return x
