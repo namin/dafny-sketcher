@@ -27,8 +27,8 @@ def try_llm_generate(program, lemma):
     """Call LLM to generate a full proof from scratch."""
     generated = llm_repair.generate_proof(program, lemma)
     xp = driver.insert_program_todo(lemma, program, generated)
-    e = sketcher.show_errors(xp)
-    if e is None:
+    e = sketcher.list_errors_for_method(xp, lemma['name'])
+    if not e:
         return True, None, generated
     else:
         return False, e, generated

@@ -20,15 +20,15 @@ def main1(f, stats):
         name = lemma['name']
         print('lemma', name)
         xp = driver.insert_program_todo(lemma, p, "")
-        e = sketcher.show_errors(xp)
-        if e is None:
+        e = sketcher.list_errors_for_method(xp, name)
+        if not e:
             print("empty proof works")
             stats[name] = -1
             continue
         ix = sketcher.sketch_induction(xp, name)
         ip = driver.insert_program_todo(lemma, p, ix)
-        e = sketcher.show_errors(ip)
-        if e is None:
+        e = sketcher.list_errors_for_method(ip, name)
+        if not e:
             print("inductive proof sketch works")
             stats[name] = 0
         else:

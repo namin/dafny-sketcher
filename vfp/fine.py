@@ -109,10 +109,10 @@ def insert_program_todo(todo, p, x):
     return xp
 
 def show_errors_todo(p, todo):
-    lines = (sketcher.show_errors(p) or "").splitlines()
-    name = todo['name']
-    lemma_lines = [line for line in lines if line.startswith(name+":")]
-    return "\n".join(lemma_lines)
+    r = ""
+    for row,col,err,snippet in sketcher.list_errors_for_method(p, todo['name']):
+        r += f"{row},{col}: {err} -- {snippet}\n"
+    return r
 
 def prompt_fine_implementer(todo, code, body, errors):
     return f"""

@@ -65,13 +65,15 @@ def show_errors_for_method(file_input: str, method_name: str) -> Optional[str]:
             pass  # Ignore cleanup errors
 
 
-def list_errors_for_method(file_input: str, method_name: str) -> List[tuple[int, int, str]]:
+def list_errors_for_method(file_input: str, method_name: str) -> List[tuple[int, int, str, str]]:
     errors = show_errors_for_method(file_input, method_name)
     if errors is None:
         return []
     
     result = []
-    for line in errors.splitlines():
+    lines = errors.splitlines()
+    
+    for i, line in enumerate(lines):
         # Parse lines like: /path/to/file.dfy(493,46): Error: message
         if '.dfy(' in line and '): Error:' in line:
             try:
@@ -87,7 +89,20 @@ def list_errors_for_method(file_input: str, method_name: str) -> List[tuple[int,
                         # Extract error message after ): Error:
                         error_start = line.find('): Error:') + 9
                         error_msg = line[error_start:].strip()
-                        result.append((line_num, col_num, error_msg))
+                        
+                        # Look for the code snippet in the following lines
+                        code_snippet = ""
+                        # The pattern is usually: error line, then "|", then line number, then "|", then code
+                        for j in range(i + 1, min(i + 5, len(lines))):
+                            next_line = lines[j]
+                            # Look for lines that contain the line number followed by |
+                            if f"{line_num} |" in next_line:
+                                # Extract everything after "line_num |"
+                                snippet_start = next_line.find(f"{line_num} |") + len(f"{line_num} |")
+                                code_snippet = next_line[snippet_start:].strip()
+                                break
+                        
+                        result.append((line_num, col_num, error_msg, code_snippet))
             except (ValueError, IndexError):
                 # Skip lines that don't parse correctly
                 continue

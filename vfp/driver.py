@@ -109,8 +109,8 @@ def llm_implementer(p: str, todo, prev: str = None, hint: str = None, done: list
     if xp is None:
         print("Couldn't patch program")
         return None
-    e = sketcher.show_errors(xp)
-    if e is not None:
+    e = sketcher.list_errors_for_method(xp, todo['name'])
+    if e:
         if cache is not None:
             cache.add(todo, x, e)
         print("Errors in implementer:", e)
@@ -167,8 +167,8 @@ def implementer(p: str, x: str, todo) -> str:
     if xp is None:
         print("Couldn't patch program")
         return None
-    e = sketcher.show_errors(xp)
-    if e is not None:
+    e = sketcher.list_errors_for_method(xp, todo['name'])
+    if e:
         print("Errors in implementer:", e)
         return None
     return xp
