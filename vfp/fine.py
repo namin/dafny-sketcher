@@ -37,8 +37,8 @@ def fine_implementer(p: str, todo) -> Optional[str]:
     print('REPLACED BODY')
     print(ip)
     print('ERRORS')
-    errors = show_errors_todo(ip, todo)
-    prompt = prompt_fine_implementer(todo, ip, b, errors)
+    errors = sketcher.list_errors_for_method(ip, todo['name'])
+    prompt = prompt_fine_implementer(todo, ip, b, format_errors(errors))
     print('PROMPT')
     print(prompt)
     r = generate(prompt)
@@ -53,10 +53,10 @@ def fine_implementer(p: str, todo) -> Optional[str]:
     xp = remove_all_block_markers(xp)
     print('XP')
     print(xp)
-    x_errors = show_errors_todo(xp, todo)
+    x_errors = sketcher.list_errors_for_method(xp, todo['name'])
     print('XP ERRORS')
-    print(x_errors)
-    if x_errors.count('\n') > errors.count('\n'):
+    print(format_errors(x_errors))
+    if not proper_only(errors) and len(x_errors) > len(errors):
         return None
     return xp
 
@@ -108,11 +108,17 @@ def insert_program_todo(todo, p, x):
     print(xp)
     return xp
 
-def show_errors_todo(p, todo):
+def format_errors(errs):
     r = ""
-    for row,col,err,snippet in sketcher.list_errors_for_method(p, todo['name']):
+    for row,col,err,snippet in errs:
         r += f"{row},{col}: {err} -- {snippet}\n"
     return r
+
+def proper_only(errs):
+    return all(err[2] == 'a postcondition could not be proved on this return path' for err in errs)
+
+def show_errors_todo(p, todo):
+    return format_errors(sketcher.list_errors_for_method(p, todo['name']))
 
 def prompt_fine_implementer(todo, code, body, errors):
     return f"""
