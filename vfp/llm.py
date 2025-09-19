@@ -45,6 +45,8 @@ if AWS_BEARER_TOKEN_BEDROCK:
             claude_model = os.environ.get('CLAUDE_MODEL', 'sonnet')
             if claude_model == 'opus':
                 model = 'us.anthropic.claude-opus-4-1-20250805-v1:0'
+            elif claude_model == 'testing':
+                model = 'anthropic.claude-3-sonnet-20240229-v1:0'
             else:
                 model = 'global.anthropic.claude-sonnet-4-20250514-v1:0'
         aws_region = os.environ.get('AWS_REGION', 'us-east-1')
