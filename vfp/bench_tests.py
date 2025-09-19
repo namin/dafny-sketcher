@@ -13,7 +13,7 @@ def try_llm_repair(program, sketch, lemma):
     repaired = llm_repair.repair(program, sketch, lemma['name'])
     xp = driver.insert_program_todo(lemma, program, repaired)  # use the real lemma dict
     e = sketcher.list_errors_for_method(xp, lemma['name'])
-    if e is None:
+    if not e:
         return True, None, repaired
     else:
         return False, e, repaired
