@@ -25,6 +25,74 @@ def write_content_to_temp_file(content: str) -> Optional[str]:
     except Exception:
         return None
 
+def show_errors_for_method(file_input: str, method_name: str) -> Optional[str]:
+    file_path = write_content_to_temp_file(file_input)
+    if not file_path:
+        return "Error writing temporary file"
+    
+    try:
+        # Run dafny verify with filter-symbol
+        cmd = ['dafny', 'verify', file_path, '--filter-symbol', method_name]
+        
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=30  # 30 second timeout
+        )
+        
+        # Combine stdout and stderr for complete output
+        output = ""
+        if result.stdout:
+            output += result.stdout
+        if result.stderr:
+            if output:
+                output += "\n"
+            output += result.stderr
+        
+        return output if output else None
+
+    except subprocess.TimeoutExpired:
+        return "Error: Dafny verify timed out"
+    except Exception as e:
+        return f"Error running Dafny verify: {str(e)}"
+    finally:
+        # Clean up temp file
+        try:
+            if file_path:
+                Path(file_path).unlink()
+        except Exception:
+            pass  # Ignore cleanup errors
+
+
+def list_errors_for_method(file_input: str, method_name: str) -> List[tuple[int, int, str]]:
+    errors = show_errors_for_method(file_input, method_name)
+    if errors is None:
+        return []
+    
+    result = []
+    for line in errors.splitlines():
+        # Parse lines like: /path/to/file.dfy(493,46): Error: message
+        if '.dfy(' in line and '): Error:' in line:
+            try:
+                # Extract the part between .dfy( and ):
+                pos_start = line.find('.dfy(') + 5
+                pos_end = line.find('):', pos_start)
+                if pos_start > 4 and pos_end > pos_start:
+                    coords = line[pos_start:pos_end]
+                    if ',' in coords:
+                        parts = coords.split(',')
+                        line_num = int(parts[0])
+                        col_num = int(parts[1])
+                        # Extract error message after ): Error:
+                        error_start = line.find('): Error:') + 9
+                        error_msg = line[error_start:].strip()
+                        result.append((line_num, col_num, error_msg))
+            except (ValueError, IndexError):
+                # Skip lines that don't parse correctly
+                continue
+    
+    return result
 
 def _run_dafny_sketcher_core(file_input: str, args: tuple) -> str:
     """
@@ -55,13 +123,22 @@ def _run_dafny_sketcher_core(file_input: str, args: tuple) -> str:
             timeout=30  # 30 second timeout
         )
         
+        # Combine stdout and stderr for complete output
+        output = ""
+        if result.stdout:
+            output += result.stdout
+        if result.stderr:
+            if output:
+                output += "\n"
+            output += result.stderr
+        
         if result.returncode != 0:
-            if result.stderr:
-                return f"Error from Dafny Sketcher: {result.stderr}"
+            if output:
+                return f"Error from Dafny Sketcher: {output}"
             else:
                 return f"Error running Dafny Sketcher: Process exited with code {result.returncode}"
         
-        return result.stdout
+        return output
         
     except subprocess.TimeoutExpired:
         return "Error: Dafny Sketcher timed out"
@@ -213,6 +290,11 @@ def sketch_counterexamples(file_input: str, method_name: Optional[str] = None) -
 if __name__ == "__main__":
     import tests
     if True:
+        p = tests.read_file('examples/StlcDemo.dfy')
+        print(show_errors_for_method(p, "preservation"))
+        print(list_errors_for_method(p, "preservation"))
+
+    if False:
         print('StlcDemo')
         print(sketch_todo_lemmas(tests.read_file('examples/StlcDemo.dfy')))
         print('OptBuggy')
