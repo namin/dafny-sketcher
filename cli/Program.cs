@@ -141,7 +141,11 @@ namespace DafnySketcherCli {
             var m = Utility.GetEnclosingMethodByPosition(
               dafnyProgram, ln, col
             );
-            error_methods.Add(m.Name);
+            if (m != null)
+            {
+              error_methods.Add(m.Name);
+            }
+            // TODO: is silently ignoring the null case OK?
           }
           var todo_lemmas = all_lemmas.Where(x => error_methods.Contains(x.Name)).ToList();
           var json = JsonSerializer.Serialize(todo_lemmas);
