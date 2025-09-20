@@ -56,7 +56,7 @@ def fine_implementer(p: str, todo) -> Optional[str]:
     x_errors = sketcher.list_errors_for_method(xp, todo['name'])
     print('XP ERRORS')
     print(format_errors(x_errors))
-    if not proper_only(errors) and len(x_errors) > len(errors):
+    if not proper_only(x_errors) and len(x_errors) > len(errors):
         return None
     return xp
 
