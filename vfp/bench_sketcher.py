@@ -1,6 +1,3 @@
-import glob
-import os
-
 import driver
 import sketcher
 import tests
@@ -35,15 +32,7 @@ def main1(f, stats):
             print("inductive proof failed")
             stats[name] = ix
 
-def main():
-    stats = {}
-    
-    solution_files = sorted(glob.glob("bench/*_solution.dfy"))
-    solution_files = [f for f in solution_files if os.path.basename(f)[0].islower()]
-    print(len(solution_files))
-    print(solution_files)
-    for f in solution_files:
-        main1(f, stats)
+def print_stats(stats):
     print('FINISHED RUNNING THE BENCH')
     print(stats)
     print('total for empty proof works:', len([v for v in stats.values() if isinstance(v, int) and v == -1]))
@@ -56,4 +45,5 @@ def main():
             print(v)
 
 if __name__ == "__main__":
-    main()
+    import bench_driver
+    bench_driver.run(main1, print_stats)

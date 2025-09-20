@@ -1,12 +1,7 @@
-import glob
-import os
-
 import driver
 import sketcher
 import tests
-
-
-import llm_repair  # wrapper around llm.py
+import llm_repair
 
 def try_llm_repair(program, sketch, lemma):
     """Call LLM to repair a failing inductive sketch."""
@@ -74,25 +69,7 @@ def print_stats(stats):
     print('total for errors:', len([v for v in stats.values() if not isinstance(v, int)]))
     print({k:3 if not isinstance(v, int) else v for k,v in stats.items()})
 
-def main():
-    stats = {} 
-    solution_files = sorted(glob.glob("bench/*_solution.dfy"))
-    solution_files = [f for f in solution_files if os.path.basename(f)[0].islower()]
-    print(len(solution_files))
-    print(solution_files)
-    for f in solution_files:
-        main1(f, stats)
-    print_stats(stats)
-
-
 if __name__ == "__main__":
-    import sys
-    if len(sys.argv) < 2:
-        main()
-    else:
-        stats = {}
-        # just run main1 on a single file
-        f = sys.argv[1]
-        main1(f, stats)
-        print_stats(stats)
+    import bench_driver
+    bench_driver.run(main1, print_stats)
 
