@@ -3,6 +3,9 @@ from typing import List, Optional, Tuple
 from llm import default_generate as generate
 import sketcher
 import driver
+import os
+
+XP_DEBUG = os.environ.get('XP_DEBUG', 'true').lower() != 'false'
 
 def drive_program(p: str, max_iterations: Optional[int] = None) -> str:
     i = 0
@@ -35,25 +38,32 @@ def fine_implementer(p: str, todo) -> Optional[str]:
     b = annotate_body(body)
     print(b)
     ip = insert_program_todo(todo, p, b)
-    print('### REPLACED BODY')
-    print(ip)
+    if XP_DEBUG:
+        print('### REPLACED')
+        print(ip)
     print('### ERRORS')
     errors = sketcher.list_errors_for_method(ip, todo['name'])
     prompt = prompt_fine_implementer(todo, ip, b, format_errors(errors))
-    print('### PROMPT')
-    print(prompt)
+    if XP_DEBUG:
+        print('### PROMPT')
+        print(prompt)
     r = generate(prompt)
-    print(r)
+    if XP_DEBUG:
+        print(r)
     ox = extract_dafny_block(r)
     if ox is None:
         return None
     (n, x) = ox
+    print('### Block')
+    print('//', n)
+    print(x)
     xp = replace_block_in_program(ip, n, x)
     if xp is None:
         return None
     xp = remove_all_block_markers(xp)
-    print('### XP')
-    print(xp)
+    if XP_DEBUG:
+        print('### XP')
+        print(xp)
     x_errors = sketcher.list_errors_for_method(xp, todo['name'])
     print('### XP ERRORS')
     print(format_errors(x_errors))
@@ -107,8 +117,9 @@ def insert_program_todo(todo, p, x):
     start_offset = driver.line_col_to_start_offset(p,lines, todo['insertLine'], todo['insertColumn'])
     end_offset = driver.line_col_to_end_offset(p, lines, todo['endLine'], todo['endColumn'])
     xp = p[:start_offset] + x + p[end_offset:]
-    print("XP")
-    print(xp)
+    if XP_DEBUG:
+        print("XP")
+        print(xp)
     return xp
 
 def format_errors(errs):

@@ -2,6 +2,9 @@ import re
 from typing import List, Optional
 from llm import default_generate as generate
 import sketcher
+import os
+
+XP_DEBUG = os.environ.get('XP_DEBUG', 'true').lower() != 'false'
 
 class Cache:
     def __init__(self):
@@ -223,8 +226,9 @@ def insert_program_todo(todo, p, x):
             line_lemma = todo['startLine']
             lines[line_lemma-1] = lines[line_lemma-1].replace('{:axiom}', '')
         xp = ''.join(lines)
-    print("XP")
-    print(xp)
+    if XP_DEBUG:
+        print("XP")
+        print(xp)
     return xp
 
 def prompt_spec_maker(idea: str) -> str:
