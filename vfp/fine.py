@@ -23,23 +23,24 @@ def drive_program(p: str, max_iterations: Optional[int] = None) -> str:
     return p
 
 def fine_implementer(p: str, todo) -> Optional[str]:
+    print('## FINE IMPLEMENTER')
     lines = p.splitlines(keepends=True)
     start_offset = driver.line_col_to_start_offset(p, lines, todo['insertLine'], todo['insertColumn'])
     end_offset = driver.line_col_to_end_offset(p, lines, todo['endLine'], todo['endColumn'])
     print(start_offset, end_offset)
     body = p[start_offset:end_offset]
-    print('BODY')
+    print('### BODY')
     print(body)
-    print('ANNOTATED BODY')
+    print('### ANNOTATED BODY')
     b = annotate_body(body)
     print(b)
     ip = insert_program_todo(todo, p, b)
-    print('REPLACED BODY')
+    print('### REPLACED BODY')
     print(ip)
-    print('ERRORS')
+    print('### ERRORS')
     errors = sketcher.list_errors_for_method(ip, todo['name'])
     prompt = prompt_fine_implementer(todo, ip, b, format_errors(errors))
-    print('PROMPT')
+    print('### PROMPT')
     print(prompt)
     r = generate(prompt)
     print(r)
@@ -51,12 +52,14 @@ def fine_implementer(p: str, todo) -> Optional[str]:
     if xp is None:
         return None
     xp = remove_all_block_markers(xp)
-    print('XP')
+    print('### XP')
     print(xp)
     x_errors = sketcher.list_errors_for_method(xp, todo['name'])
-    print('XP ERRORS')
+    print('### XP ERRORS')
     print(format_errors(x_errors))
-    if not proper_only(x_errors) and len(x_errors) > len(errors):
+    if proper_only(x_errors):
+        return xp
+    if len(x_errors) > len(errors):
         return None
     return xp
 
@@ -115,6 +118,8 @@ def format_errors(errs):
     return r
 
 def proper_only(errs):
+    for err in errs:
+        print('ERROR', err)
     return all(err[2] == 'a postcondition could not be proved on this return path' for err in errs)
 
 def show_errors_todo(p, todo):
