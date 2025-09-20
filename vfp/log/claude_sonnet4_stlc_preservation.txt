@@ -1,0 +1,1662 @@
+[]
+
+Errors in implementer: [(490, 0, 'a postcondition could not be proved on this return path', '{')]
+Errors in implementer: [(493, 46, 'a postcondition could not be proved on this return path', 'if (t.tapp? && t.f.tabs? && value(t.arg)) {')]
+Sending request to Anthropic AWS (model=global.anthropic.claude-sonnet-4-20250514-v1:0, max_tokens=1000, temp=1.0)
+Received response from Anthropic AWS
+Response:
+Message(id='msg_bdrk_014oj3BJVMoAhPeu12PCx24s', content=[TextBlock(citations=None, text="Looking at this theorem, I need to prove that if a well-typed term steps, it preserves its type. This is a classic preservation lemma for type safety.\n\nThe key insight is that I need to do case analysis on the stepping rules and show that each preserves typing. For the beta-reduction case (AppAbs), I'll need to use the substitution lemma that's already proven.\n\n// BEGIN DAFNY\nvar T := has_type(map[], t).get;\nvar t' := step(t).get;\n\n// Case analysis on the step relation\nif (t.tapp? && t.f.tabs? && value(t.arg)) {\n  // AppAbs case: (\\x:T1.t2) v -> [x->v]t2\n  var T1 := t.f.T;\n  var x := t.f.x;\n  var t2 := t.f.body;\n  var v := t.arg;\n  \n  // From typing of application, we know T1 matches arg type\n  assert has_type(map[], t.f) == Some(TArrow(T1, T));\n  assert has_type(map[], v) == Some(T1);\n  assert has_type(extend(x, T1, map[]), t2) == Some(T);\n  \n  // Apply substitution lemma\n  lemma_substitution_preserves_typing(map[], x, v, t2);\n  assert has_type(map[], subst(x, v, t2)) == Some(T);\n  \n} else if (t.tapp? && step(t.f).Some?) {\n  // App1 case: congruence rule\n  theorem_preservation(t.f);\n  \n} else if (t.tapp? && value(t.f) && step(t.arg).Some?) {\n  // App2 case: congruence rule  \n  theorem_preservation(t.arg);\n  \n//*BOOL?\n} else if (t.tif? && t.c == ttrue) {\n  // IfTrue case: type is preserved by definition\n  \n} else if (t.tif? && t.c == tfalse) {\n  // IfFalse case: type is preserved by definition\n  \n} else if (t.tif? && step(t.c).Some?) {\n  // If case: congruence rule\n  theorem_preservation(t.c);\n//?BOOL*/\n\n//*NAT?\n} else if (t.tprev? && t.n.tzero?) {\n  // Prev0 case: tzero has type TNat, preserves TNat\n  \n} else if (t.tprev? && peano(t.n) && t.n.tsucc?) {\n  // PrevSucc case: if tsucc(p) has type TNat, then p has type TNat\n  \n} else if (t.tprev? && step(t.n).Some?) {\n  // Prev case: congruence rule\n  theorem_preservation(t.n);\n  \n} else if (t.tsucc? && step(t.p).Some?) {\n  // Succ case: congruence rule\n  theorem_preservation(t.p);\n\n//*BOOL?\n} else if (t.teq? && t.n1.tzero? && t.n2.tzero?) {\n  // EqTrue0 case: result is ttrue which has type TBool\n  \n} else if (t.teq? && t.n1.tsucc? && peano(t.n1) && t.n2.tzero?) {\n  // EqFalse1 case: result is tfalse which has type TBool\n  \n} else if (t.teq? && t.n1.tzero? && t.n2.tsucc? && peano(t.n2)) {\n  // EqFalse2 case: result is tfalse which has type TBool\n  \n} else if (t.teq? && t.n1.tsucc? && t.n2.tsucc? && peano(t.n1)", type='text')], model='claude-sonnet-4-20250514', role='assistant', stop_reason='max_tokens', stop_sequence=None, type='message', usage=Usage(cache_creation_input_tokens=0, cache_read_input_tokens=0, input_tokens=7129, output_tokens=1000, server_tool_use=None, service_tier=None))
+Looking at this theorem, I need to prove that if a well-typed term steps, it preserves its type. This is a classic preservation lemma for type safety.
+
+The key insight is that I need to do case analysis on the stepping rules and show that each preserves typing. For the beta-reduction case (AppAbs), I'll need to use the substitution lemma that's already proven.
+
+// BEGIN DAFNY
+var T := has_type(map[], t).get;
+var t' := step(t).get;
+
+// Case analysis on the step relation
+if (t.tapp? && t.f.tabs? && value(t.arg)) {
+  // AppAbs case: (\x:T1.t2) v -> [x->v]t2
+  var T1 := t.f.T;
+  var x := t.f.x;
+  var t2 := t.f.body;
+  var v := t.arg;
+  
+  // From typing of application, we know T1 matches arg type
+  assert has_type(map[], t.f) == Some(TArrow(T1, T));
+  assert has_type(map[], v) == Some(T1);
+  assert has_type(extend(x, T1, map[]), t2) == Some(T);
+  
+  // Apply substitution lemma
+  lemma_substitution_preserves_typing(map[], x, v, t2);
+  assert has_type(map[], subst(x, v, t2)) == Some(T);
+  
+} else if (t.tapp? && step(t.f).Some?) {
+  // App1 case: congruence rule
+  theorem_preservation(t.f);
+  
+} else if (t.tapp? && value(t.f) && step(t.arg).Some?) {
+  // App2 case: congruence rule  
+  theorem_preservation(t.arg);
+  
+//*BOOL?
+} else if (t.tif? && t.c == ttrue) {
+  // IfTrue case: type is preserved by definition
+  
+} else if (t.tif? && t.c == tfalse) {
+  // IfFalse case: type is preserved by definition
+  
+} else if (t.tif? && step(t.c).Some?) {
+  // If case: congruence rule
+  theorem_preservation(t.c);
+//?BOOL*/
+
+//*NAT?
+} else if (t.tprev? && t.n.tzero?) {
+  // Prev0 case: tzero has type TNat, preserves TNat
+  
+} else if (t.tprev? && peano(t.n) && t.n.tsucc?) {
+  // PrevSucc case: if tsucc(p) has type TNat, then p has type TNat
+  
+} else if (t.tprev? && step(t.n).Some?) {
+  // Prev case: congruence rule
+  theorem_preservation(t.n);
+  
+} else if (t.tsucc? && step(t.p).Some?) {
+  // Succ case: congruence rule
+  theorem_preservation(t.p);
+
+//*BOOL?
+} else if (t.teq? && t.n1.tzero? && t.n2.tzero?) {
+  // EqTrue0 case: result is ttrue which has type TBool
+  
+} else if (t.teq? && t.n1.tsucc? && peano(t.n1) && t.n2.tzero?) {
+  // EqFalse1 case: result is tfalse which has type TBool
+  
+} else if (t.teq? && t.n1.tzero? && t.n2.tsucc? && peano(t.n2)) {
+  // EqFalse2 case: result is tfalse which has type TBool
+  
+} else if (t.teq? && t.n1.tsucc? && t.n2.tsucc? && peano(t.n1)
+Missing Dafny program
+Didn't solve todo
+[{"name":"theorem_preservation","startLine":486,"startColumn":1,"insertLine":490,"insertColumn":1,"endLine":525,"endColumn":1,"type":"lemma","status":"any"}]
+
+## FINE IMPLEMENTER
+14172 15611
+### BODY
+{
+    // Inductive proof using rule induction
+    // following function: step
+    if (t.tapp? && t.f.tabs? && value(t.arg)) {
+    } else if (t.tapp? && step(t.f).Some?) {
+        theorem_preservation(t.f);
+    } else if (t.tapp? && value(t.f) && step(t.arg).Some?) {
+        theorem_preservation(t.arg);
+    } else if (t.tif? && t.c == tm.ttrue) {
+    } else if (t.tif? && t.c == tm.tfalse) {
+    } else if (t.tif? && step(t.c).Some?) {
+        theorem_preservation(t.c);
+    } else if (t.tprev? && t.n.tzero?) {
+    } else if (t.tprev? && peano(t.n) && t.n.tsucc?) {
+    } else if (t.tprev? && step(t.n).Some?) {
+        theorem_preservation(t.n);
+    } else if (t.tsucc? && step(t.p).Some?) {
+        theorem_preservation(t.p);
+    } else if (t.teq? && t.n1.tzero? && t.n2.tzero?) {
+    } else if (t.teq? && t.n1.tsucc? && peano(t.n1) && t.n2.tzero?) {
+    } else if (t.teq? && t.n1.tzero? && t.n2.tsucc? && peano(t.n2)) {
+    } else if (t.teq? && t.n1.tsucc? && t.n2.tsucc? && peano(t.n1) && peano(t.n2)) {
+    } else if (t.teq? && step(t.n1).Some?) {
+        theorem_preservation(t.n1);
+    } else if (t.teq? && peano(t.n1) && step(t.n2).Some?) {
+        theorem_preservation(t.n2);
+    } else if (t.tunfold? && t.tu.tfold? && value(t.tu.tf)) {
+    } else if (t.tfold? && step(t.tf).Some?) {
+        theorem_preservation(t.tf);
+    } else if (t.tunfold? && step(t.tu).Some?) {
+        theorem_preservation(t.tu);
+    } else {
+    }
+
+
+}
+### ANNOTATED BODY
+{/*0*/
+    // Inductive proof using rule induction
+    // following function: step
+    if (t.tapp? && t.f.tabs? && value(t.arg)) {/*1*/
+    /*1*/} else if (t.tapp? && step(t.f).Some?) {/*2*/
+        theorem_preservation(t.f);
+    /*2*/} else if (t.tapp? && value(t.f) && step(t.arg).Some?) {/*3*/
+        theorem_preservation(t.arg);
+    /*3*/} else if (t.tif? && t.c == tm.ttrue) {/*4*/
+    /*4*/} else if (t.tif? && t.c == tm.tfalse) {/*5*/
+    /*5*/} else if (t.tif? && step(t.c).Some?) {/*6*/
+        theorem_preservation(t.c);
+    /*6*/} else if (t.tprev? && t.n.tzero?) {/*7*/
+    /*7*/} else if (t.tprev? && peano(t.n) && t.n.tsucc?) {/*8*/
+    /*8*/} else if (t.tprev? && step(t.n).Some?) {/*9*/
+        theorem_preservation(t.n);
+    /*9*/} else if (t.tsucc? && step(t.p).Some?) {/*10*/
+        theorem_preservation(t.p);
+    /*10*/} else if (t.teq? && t.n1.tzero? && t.n2.tzero?) {/*11*/
+    /*11*/} else if (t.teq? && t.n1.tsucc? && peano(t.n1) && t.n2.tzero?) {/*12*/
+    /*12*/} else if (t.teq? && t.n1.tzero? && t.n2.tsucc? && peano(t.n2)) {/*13*/
+    /*13*/} else if (t.teq? && t.n1.tsucc? && t.n2.tsucc? && peano(t.n1) && peano(t.n2)) {/*14*/
+    /*14*/} else if (t.teq? && step(t.n1).Some?) {/*15*/
+        theorem_preservation(t.n1);
+    /*15*/} else if (t.teq? && peano(t.n1) && step(t.n2).Some?) {/*16*/
+        theorem_preservation(t.n2);
+    /*16*/} else if (t.tunfold? && t.tu.tfold? && value(t.tu.tf)) {/*17*/
+    /*17*/} else if (t.tfold? && step(t.tf).Some?) {/*18*/
+        theorem_preservation(t.tf);
+    /*18*/} else if (t.tunfold? && step(t.tu).Some?) {/*19*/
+        theorem_preservation(t.tu);
+    /*19*/} else {/*20*/
+    /*20*/}
+
+
+/*0*/}
+### ERRORS
+Sending request to Anthropic AWS (model=global.anthropic.claude-sonnet-4-20250514-v1:0, max_tokens=1000, temp=1.0)
+Received response from Anthropic AWS
+Response:
+Message(id='msg_bdrk_01MGD1CEv3iFuwH7PwgHUfn2', content=[TextBlock(citations=None, text="I'll choose block 1, which handles the case where we have an application of an abstraction to a value (the beta-reduction case). This is the most complex case that requires the substitution lemma.\n\n// BEGIN DAFNY BLOCK 1\n        // Case: AppAbs - (\\x:T.t) v -> [x -> v]t\n        // We have t = tapp(tabs(x, T, body), arg) where value(arg)\n        // step(t) = subst(tabs(x, T, body).x, arg, tabs(x, T, body).body)\n        //         = subst(x, arg, body)\n        \n        // From typing derivation of t:\n        // has_type(map[], tapp(tabs(x, T, body), arg)) == Some(T2)\n        // This means:\n        // - has_type(map[], tabs(x, T, body)) == Some(TArrow(T1, T2))\n        // - has_type(map[], arg) == Some(T1)\n        // - T == T1\n        \n        var f := t.f;\n        var arg := t.arg;\n        var x := f.x;\n        var T := f.T;\n        var body := f.body;\n        \n        // The stepped term is the substitution\n        var stepped := subst(x, arg, body);\n        \n        // From the typing of the abstraction, we know:\n        // has_type(extend(x, T, map[]), body) == Some(T2)\n        // where T2 is the return type\n        \n        // Apply substitution lemma\n        lemma_substitution_preserves_typing(map[], x, arg, body);\n        \n        // This gives us: has_type(map[], subst(x, arg, body)) == has_type(extend(x, T, map[]), body)\n        // Since has_type(extend(x, T, map[]), body) == Some(T2) and has_type(map[], t) == Some(T2),\n        // we have has_type(map[], stepped) == has_type(map[], t)\n// END DAFNY BLOCK 1", type='text')], model='claude-sonnet-4-20250514', role='assistant', stop_reason='end_turn', stop_sequence=None, type='message', usage=Usage(cache_creation_input_tokens=0, cache_read_input_tokens=0, input_tokens=8005, output_tokens=526, server_tool_use=None, service_tier=None))
+### Block
+// 1
+// Case: AppAbs - (\x:T.t) v -> [x -> v]t
+        // We have t = tapp(tabs(x, T, body), arg) where value(arg)
+        // step(t) = subst(tabs(x, T, body).x, arg, tabs(x, T, body).body)
+        //         = subst(x, arg, body)
+        
+        // From typing derivation of t:
+        // has_type(map[], tapp(tabs(x, T, body), arg)) == Some(T2)
+        // This means:
+        // - has_type(map[], tabs(x, T, body)) == Some(TArrow(T1, T2))
+        // - has_type(map[], arg) == Some(T1)
+        // - T == T1
+        
+        var f := t.f;
+        var arg := t.arg;
+        var x := f.x;
+        var T := f.T;
+        var body := f.body;
+        
+        // The stepped term is the substitution
+        var stepped := subst(x, arg, body);
+        
+        // From the typing of the abstraction, we know:
+        // has_type(extend(x, T, map[]), body) == Some(T2)
+        // where T2 is the return type
+        
+        // Apply substitution lemma
+        lemma_substitution_preserves_typing(map[], x, arg, body);
+        
+        // This gives us: has_type(map[], subst(x, arg, body)) == has_type(extend(x, T, map[]), body)
+        // Since has_type(extend(x, T, map[]), body) == Some(T2) and has_type(map[], t) == Some(T2),
+        // we have has_type(map[], stepped) == has_type(map[], t)
+### XP ERRORS
+524,28: a precondition for this call could not be proved -- theorem_preservation(t.f);
+
+ERROR (524, 28, 'a precondition for this call could not be proved', 'theorem_preservation(t.f);')
+[{"name":"theorem_preservation","startLine":486,"startColumn":1,"insertLine":490,"insertColumn":1,"endLine":554,"endColumn":1,"type":"lemma","status":"any"}]
+
+## FINE IMPLEMENTER
+14172 16891
+### BODY
+{
+    // Inductive proof using rule induction
+    // following function: step
+    if (t.tapp? && t.f.tabs? && value(t.arg)) {// Case: AppAbs - (\x:T.t) v -> [x -> v]t
+        // We have t = tapp(tabs(x, T, body), arg) where value(arg)
+        // step(t) = subst(tabs(x, T, body).x, arg, tabs(x, T, body).body)
+        //         = subst(x, arg, body)
+        
+        // From typing derivation of t:
+        // has_type(map[], tapp(tabs(x, T, body), arg)) == Some(T2)
+        // This means:
+        // - has_type(map[], tabs(x, T, body)) == Some(TArrow(T1, T2))
+        // - has_type(map[], arg) == Some(T1)
+        // - T == T1
+        
+        var f := t.f;
+        var arg := t.arg;
+        var x := f.x;
+        var T := f.T;
+        var body := f.body;
+        
+        // The stepped term is the substitution
+        var stepped := subst(x, arg, body);
+        
+        // From the typing of the abstraction, we know:
+        // has_type(extend(x, T, map[]), body) == Some(T2)
+        // where T2 is the return type
+        
+        // Apply substitution lemma
+        lemma_substitution_preserves_typing(map[], x, arg, body);
+        
+        // This gives us: has_type(map[], subst(x, arg, body)) == has_type(extend(x, T, map[]), body)
+        // Since has_type(extend(x, T, map[]), body) == Some(T2) and has_type(map[], t) == Some(T2),
+        // we have has_type(map[], stepped) == has_type(map[], t)} else if (t.tapp? && step(t.f).Some?) {
+        theorem_preservation(t.f);
+    } else if (t.tapp? && value(t.f) && step(t.arg).Some?) {
+        theorem_preservation(t.arg);
+    } else if (t.tif? && t.c == tm.ttrue) {
+    } else if (t.tif? && t.c == tm.tfalse) {
+    } else if (t.tif? && step(t.c).Some?) {
+        theorem_preservation(t.c);
+    } else if (t.tprev? && t.n.tzero?) {
+    } else if (t.tprev? && peano(t.n) && t.n.tsucc?) {
+    } else if (t.tprev? && step(t.n).Some?) {
+        theorem_preservation(t.n);
+    } else if (t.tsucc? && step(t.p).Some?) {
+        theorem_preservation(t.p);
+    } else if (t.teq? && t.n1.tzero? && t.n2.tzero?) {
+    } else if (t.teq? && t.n1.tsucc? && peano(t.n1) && t.n2.tzero?) {
+    } else if (t.teq? && t.n1.tzero? && t.n2.tsucc? && peano(t.n2)) {
+    } else if (t.teq? && t.n1.tsucc? && t.n2.tsucc? && peano(t.n1) && peano(t.n2)) {
+    } else if (t.teq? && step(t.n1).Some?) {
+        theorem_preservation(t.n1);
+    } else if (t.teq? && peano(t.n1) && step(t.n2).Some?) {
+        theorem_preservation(t.n2);
+    } else if (t.tunfold? && t.tu.tfold? && value(t.tu.tf)) {
+    } else if (t.tfold? && step(t.tf).Some?) {
+        theorem_preservation(t.tf);
+    } else if (t.tunfold? && step(t.tu).Some?) {
+        theorem_preservation(t.tu);
+    } else {
+    }
+
+
+}
+### ANNOTATED BODY
+{/*0*/
+    // Inductive proof using rule induction
+    // following function: step
+    if (t.tapp? && t.f.tabs? && value(t.arg)) {/*1*/// Case: AppAbs - (\x:T.t) v -> [x -> v]t
+        // We have t = tapp(tabs(x, T, body), arg) where value(arg)
+        // step(t) = subst(tabs(x, T, body).x, arg, tabs(x, T, body).body)
+        //         = subst(x, arg, body)
+        
+        // From typing derivation of t:
+        // has_type(map[], tapp(tabs(x, T, body), arg)) == Some(T2)
+        // This means:
+        // - has_type(map[], tabs(x, T, body)) == Some(TArrow(T1, T2))
+        // - has_type(map[], arg) == Some(T1)
+        // - T == T1
+        
+        var f := t.f;
+        var arg := t.arg;
+        var x := f.x;
+        var T := f.T;
+        var body := f.body;
+        
+        // The stepped term is the substitution
+        var stepped := subst(x, arg, body);
+        
+        // From the typing of the abstraction, we know:
+        // has_type(extend(x, T, map[]), body) == Some(T2)
+        // where T2 is the return type
+        
+        // Apply substitution lemma
+        lemma_substitution_preserves_typing(map[], x, arg, body);
+        
+        // This gives us: has_type(map[], subst(x, arg, body)) == has_type(extend(x, T, map[]), body)
+        // Since has_type(extend(x, T, map[]), body) == Some(T2) and has_type(map[], t) == Some(T2),
+        // we have has_type(map[], stepped) == has_type(map[], t)/*1*/} else if (t.tapp? && step(t.f).Some?) {/*2*/
+        theorem_preservation(t.f);
+    /*2*/} else if (t.tapp? && value(t.f) && step(t.arg).Some?) {/*3*/
+        theorem_preservation(t.arg);
+    /*3*/} else if (t.tif? && t.c == tm.ttrue) {/*4*/
+    /*4*/} else if (t.tif? && t.c == tm.tfalse) {/*5*/
+    /*5*/} else if (t.tif? && step(t.c).Some?) {/*6*/
+        theorem_preservation(t.c);
+    /*6*/} else if (t.tprev? && t.n.tzero?) {/*7*/
+    /*7*/} else if (t.tprev? && peano(t.n) && t.n.tsucc?) {/*8*/
+    /*8*/} else if (t.tprev? && step(t.n).Some?) {/*9*/
+        theorem_preservation(t.n);
+    /*9*/} else if (t.tsucc? && step(t.p).Some?) {/*10*/
+        theorem_preservation(t.p);
+    /*10*/} else if (t.teq? && t.n1.tzero? && t.n2.tzero?) {/*11*/
+    /*11*/} else if (t.teq? && t.n1.tsucc? && peano(t.n1) && t.n2.tzero?) {/*12*/
+    /*12*/} else if (t.teq? && t.n1.tzero? && t.n2.tsucc? && peano(t.n2)) {/*13*/
+    /*13*/} else if (t.teq? && t.n1.tsucc? && t.n2.tsucc? && peano(t.n1) && peano(t.n2)) {/*14*/
+    /*14*/} else if (t.teq? && step(t.n1).Some?) {/*15*/
+        theorem_preservation(t.n1);
+    /*15*/} else if (t.teq? && peano(t.n1) && step(t.n2).Some?) {/*16*/
+        theorem_preservation(t.n2);
+    /*16*/} else if (t.tunfold? && t.tu.tfold? && value(t.tu.tf)) {/*17*/
+    /*17*/} else if (t.tfold? && step(t.tf).Some?) {/*18*/
+        theorem_preservation(t.tf);
+    /*18*/} else if (t.tunfold? && step(t.tu).Some?) {/*19*/
+        theorem_preservation(t.tu);
+    /*19*/} else {/*20*/
+    /*20*/}
+
+
+/*0*/}
+### ERRORS
+Sending request to Anthropic AWS (model=global.anthropic.claude-sonnet-4-20250514-v1:0, max_tokens=1000, temp=1.0)
+Received response from Anthropic AWS
+Response:
+Message(id='msg_bdrk_01AxS1JPA8vur9XdqJ99mv1T', content=[TextBlock(citations=None, text="I'll implement block 2, which handles the case where the function in an application can step.\n\n// BEGIN DAFNY BLOCK 2\n// Case: App1 - f t -> f' t where f -> f'\n// We have t = tapp(f, arg) where step(f).Some?\n// step(t) = tapp(step(f).get, arg)\n\n// From typing derivation of t:\n// has_type(map[], tapp(f, arg)) == Some(T)\n// This means:\n// - has_type(map[], f) == Some(TArrow(T1, T))\n// - has_type(map[], arg) == Some(T1)\n\nvar f := t.f;\nvar arg := t.arg;\n\n// By induction hypothesis on the smaller term f:\nassert has_type(map[], f).Some?;\nassert step(f).Some?;\ntheorem_preservation(f);\n\n// This gives us: has_type(map[], step(f).get) == has_type(map[], f)\n// Therefore: has_type(map[], step(f).get) == Some(TArrow(T1, T))\n\n// The stepped term is tapp(step(f).get, arg)\n// Since has_type(map[], step(f).get) == Some(TArrow(T1, T))\n// and has_type(map[], arg) == Some(T1),\n// we get has_type(map[], tapp(step(f).get, arg)) == Some(T)\n// which equals has_type(map[], step(t).get) == has_type(map[], t)\n// END DAFNY BLOCK 2", type='text')], model='claude-sonnet-4-20250514', role='assistant', stop_reason='end_turn', stop_sequence=None, type='message', usage=Usage(cache_creation_input_tokens=0, cache_read_input_tokens=0, input_tokens=8893, output_tokens=400, server_tool_use=None, service_tier=None))
+### Block
+// 2
+// Case: App1 - f t -> f' t where f -> f'
+// We have t = tapp(f, arg) where step(f).Some?
+// step(t) = tapp(step(f).get, arg)
+
+// From typing derivation of t:
+// has_type(map[], tapp(f, arg)) == Some(T)
+// This means:
+// - has_type(map[], f) == Some(TArrow(T1, T))
+// - has_type(map[], arg) == Some(T1)
+
+var f := t.f;
+var arg := t.arg;
+
+// By induction hypothesis on the smaller term f:
+assert has_type(map[], f).Some?;
+assert step(f).Some?;
+theorem_preservation(f);
+
+// This gives us: has_type(map[], step(f).get) == has_type(map[], f)
+// Therefore: has_type(map[], step(f).get) == Some(TArrow(T1, T))
+
+// The stepped term is tapp(step(f).get, arg)
+// Since has_type(map[], step(f).get) == Some(TArrow(T1, T))
+// and has_type(map[], arg) == Some(T1),
+// we get has_type(map[], tapp(step(f).get, arg)) == Some(T)
+// which equals has_type(map[], step(t).get) == has_type(map[], t)
+### XP ERRORS
+533,4: Duplicate local-variable name: f -- var f := t.f;
+534,4: Duplicate local-variable name: arg -- var arg := t.arg;
+
+ERROR (533, 4, 'Duplicate local-variable name: f', 'var f := t.f;')
+ERROR (534, 4, 'Duplicate local-variable name: arg', 'var arg := t.arg;')
+Didn't solve todo
+[{"name":"theorem_preservation","startLine":486,"startColumn":1,"insertLine":490,"insertColumn":1,"endLine":554,"endColumn":1,"type":"lemma","status":"any"}]
+
+## FINE IMPLEMENTER
+14172 16891
+### BODY
+{
+    // Inductive proof using rule induction
+    // following function: step
+    if (t.tapp? && t.f.tabs? && value(t.arg)) {// Case: AppAbs - (\x:T.t) v -> [x -> v]t
+        // We have t = tapp(tabs(x, T, body), arg) where value(arg)
+        // step(t) = subst(tabs(x, T, body).x, arg, tabs(x, T, body).body)
+        //         = subst(x, arg, body)
+        
+        // From typing derivation of t:
+        // has_type(map[], tapp(tabs(x, T, body), arg)) == Some(T2)
+        // This means:
+        // - has_type(map[], tabs(x, T, body)) == Some(TArrow(T1, T2))
+        // - has_type(map[], arg) == Some(T1)
+        // - T == T1
+        
+        var f := t.f;
+        var arg := t.arg;
+        var x := f.x;
+        var T := f.T;
+        var body := f.body;
+        
+        // The stepped term is the substitution
+        var stepped := subst(x, arg, body);
+        
+        // From the typing of the abstraction, we know:
+        // has_type(extend(x, T, map[]), body) == Some(T2)
+        // where T2 is the return type
+        
+        // Apply substitution lemma
+        lemma_substitution_preserves_typing(map[], x, arg, body);
+        
+        // This gives us: has_type(map[], subst(x, arg, body)) == has_type(extend(x, T, map[]), body)
+        // Since has_type(extend(x, T, map[]), body) == Some(T2) and has_type(map[], t) == Some(T2),
+        // we have has_type(map[], stepped) == has_type(map[], t)} else if (t.tapp? && step(t.f).Some?) {
+        theorem_preservation(t.f);
+    } else if (t.tapp? && value(t.f) && step(t.arg).Some?) {
+        theorem_preservation(t.arg);
+    } else if (t.tif? && t.c == tm.ttrue) {
+    } else if (t.tif? && t.c == tm.tfalse) {
+    } else if (t.tif? && step(t.c).Some?) {
+        theorem_preservation(t.c);
+    } else if (t.tprev? && t.n.tzero?) {
+    } else if (t.tprev? && peano(t.n) && t.n.tsucc?) {
+    } else if (t.tprev? && step(t.n).Some?) {
+        theorem_preservation(t.n);
+    } else if (t.tsucc? && step(t.p).Some?) {
+        theorem_preservation(t.p);
+    } else if (t.teq? && t.n1.tzero? && t.n2.tzero?) {
+    } else if (t.teq? && t.n1.tsucc? && peano(t.n1) && t.n2.tzero?) {
+    } else if (t.teq? && t.n1.tzero? && t.n2.tsucc? && peano(t.n2)) {
+    } else if (t.teq? && t.n1.tsucc? && t.n2.tsucc? && peano(t.n1) && peano(t.n2)) {
+    } else if (t.teq? && step(t.n1).Some?) {
+        theorem_preservation(t.n1);
+    } else if (t.teq? && peano(t.n1) && step(t.n2).Some?) {
+        theorem_preservation(t.n2);
+    } else if (t.tunfold? && t.tu.tfold? && value(t.tu.tf)) {
+    } else if (t.tfold? && step(t.tf).Some?) {
+        theorem_preservation(t.tf);
+    } else if (t.tunfold? && step(t.tu).Some?) {
+        theorem_preservation(t.tu);
+    } else {
+    }
+
+
+}
+### ANNOTATED BODY
+{/*0*/
+    // Inductive proof using rule induction
+    // following function: step
+    if (t.tapp? && t.f.tabs? && value(t.arg)) {/*1*/// Case: AppAbs - (\x:T.t) v -> [x -> v]t
+        // We have t = tapp(tabs(x, T, body), arg) where value(arg)
+        // step(t) = subst(tabs(x, T, body).x, arg, tabs(x, T, body).body)
+        //         = subst(x, arg, body)
+        
+        // From typing derivation of t:
+        // has_type(map[], tapp(tabs(x, T, body), arg)) == Some(T2)
+        // This means:
+        // - has_type(map[], tabs(x, T, body)) == Some(TArrow(T1, T2))
+        // - has_type(map[], arg) == Some(T1)
+        // - T == T1
+        
+        var f := t.f;
+        var arg := t.arg;
+        var x := f.x;
+        var T := f.T;
+        var body := f.body;
+        
+        // The stepped term is the substitution
+        var stepped := subst(x, arg, body);
+        
+        // From the typing of the abstraction, we know:
+        // has_type(extend(x, T, map[]), body) == Some(T2)
+        // where T2 is the return type
+        
+        // Apply substitution lemma
+        lemma_substitution_preserves_typing(map[], x, arg, body);
+        
+        // This gives us: has_type(map[], subst(x, arg, body)) == has_type(extend(x, T, map[]), body)
+        // Since has_type(extend(x, T, map[]), body) == Some(T2) and has_type(map[], t) == Some(T2),
+        // we have has_type(map[], stepped) == has_type(map[], t)/*1*/} else if (t.tapp? && step(t.f).Some?) {/*2*/
+        theorem_preservation(t.f);
+    /*2*/} else if (t.tapp? && value(t.f) && step(t.arg).Some?) {/*3*/
+        theorem_preservation(t.arg);
+    /*3*/} else if (t.tif? && t.c == tm.ttrue) {/*4*/
+    /*4*/} else if (t.tif? && t.c == tm.tfalse) {/*5*/
+    /*5*/} else if (t.tif? && step(t.c).Some?) {/*6*/
+        theorem_preservation(t.c);
+    /*6*/} else if (t.tprev? && t.n.tzero?) {/*7*/
+    /*7*/} else if (t.tprev? && peano(t.n) && t.n.tsucc?) {/*8*/
+    /*8*/} else if (t.tprev? && step(t.n).Some?) {/*9*/
+        theorem_preservation(t.n);
+    /*9*/} else if (t.tsucc? && step(t.p).Some?) {/*10*/
+        theorem_preservation(t.p);
+    /*10*/} else if (t.teq? && t.n1.tzero? && t.n2.tzero?) {/*11*/
+    /*11*/} else if (t.teq? && t.n1.tsucc? && peano(t.n1) && t.n2.tzero?) {/*12*/
+    /*12*/} else if (t.teq? && t.n1.tzero? && t.n2.tsucc? && peano(t.n2)) {/*13*/
+    /*13*/} else if (t.teq? && t.n1.tsucc? && t.n2.tsucc? && peano(t.n1) && peano(t.n2)) {/*14*/
+    /*14*/} else if (t.teq? && step(t.n1).Some?) {/*15*/
+        theorem_preservation(t.n1);
+    /*15*/} else if (t.teq? && peano(t.n1) && step(t.n2).Some?) {/*16*/
+        theorem_preservation(t.n2);
+    /*16*/} else if (t.tunfold? && t.tu.tfold? && value(t.tu.tf)) {/*17*/
+    /*17*/} else if (t.tfold? && step(t.tf).Some?) {/*18*/
+        theorem_preservation(t.tf);
+    /*18*/} else if (t.tunfold? && step(t.tu).Some?) {/*19*/
+        theorem_preservation(t.tu);
+    /*19*/} else {/*20*/
+    /*20*/}
+
+
+/*0*/}
+### ERRORS
+Sending request to Anthropic AWS (model=global.anthropic.claude-sonnet-4-20250514-v1:0, max_tokens=1000, temp=1.0)
+Received response from Anthropic AWS
+Response:
+Message(id='msg_bdrk_01QEjMSigV4L9PDbNQPT4Ze3', content=[TextBlock(citations=None, text="I'll implement block 2, which handles the case where `t.tapp? && step(t.f).Some?`.\n\n// BEGIN DAFNY BLOCK 2\n// Case: App1 - t1 t2 -> t1' t2 when t1 -> t1'\n// We have t = tapp(f, arg) where step(f).Some?\n// step(t) = tapp(step(f).get, arg)\n\n// From typing derivation of t:\n// has_type(map[], tapp(f, arg)) == Some(T)\n// This means:\n// - has_type(map[], f) == Some(TArrow(T1, T))  \n// - has_type(map[], arg) == Some(T1)\n\n// By induction hypothesis on f:\n// has_type(map[], step(f).get) == has_type(map[], f)\n\n// Therefore:\n// has_type(map[], step(f).get) == Some(TArrow(T1, T))\n\n// So the stepped term tapp(step(f).get, arg) has type T:\n// has_type(map[], tapp(step(f).get, arg)) == Some(T)\n\n// This matches has_type(map[], t) == Some(T)\ntheorem_preservation(t.f);\n// END DAFNY BLOCK 2", type='text')], model='claude-sonnet-4-20250514', role='assistant', stop_reason='end_turn', stop_sequence=None, type='message', usage=Usage(cache_creation_input_tokens=0, cache_read_input_tokens=0, input_tokens=8893, output_tokens=328, server_tool_use=None, service_tier=None))
+### Block
+// 2
+// Case: App1 - t1 t2 -> t1' t2 when t1 -> t1'
+// We have t = tapp(f, arg) where step(f).Some?
+// step(t) = tapp(step(f).get, arg)
+
+// From typing derivation of t:
+// has_type(map[], tapp(f, arg)) == Some(T)
+// This means:
+// - has_type(map[], f) == Some(TArrow(T1, T))  
+// - has_type(map[], arg) == Some(T1)
+
+// By induction hypothesis on f:
+// has_type(map[], step(f).get) == has_type(map[], f)
+
+// Therefore:
+// has_type(map[], step(f).get) == Some(TArrow(T1, T))
+
+// So the stepped term tapp(step(f).get, arg) has type T:
+// has_type(map[], tapp(step(f).get, arg)) == Some(T)
+
+// This matches has_type(map[], t) == Some(T)
+theorem_preservation(t.f);
+### XP ERRORS
+543,20: a precondition for this call could not be proved -- theorem_preservation(t.f);} else if (t.tapp? && value(t.f) && step(t.arg).Some?) {
+
+ERROR (543, 20, 'a precondition for this call could not be proved', 'theorem_preservation(t.f);} else if (t.tapp? && value(t.f) && step(t.arg).Some?) {')
+[{"name":"theorem_preservation","startLine":486,"startColumn":1,"insertLine":490,"insertColumn":1,"endLine":572,"endColumn":1,"type":"lemma","status":"any"}]
+
+## FINE IMPLEMENTER
+14172 17505
+### BODY
+{
+    // Inductive proof using rule induction
+    // following function: step
+    if (t.tapp? && t.f.tabs? && value(t.arg)) {// Case: AppAbs - (\x:T.t) v -> [x -> v]t
+        // We have t = tapp(tabs(x, T, body), arg) where value(arg)
+        // step(t) = subst(tabs(x, T, body).x, arg, tabs(x, T, body).body)
+        //         = subst(x, arg, body)
+        
+        // From typing derivation of t:
+        // has_type(map[], tapp(tabs(x, T, body), arg)) == Some(T2)
+        // This means:
+        // - has_type(map[], tabs(x, T, body)) == Some(TArrow(T1, T2))
+        // - has_type(map[], arg) == Some(T1)
+        // - T == T1
+        
+        var f := t.f;
+        var arg := t.arg;
+        var x := f.x;
+        var T := f.T;
+        var body := f.body;
+        
+        // The stepped term is the substitution
+        var stepped := subst(x, arg, body);
+        
+        // From the typing of the abstraction, we know:
+        // has_type(extend(x, T, map[]), body) == Some(T2)
+        // where T2 is the return type
+        
+        // Apply substitution lemma
+        lemma_substitution_preserves_typing(map[], x, arg, body);
+        
+        // This gives us: has_type(map[], subst(x, arg, body)) == has_type(extend(x, T, map[]), body)
+        // Since has_type(extend(x, T, map[]), body) == Some(T2) and has_type(map[], t) == Some(T2),
+        // we have has_type(map[], stepped) == has_type(map[], t)} else if (t.tapp? && step(t.f).Some?) {// Case: App1 - t1 t2 -> t1' t2 when t1 -> t1'
+// We have t = tapp(f, arg) where step(f).Some?
+// step(t) = tapp(step(f).get, arg)
+
+// From typing derivation of t:
+// has_type(map[], tapp(f, arg)) == Some(T)
+// This means:
+// - has_type(map[], f) == Some(TArrow(T1, T))  
+// - has_type(map[], arg) == Some(T1)
+
+// By induction hypothesis on f:
+// has_type(map[], step(f).get) == has_type(map[], f)
+
+// Therefore:
+// has_type(map[], step(f).get) == Some(TArrow(T1, T))
+
+// So the stepped term tapp(step(f).get, arg) has type T:
+// has_type(map[], tapp(step(f).get, arg)) == Some(T)
+
+// This matches has_type(map[], t) == Some(T)
+theorem_preservation(t.f);} else if (t.tapp? && value(t.f) && step(t.arg).Some?) {
+        theorem_preservation(t.arg);
+    } else if (t.tif? && t.c == tm.ttrue) {
+    } else if (t.tif? && t.c == tm.tfalse) {
+    } else if (t.tif? && step(t.c).Some?) {
+        theorem_preservation(t.c);
+    } else if (t.tprev? && t.n.tzero?) {
+    } else if (t.tprev? && peano(t.n) && t.n.tsucc?) {
+    } else if (t.tprev? && step(t.n).Some?) {
+        theorem_preservation(t.n);
+    } else if (t.tsucc? && step(t.p).Some?) {
+        theorem_preservation(t.p);
+    } else if (t.teq? && t.n1.tzero? && t.n2.tzero?) {
+    } else if (t.teq? && t.n1.tsucc? && peano(t.n1) && t.n2.tzero?) {
+    } else if (t.teq? && t.n1.tzero? && t.n2.tsucc? && peano(t.n2)) {
+    } else if (t.teq? && t.n1.tsucc? && t.n2.tsucc? && peano(t.n1) && peano(t.n2)) {
+    } else if (t.teq? && step(t.n1).Some?) {
+        theorem_preservation(t.n1);
+    } else if (t.teq? && peano(t.n1) && step(t.n2).Some?) {
+        theorem_preservation(t.n2);
+    } else if (t.tunfold? && t.tu.tfold? && value(t.tu.tf)) {
+    } else if (t.tfold? && step(t.tf).Some?) {
+        theorem_preservation(t.tf);
+    } else if (t.tunfold? && step(t.tu).Some?) {
+        theorem_preservation(t.tu);
+    } else {
+    }
+
+
+}
+### ANNOTATED BODY
+{/*0*/
+    // Inductive proof using rule induction
+    // following function: step
+    if (t.tapp? && t.f.tabs? && value(t.arg)) {/*1*/// Case: AppAbs - (\x:T.t) v -> [x -> v]t
+        // We have t = tapp(tabs(x, T, body), arg) where value(arg)
+        // step(t) = subst(tabs(x, T, body).x, arg, tabs(x, T, body).body)
+        //         = subst(x, arg, body)
+        
+        // From typing derivation of t:
+        // has_type(map[], tapp(tabs(x, T, body), arg)) == Some(T2)
+        // This means:
+        // - has_type(map[], tabs(x, T, body)) == Some(TArrow(T1, T2))
+        // - has_type(map[], arg) == Some(T1)
+        // - T == T1
+        
+        var f := t.f;
+        var arg := t.arg;
+        var x := f.x;
+        var T := f.T;
+        var body := f.body;
+        
+        // The stepped term is the substitution
+        var stepped := subst(x, arg, body);
+        
+        // From the typing of the abstraction, we know:
+        // has_type(extend(x, T, map[]), body) == Some(T2)
+        // where T2 is the return type
+        
+        // Apply substitution lemma
+        lemma_substitution_preserves_typing(map[], x, arg, body);
+        
+        // This gives us: has_type(map[], subst(x, arg, body)) == has_type(extend(x, T, map[]), body)
+        // Since has_type(extend(x, T, map[]), body) == Some(T2) and has_type(map[], t) == Some(T2),
+        // we have has_type(map[], stepped) == has_type(map[], t)/*1*/} else if (t.tapp? && step(t.f).Some?) {/*2*/// Case: App1 - t1 t2 -> t1' t2 when t1 -> t1'
+// We have t = tapp(f, arg) where step(f).Some?
+// step(t) = tapp(step(f).get, arg)
+
+// From typing derivation of t:
+// has_type(map[], tapp(f, arg)) == Some(T)
+// This means:
+// - has_type(map[], f) == Some(TArrow(T1, T))  
+// - has_type(map[], arg) == Some(T1)
+
+// By induction hypothesis on f:
+// has_type(map[], step(f).get) == has_type(map[], f)
+
+// Therefore:
+// has_type(map[], step(f).get) == Some(TArrow(T1, T))
+
+// So the stepped term tapp(step(f).get, arg) has type T:
+// has_type(map[], tapp(step(f).get, arg)) == Some(T)
+
+// This matches has_type(map[], t) == Some(T)
+theorem_preservation(t.f);/*2*/} else if (t.tapp? && value(t.f) && step(t.arg).Some?) {/*3*/
+        theorem_preservation(t.arg);
+    /*3*/} else if (t.tif? && t.c == tm.ttrue) {/*4*/
+    /*4*/} else if (t.tif? && t.c == tm.tfalse) {/*5*/
+    /*5*/} else if (t.tif? && step(t.c).Some?) {/*6*/
+        theorem_preservation(t.c);
+    /*6*/} else if (t.tprev? && t.n.tzero?) {/*7*/
+    /*7*/} else if (t.tprev? && peano(t.n) && t.n.tsucc?) {/*8*/
+    /*8*/} else if (t.tprev? && step(t.n).Some?) {/*9*/
+        theorem_preservation(t.n);
+    /*9*/} else if (t.tsucc? && step(t.p).Some?) {/*10*/
+        theorem_preservation(t.p);
+    /*10*/} else if (t.teq? && t.n1.tzero? && t.n2.tzero?) {/*11*/
+    /*11*/} else if (t.teq? && t.n1.tsucc? && peano(t.n1) && t.n2.tzero?) {/*12*/
+    /*12*/} else if (t.teq? && t.n1.tzero? && t.n2.tsucc? && peano(t.n2)) {/*13*/
+    /*13*/} else if (t.teq? && t.n1.tsucc? && t.n2.tsucc? && peano(t.n1) && peano(t.n2)) {/*14*/
+    /*14*/} else if (t.teq? && step(t.n1).Some?) {/*15*/
+        theorem_preservation(t.n1);
+    /*15*/} else if (t.teq? && peano(t.n1) && step(t.n2).Some?) {/*16*/
+        theorem_preservation(t.n2);
+    /*16*/} else if (t.tunfold? && t.tu.tfold? && value(t.tu.tf)) {/*17*/
+    /*17*/} else if (t.tfold? && step(t.tf).Some?) {/*18*/
+        theorem_preservation(t.tf);
+    /*18*/} else if (t.tunfold? && step(t.tu).Some?) {/*19*/
+        theorem_preservation(t.tu);
+    /*19*/} else {/*20*/
+    /*20*/}
+
+
+/*0*/}
+### ERRORS
+Sending request to Anthropic AWS (model=global.anthropic.claude-sonnet-4-20250514-v1:0, max_tokens=1000, temp=1.0)
+Received response from Anthropic AWS
+Response:
+Message(id='msg_bdrk_01QfbrdufMs9DiVoEJSiSVuQ', content=[TextBlock(citations=None, text="I'll work on block 17, which handles the UnfoldFold case for iso-recursive types.\n\n// BEGIN DAFNY BLOCK 17\n// Case: UnfoldFold - unfold (fold[U] v) -> v when value(v)\n// We have t = tunfold(tfold(U, v)) where value(v)\n// step(t) = v\n\n// From typing derivation of t:\n// has_type(map[], tunfold(tfold(U, v))) == Some(T)\n// This means tunfold has type Some(T), so tfold(U, v) has type Some(U) where U.TRec?\n// and T == tsubst(U.X, U, U.T)\n\n// From typing derivation of tfold(U, v):\n// has_type(map[], tfold(U, v)) == Some(U)\n// This means:\n// - U.TRec? && ty_closed(U)\n// - has_type(map[], v) == Some(tsubst(U.X, U, U.T))\n// - tsubst(U.X, U, U.T) == T (from the unfold typing)\n\n// Therefore: has_type(map[], v) == Some(T)\n// Since step(t) = v, we have has_type(map[], step(t).get) == Some(T)\n// This matches has_type(map[], t) == Some(T)\n// END DAFNY BLOCK 17", type='text')], model='claude-sonnet-4-20250514', role='assistant', stop_reason='end_turn', stop_sequence=None, type='message', usage=Usage(cache_creation_input_tokens=0, cache_read_input_tokens=0, input_tokens=9449, output_tokens=362, server_tool_use=None, service_tier=None))
+### Block
+// 17
+// Case: UnfoldFold - unfold (fold[U] v) -> v when value(v)
+// We have t = tunfold(tfold(U, v)) where value(v)
+// step(t) = v
+
+// From typing derivation of t:
+// has_type(map[], tunfold(tfold(U, v))) == Some(T)
+// This means tunfold has type Some(T), so tfold(U, v) has type Some(U) where U.TRec?
+// and T == tsubst(U.X, U, U.T)
+
+// From typing derivation of tfold(U, v):
+// has_type(map[], tfold(U, v)) == Some(U)
+// This means:
+// - U.TRec? && ty_closed(U)
+// - has_type(map[], v) == Some(tsubst(U.X, U, U.T))
+// - tsubst(U.X, U, U.T) == T (from the unfold typing)
+
+// Therefore: has_type(map[], v) == Some(T)
+// Since step(t) = v, we have has_type(map[], step(t).get) == Some(T)
+// This matches has_type(map[], t) == Some(T)
+### XP ERRORS
+543,20: a precondition for this call could not be proved -- theorem_preservation(t.f);} else if (t.tapp? && value(t.f) && step(t.arg).Some?) {
+582,31: destructor 'tf' can only be applied to datatype values constructed by 'tfold' -- theorem_preservation(t.tf);
+
+ERROR (543, 20, 'a precondition for this call could not be proved', 'theorem_preservation(t.f);} else if (t.tapp? && value(t.f) && step(t.arg).Some?) {')
+ERROR (582, 31, "destructor 'tf' can only be applied to datatype values constructed by 'tfold'", 'theorem_preservation(t.tf);')
+Didn't solve todo
+[{"name":"theorem_preservation","startLine":486,"startColumn":1,"insertLine":490,"insertColumn":1,"endLine":572,"endColumn":1,"type":"lemma","status":"any"}]
+
+## FINE IMPLEMENTER
+14172 17505
+### BODY
+{
+    // Inductive proof using rule induction
+    // following function: step
+    if (t.tapp? && t.f.tabs? && value(t.arg)) {// Case: AppAbs - (\x:T.t) v -> [x -> v]t
+        // We have t = tapp(tabs(x, T, body), arg) where value(arg)
+        // step(t) = subst(tabs(x, T, body).x, arg, tabs(x, T, body).body)
+        //         = subst(x, arg, body)
+        
+        // From typing derivation of t:
+        // has_type(map[], tapp(tabs(x, T, body), arg)) == Some(T2)
+        // This means:
+        // - has_type(map[], tabs(x, T, body)) == Some(TArrow(T1, T2))
+        // - has_type(map[], arg) == Some(T1)
+        // - T == T1
+        
+        var f := t.f;
+        var arg := t.arg;
+        var x := f.x;
+        var T := f.T;
+        var body := f.body;
+        
+        // The stepped term is the substitution
+        var stepped := subst(x, arg, body);
+        
+        // From the typing of the abstraction, we know:
+        // has_type(extend(x, T, map[]), body) == Some(T2)
+        // where T2 is the return type
+        
+        // Apply substitution lemma
+        lemma_substitution_preserves_typing(map[], x, arg, body);
+        
+        // This gives us: has_type(map[], subst(x, arg, body)) == has_type(extend(x, T, map[]), body)
+        // Since has_type(extend(x, T, map[]), body) == Some(T2) and has_type(map[], t) == Some(T2),
+        // we have has_type(map[], stepped) == has_type(map[], t)} else if (t.tapp? && step(t.f).Some?) {// Case: App1 - t1 t2 -> t1' t2 when t1 -> t1'
+// We have t = tapp(f, arg) where step(f).Some?
+// step(t) = tapp(step(f).get, arg)
+
+// From typing derivation of t:
+// has_type(map[], tapp(f, arg)) == Some(T)
+// This means:
+// - has_type(map[], f) == Some(TArrow(T1, T))  
+// - has_type(map[], arg) == Some(T1)
+
+// By induction hypothesis on f:
+// has_type(map[], step(f).get) == has_type(map[], f)
+
+// Therefore:
+// has_type(map[], step(f).get) == Some(TArrow(T1, T))
+
+// So the stepped term tapp(step(f).get, arg) has type T:
+// has_type(map[], tapp(step(f).get, arg)) == Some(T)
+
+// This matches has_type(map[], t) == Some(T)
+theorem_preservation(t.f);} else if (t.tapp? && value(t.f) && step(t.arg).Some?) {
+        theorem_preservation(t.arg);
+    } else if (t.tif? && t.c == tm.ttrue) {
+    } else if (t.tif? && t.c == tm.tfalse) {
+    } else if (t.tif? && step(t.c).Some?) {
+        theorem_preservation(t.c);
+    } else if (t.tprev? && t.n.tzero?) {
+    } else if (t.tprev? && peano(t.n) && t.n.tsucc?) {
+    } else if (t.tprev? && step(t.n).Some?) {
+        theorem_preservation(t.n);
+    } else if (t.tsucc? && step(t.p).Some?) {
+        theorem_preservation(t.p);
+    } else if (t.teq? && t.n1.tzero? && t.n2.tzero?) {
+    } else if (t.teq? && t.n1.tsucc? && peano(t.n1) && t.n2.tzero?) {
+    } else if (t.teq? && t.n1.tzero? && t.n2.tsucc? && peano(t.n2)) {
+    } else if (t.teq? && t.n1.tsucc? && t.n2.tsucc? && peano(t.n1) && peano(t.n2)) {
+    } else if (t.teq? && step(t.n1).Some?) {
+        theorem_preservation(t.n1);
+    } else if (t.teq? && peano(t.n1) && step(t.n2).Some?) {
+        theorem_preservation(t.n2);
+    } else if (t.tunfold? && t.tu.tfold? && value(t.tu.tf)) {
+    } else if (t.tfold? && step(t.tf).Some?) {
+        theorem_preservation(t.tf);
+    } else if (t.tunfold? && step(t.tu).Some?) {
+        theorem_preservation(t.tu);
+    } else {
+    }
+
+
+}
+### ANNOTATED BODY
+{/*0*/
+    // Inductive proof using rule induction
+    // following function: step
+    if (t.tapp? && t.f.tabs? && value(t.arg)) {/*1*/// Case: AppAbs - (\x:T.t) v -> [x -> v]t
+        // We have t = tapp(tabs(x, T, body), arg) where value(arg)
+        // step(t) = subst(tabs(x, T, body).x, arg, tabs(x, T, body).body)
+        //         = subst(x, arg, body)
+        
+        // From typing derivation of t:
+        // has_type(map[], tapp(tabs(x, T, body), arg)) == Some(T2)
+        // This means:
+        // - has_type(map[], tabs(x, T, body)) == Some(TArrow(T1, T2))
+        // - has_type(map[], arg) == Some(T1)
+        // - T == T1
+        
+        var f := t.f;
+        var arg := t.arg;
+        var x := f.x;
+        var T := f.T;
+        var body := f.body;
+        
+        // The stepped term is the substitution
+        var stepped := subst(x, arg, body);
+        
+        // From the typing of the abstraction, we know:
+        // has_type(extend(x, T, map[]), body) == Some(T2)
+        // where T2 is the return type
+        
+        // Apply substitution lemma
+        lemma_substitution_preserves_typing(map[], x, arg, body);
+        
+        // This gives us: has_type(map[], subst(x, arg, body)) == has_type(extend(x, T, map[]), body)
+        // Since has_type(extend(x, T, map[]), body) == Some(T2) and has_type(map[], t) == Some(T2),
+        // we have has_type(map[], stepped) == has_type(map[], t)/*1*/} else if (t.tapp? && step(t.f).Some?) {/*2*/// Case: App1 - t1 t2 -> t1' t2 when t1 -> t1'
+// We have t = tapp(f, arg) where step(f).Some?
+// step(t) = tapp(step(f).get, arg)
+
+// From typing derivation of t:
+// has_type(map[], tapp(f, arg)) == Some(T)
+// This means:
+// - has_type(map[], f) == Some(TArrow(T1, T))  
+// - has_type(map[], arg) == Some(T1)
+
+// By induction hypothesis on f:
+// has_type(map[], step(f).get) == has_type(map[], f)
+
+// Therefore:
+// has_type(map[], step(f).get) == Some(TArrow(T1, T))
+
+// So the stepped term tapp(step(f).get, arg) has type T:
+// has_type(map[], tapp(step(f).get, arg)) == Some(T)
+
+// This matches has_type(map[], t) == Some(T)
+theorem_preservation(t.f);/*2*/} else if (t.tapp? && value(t.f) && step(t.arg).Some?) {/*3*/
+        theorem_preservation(t.arg);
+    /*3*/} else if (t.tif? && t.c == tm.ttrue) {/*4*/
+    /*4*/} else if (t.tif? && t.c == tm.tfalse) {/*5*/
+    /*5*/} else if (t.tif? && step(t.c).Some?) {/*6*/
+        theorem_preservation(t.c);
+    /*6*/} else if (t.tprev? && t.n.tzero?) {/*7*/
+    /*7*/} else if (t.tprev? && peano(t.n) && t.n.tsucc?) {/*8*/
+    /*8*/} else if (t.tprev? && step(t.n).Some?) {/*9*/
+        theorem_preservation(t.n);
+    /*9*/} else if (t.tsucc? && step(t.p).Some?) {/*10*/
+        theorem_preservation(t.p);
+    /*10*/} else if (t.teq? && t.n1.tzero? && t.n2.tzero?) {/*11*/
+    /*11*/} else if (t.teq? && t.n1.tsucc? && peano(t.n1) && t.n2.tzero?) {/*12*/
+    /*12*/} else if (t.teq? && t.n1.tzero? && t.n2.tsucc? && peano(t.n2)) {/*13*/
+    /*13*/} else if (t.teq? && t.n1.tsucc? && t.n2.tsucc? && peano(t.n1) && peano(t.n2)) {/*14*/
+    /*14*/} else if (t.teq? && step(t.n1).Some?) {/*15*/
+        theorem_preservation(t.n1);
+    /*15*/} else if (t.teq? && peano(t.n1) && step(t.n2).Some?) {/*16*/
+        theorem_preservation(t.n2);
+    /*16*/} else if (t.tunfold? && t.tu.tfold? && value(t.tu.tf)) {/*17*/
+    /*17*/} else if (t.tfold? && step(t.tf).Some?) {/*18*/
+        theorem_preservation(t.tf);
+    /*18*/} else if (t.tunfold? && step(t.tu).Some?) {/*19*/
+        theorem_preservation(t.tu);
+    /*19*/} else {/*20*/
+    /*20*/}
+
+
+/*0*/}
+### ERRORS
+Sending request to Anthropic AWS (model=global.anthropic.claude-sonnet-4-20250514-v1:0, max_tokens=1000, temp=1.0)
+Received response from Anthropic AWS
+Response:
+Message(id='msg_bdrk_01D27rywx84yUrhwkrNTYEDi', content=[TextBlock(citations=None, text="I'll choose block 17 to implement, which handles the UnfoldFold case for iso-recursive types.\n\n// BEGIN DAFNY BLOCK 17\n// Case: UnfoldFold - unfold (fold[μX.T] v) -> v when value(v)\n// We have t = tunfold(tfold(U, tf)) where value(tf)\n// step(t) = tf\n\n// From typing derivation of t:\n// has_type(map[], tunfold(tfold(U, tf))) == Some(T)\n// This means:\n// - has_type(map[], tfold(U, tf)) == Some(U) where U.TRec?\n// - has_type(map[], t) == Some(tsubst(U.X, U, U.T))\n\n// From typing derivation of tfold(U, tf):\n// - ty_closed(U) and U.TRec?\n// - has_type(map[], tf) == Some(tsubst(U.X, U, U.T))\n\n// The stepped term is tf, which has type tsubst(U.X, U, U.T)\n// This matches the type of the original unfold term\n\n// Therefore: has_type(map[], tf) == has_type(map[], t)\n// END DAFNY BLOCK 17", type='text')], model='claude-sonnet-4-20250514', role='assistant', stop_reason='end_turn', stop_sequence=None, type='message', usage=Usage(cache_creation_input_tokens=0, cache_read_input_tokens=0, input_tokens=9449, output_tokens=319, server_tool_use=None, service_tier=None))
+### Block
+// 17
+// Case: UnfoldFold - unfold (fold[μX.T] v) -> v when value(v)
+// We have t = tunfold(tfold(U, tf)) where value(tf)
+// step(t) = tf
+
+// From typing derivation of t:
+// has_type(map[], tunfold(tfold(U, tf))) == Some(T)
+// This means:
+// - has_type(map[], tfold(U, tf)) == Some(U) where U.TRec?
+// - has_type(map[], t) == Some(tsubst(U.X, U, U.T))
+
+// From typing derivation of tfold(U, tf):
+// - ty_closed(U) and U.TRec?
+// - has_type(map[], tf) == Some(tsubst(U.X, U, U.T))
+
+// The stepped term is tf, which has type tsubst(U.X, U, U.T)
+// This matches the type of the original unfold term
+
+// Therefore: has_type(map[], tf) == has_type(map[], t)
+### XP ERRORS
+543,20: a precondition for this call could not be proved -- theorem_preservation(t.f);} else if (t.tapp? && value(t.f) && step(t.arg).Some?) {
+581,31: destructor 'tf' can only be applied to datatype values constructed by 'tfold' -- theorem_preservation(t.tf);
+
+ERROR (543, 20, 'a precondition for this call could not be proved', 'theorem_preservation(t.f);} else if (t.tapp? && value(t.f) && step(t.arg).Some?) {')
+ERROR (581, 31, "destructor 'tf' can only be applied to datatype values constructed by 'tfold'", 'theorem_preservation(t.tf);')
+Didn't solve todo
+[{"name":"theorem_preservation","startLine":486,"startColumn":1,"insertLine":490,"insertColumn":1,"endLine":525,"endColumn":1,"type":"lemma","status":"any"}]
+
+## FINE IMPLEMENTER
+14172 15611
+### BODY
+{
+    // Inductive proof using rule induction
+    // following function: step
+    if (t.tapp? && t.f.tabs? && value(t.arg)) {
+    } else if (t.tapp? && step(t.f).Some?) {
+        theorem_preservation(t.f);
+    } else if (t.tapp? && value(t.f) && step(t.arg).Some?) {
+        theorem_preservation(t.arg);
+    } else if (t.tif? && t.c == tm.ttrue) {
+    } else if (t.tif? && t.c == tm.tfalse) {
+    } else if (t.tif? && step(t.c).Some?) {
+        theorem_preservation(t.c);
+    } else if (t.tprev? && t.n.tzero?) {
+    } else if (t.tprev? && peano(t.n) && t.n.tsucc?) {
+    } else if (t.tprev? && step(t.n).Some?) {
+        theorem_preservation(t.n);
+    } else if (t.tsucc? && step(t.p).Some?) {
+        theorem_preservation(t.p);
+    } else if (t.teq? && t.n1.tzero? && t.n2.tzero?) {
+    } else if (t.teq? && t.n1.tsucc? && peano(t.n1) && t.n2.tzero?) {
+    } else if (t.teq? && t.n1.tzero? && t.n2.tsucc? && peano(t.n2)) {
+    } else if (t.teq? && t.n1.tsucc? && t.n2.tsucc? && peano(t.n1) && peano(t.n2)) {
+    } else if (t.teq? && step(t.n1).Some?) {
+        theorem_preservation(t.n1);
+    } else if (t.teq? && peano(t.n1) && step(t.n2).Some?) {
+        theorem_preservation(t.n2);
+    } else if (t.tunfold? && t.tu.tfold? && value(t.tu.tf)) {
+    } else if (t.tfold? && step(t.tf).Some?) {
+        theorem_preservation(t.tf);
+    } else if (t.tunfold? && step(t.tu).Some?) {
+        theorem_preservation(t.tu);
+    } else {
+    }
+
+
+}
+### ANNOTATED BODY
+{/*0*/
+    // Inductive proof using rule induction
+    // following function: step
+    if (t.tapp? && t.f.tabs? && value(t.arg)) {/*1*/
+    /*1*/} else if (t.tapp? && step(t.f).Some?) {/*2*/
+        theorem_preservation(t.f);
+    /*2*/} else if (t.tapp? && value(t.f) && step(t.arg).Some?) {/*3*/
+        theorem_preservation(t.arg);
+    /*3*/} else if (t.tif? && t.c == tm.ttrue) {/*4*/
+    /*4*/} else if (t.tif? && t.c == tm.tfalse) {/*5*/
+    /*5*/} else if (t.tif? && step(t.c).Some?) {/*6*/
+        theorem_preservation(t.c);
+    /*6*/} else if (t.tprev? && t.n.tzero?) {/*7*/
+    /*7*/} else if (t.tprev? && peano(t.n) && t.n.tsucc?) {/*8*/
+    /*8*/} else if (t.tprev? && step(t.n).Some?) {/*9*/
+        theorem_preservation(t.n);
+    /*9*/} else if (t.tsucc? && step(t.p).Some?) {/*10*/
+        theorem_preservation(t.p);
+    /*10*/} else if (t.teq? && t.n1.tzero? && t.n2.tzero?) {/*11*/
+    /*11*/} else if (t.teq? && t.n1.tsucc? && peano(t.n1) && t.n2.tzero?) {/*12*/
+    /*12*/} else if (t.teq? && t.n1.tzero? && t.n2.tsucc? && peano(t.n2)) {/*13*/
+    /*13*/} else if (t.teq? && t.n1.tsucc? && t.n2.tsucc? && peano(t.n1) && peano(t.n2)) {/*14*/
+    /*14*/} else if (t.teq? && step(t.n1).Some?) {/*15*/
+        theorem_preservation(t.n1);
+    /*15*/} else if (t.teq? && peano(t.n1) && step(t.n2).Some?) {/*16*/
+        theorem_preservation(t.n2);
+    /*16*/} else if (t.tunfold? && t.tu.tfold? && value(t.tu.tf)) {/*17*/
+    /*17*/} else if (t.tfold? && step(t.tf).Some?) {/*18*/
+        theorem_preservation(t.tf);
+    /*18*/} else if (t.tunfold? && step(t.tu).Some?) {/*19*/
+        theorem_preservation(t.tu);
+    /*19*/} else {/*20*/
+    /*20*/}
+
+
+/*0*/}
+### ERRORS
+Sending request to Anthropic AWS (model=global.anthropic.claude-sonnet-4-20250514-v1:0, max_tokens=1000, temp=1.0)
+Received response from Anthropic AWS
+Response:
+Message(id='msg_bdrk_01N4BmvT42qtdmPJN4mjVACM', content=[TextBlock(citations=None, text="I'll implement block 1, which handles the case where we have an application of an abstraction to a value (the AppAbs reduction rule).\n\n// BEGIN DAFNY BLOCK 1\n        // AppAbs case: (\\x:T.body) v -> [x -> v]body\n        // We need to show that substitution preserves typing\n        var f := t.f;\n        var arg := t.arg;\n        var x := f.x;\n        var T := f.T;\n        var body := f.body;\n        \n        // From has_type(map[], t).Some?, we know t : S for some S\n        // Since t = tapp(f, arg), we have:\n        // - f : T1 -> T2 for some T1, T2\n        // - arg : T1\n        // - t : T2\n        \n        // From has_type on application, f must be TArrow type\n        var f_type := has_type(map[], f).get;\n        assert f_type.TArrow?;\n        var arg_type := has_type(map[], arg).get;\n        assert f_type.T1 == arg_type;\n        \n        // From has_type on abstraction f = \\x:T.body:\n        // has_type(extend(x, T, map[]), body) == Some(f_type.T2)\n        // and T == f_type.T1 == arg_type\n        \n        // The step result is subst(x, arg, body)\n        // We need to show: has_type(map[], subst(x, arg, body)) == Some(f_type.T2)\n        \n        // Apply substitution lemma:\n        // - arg has type arg_type in empty context\n        // - body has type f_type.T2 in context extended with x:arg_type\n        // - therefore subst(x, arg, body) has type f_type.T2 in empty context\n        lemma_substitution_preserves_typing(map[], x, arg, body);\n// END DAFNY BLOCK 1", type='text')], model='claude-sonnet-4-20250514', role='assistant', stop_reason='end_turn', stop_sequence=None, type='message', usage=Usage(cache_creation_input_tokens=0, cache_read_input_tokens=0, input_tokens=8005, output_tokens=505, server_tool_use=None, service_tier=None))
+### Block
+// 1
+// AppAbs case: (\x:T.body) v -> [x -> v]body
+        // We need to show that substitution preserves typing
+        var f := t.f;
+        var arg := t.arg;
+        var x := f.x;
+        var T := f.T;
+        var body := f.body;
+        
+        // From has_type(map[], t).Some?, we know t : S for some S
+        // Since t = tapp(f, arg), we have:
+        // - f : T1 -> T2 for some T1, T2
+        // - arg : T1
+        // - t : T2
+        
+        // From has_type on application, f must be TArrow type
+        var f_type := has_type(map[], f).get;
+        assert f_type.TArrow?;
+        var arg_type := has_type(map[], arg).get;
+        assert f_type.T1 == arg_type;
+        
+        // From has_type on abstraction f = \x:T.body:
+        // has_type(extend(x, T, map[]), body) == Some(f_type.T2)
+        // and T == f_type.T1 == arg_type
+        
+        // The step result is subst(x, arg, body)
+        // We need to show: has_type(map[], subst(x, arg, body)) == Some(f_type.T2)
+        
+        // Apply substitution lemma:
+        // - arg has type arg_type in empty context
+        // - body has type f_type.T2 in context extended with x:arg_type
+        // - therefore subst(x, arg, body) has type f_type.T2 in empty context
+        lemma_substitution_preserves_typing(map[], x, arg, body);
+### XP ERRORS
+
+[]
+
+CHOSEN SOLUTION
+// Proving type safety of a Simply Typed Lambda-Calculus in Dafny
+// adapted from Coq (https://softwarefoundations.cis.upenn.edu/plf-current/Stlc.html)
+// Latest version of the original Coq are at:
+// https://softwarefoundations.cis.upenn.edu/plf-current/Stlc.html
+// https://softwarefoundations.cis.upenn.edu/plf-current/StlcProp.html
+
+// Features the pure lambda calculus, with optional extentions:
+// - booleans (BOOL),
+// - natural numbers (NAT),
+// - iso-recursive types (REC).
+//
+// The extensions can be toggled commenting modular sections in and out,
+// and this can be achieved by searching and replacing all the corresponding opening and closing markers.
+// For example, to disable booleans (and vice versa to enable them),
+// search for the opening marker `//*BOOL?` and replace with `/*BOOL?` and
+// search for the closing marker `//?BOOL*/` and replace with `/?BOOL*/`.
+// These ad-hoc extensions are modular in the sense that each can be toggled independently of the others.
+// Though the file checks only one configuration at a time,
+// it is expected that any configuration should work,
+// specially if the configuration where all extensions are enabled works.
+// As an aside, this file motivates built-in extensible modular verification in Dafny.
+
+
+/// Utilities
+
+// ... handy for partial functions
+datatype option<A> = None | Some(get: A)
+
+/// -----
+/// Model
+/// -----
+
+/// Syntax
+
+// Types
+datatype ty =  TBase                             // (opaque base type)
+            |  TArrow(T1: ty, T2: ty)            // T1 => T2
+//*BOOL?
+            | TBool                              // (base type for booleans)
+////?BOOL*/
+//*NAT?
+            |  TNat                              // (base type for naturals)
+//?NAT*/
+//*REC?
+            | TVar(id: int) | TRec(X: nat, T: ty)// (iso-recursive types)
+//?REC*/
+
+// Terms
+datatype tm = tvar(id: int)                      // x                  (variable)
+            | tapp(f: tm, arg: tm)               // t t                (application)
+            | tabs(x: int, T: ty, body: tm)      // \x:T.t             (abstraction)
+//*BOOL?
+            | ttrue | tfalse                     // true, false        (boolean values)
+            | tif(c: tm, a: tm, b: tm)           // if t then t else t (if expression)
+//?BOOL*/
+//*NAT?
+            | tzero | tsucc(p: tm) | tprev(n: tm)//                    (naturals)
+//*BOOL?
+            | teq(n1: tm, n2: tm)                //                    (equality on naturals)
+//?BOOL*/
+//?NAT*/
+//*REC?
+            | tfold(Tf: ty, tf: tm) | tunfold(tu: tm)//                (iso-recursive terms)
+//?REC*/
+
+/// Operational Semantics
+
+// Values
+predicate value(t: tm)
+{
+  t.tabs?
+//*BOOL?
+  || t.ttrue? || t.tfalse?
+//?BOOL*/
+//*NAT?
+  || peano(t)
+//?NAT*/
+//*REC?
+  || (t.tfold? && value(t.tf))
+//?REC*/
+}
+
+//*NAT?
+predicate peano(t: tm)
+{
+  t.tzero? || (t.tsucc? && peano(t.p))
+}
+//?NAT*/
+
+// Free Variables and Substitution
+
+function fv(t: tm): set<int> //of free variables of t
+{
+  match t
+  // interesting cases...
+  case tvar(id) => {id}
+  case tabs(x, T, body) => fv(body)-{x}//x is bound
+  // congruent cases...
+  case tapp(f, arg) => fv(f)+fv(arg)
+//*BOOL?
+  case tif(c, a, b) => fv(a)+fv(b)+fv(c)
+  case ttrue => {}
+  case tfalse => {}
+//?BOOL*/
+//*NAT?
+  case tzero => {}
+  case tsucc(p) => fv(p)
+  case tprev(n) => fv(n)
+//*BOOL?
+  case teq(n1, n2) => fv(n1)+fv(n2)
+//?BOOL*/
+//?NAT*/
+//*REC?
+  case tfold(T, t1) => fv(t1)
+  case tunfold(t1) => fv(t1)
+//?REC*/
+}
+
+function subst(x: int, s: tm, t: tm): tm //[x -> s]t
+{
+  match t
+  // interesting cases...
+  case tvar(x') => if x==x' then s else t
+  // N.B. only capture-avoiding if s is closed...
+  case tabs(x', T, t1) => tabs(x', T, if x==x' then t1 else subst(x, s, t1))
+  // congruent cases...
+  case tapp(t1, t2) => tapp(subst(x, s, t1), subst(x, s, t2))
+//*BOOL?
+  case ttrue => ttrue
+  case tfalse => tfalse
+  case tif(t1, t2, t3) => tif(subst(x, s, t1), subst(x, s, t2), subst(x, s, t3))
+//?BOOL*/
+//*NAT?
+  case tzero => tzero
+  case tsucc(p) => tsucc(subst(x, s, p))
+  case tprev(n) => tprev(subst(x, s, n))
+//*BOOL?
+  case teq(n1, n2) => teq(subst(x, s, n1), subst(x, s, n2))
+//?BOOL*/
+//?NAT*/
+//*REC?
+  case tfold(T, t1) => tfold(T, subst(x, s, t1))
+  case tunfold(t1) => tunfold(subst(x, s, t1))
+//?REC*/
+}
+
+//*REC?
+function ty_fv(T: ty): set<int> //of free type variables of T
+{
+  match T
+  case TVar(X) => {X}
+  case TRec(X, T1) => ty_fv(T1)-{X}
+  case TArrow(T1, T2) => ty_fv(T1)+ty_fv(T2)
+  case TBase => {}
+//*BOOL?
+  case TBool => {}
+//?BOOL*/
+//*NAT?
+  case TNat => {}
+//?NAT*/
+}
+
+function tsubst(X: int, S: ty, T: ty): ty
+{
+  match T
+  case TVar(X') => if X==X' then S else T
+  case TRec(X', T1) => TRec(X', if X==X' then T1 else tsubst(X, S, T1))
+  case TArrow(T1, T2) => TArrow(tsubst(X, S, T1), tsubst(X, S, T2))
+  case TBase => TBase
+//*BOOL?
+  case TBool => TBool
+//?BOOL*/
+//*NAT?
+  case TNat => TNat
+//?NAT*/
+}
+
+predicate ty_closed(T: ty)
+{
+  forall x :: x !in ty_fv(T)
+}
+//?REC*/
+
+// Reduction
+function step(t: tm): option<tm>
+{
+  /* AppAbs */     if (t.tapp? && t.f.tabs? && value(t.arg)) then
+  Some(subst(t.f.x, t.arg, t.f.body))
+  /* App1 */       else if (t.tapp? && step(t.f).Some?) then
+  Some(tapp(step(t.f).get, t.arg))
+  /* App2 */       else if (t.tapp? && value(t.f) && step(t.arg).Some?) then
+  Some(tapp(t.f, step(t.arg).get))
+//*BOOL?
+  /* IfTrue */     else if (t.tif? && t.c == ttrue) then
+  Some(t.a)
+  /* IfFalse */    else if (t.tif? && t.c == tfalse) then
+  Some(t.b)
+  /* If */         else if (t.tif? && step(t.c).Some?) then
+  Some(tif(step(t.c).get, t.a, t.b))
+//?BOOL*/
+//*NAT?
+  /* Prev0 */
+                   else if (t.tprev? && t.n.tzero?) then
+  Some(tzero)
+  /* PrevSucc */   else if (t.tprev? && peano(t.n) && t.n.tsucc?) then
+  Some(t.n.p)
+  /* Prev */       else if (t.tprev? && step(t.n).Some?) then
+  Some(tprev(step(t.n).get))
+  /* Succ */       else if (t.tsucc? && step(t.p).Some?) then
+  Some(tsucc(step(t.p).get))
+//*BOOL?
+  /* EqTrue0 */    else if (t.teq? && t.n1.tzero? && t.n2.tzero?) then
+  Some(ttrue)
+  /* EqFalse1 */   else if (t.teq? && t.n1.tsucc? && peano(t.n1) && t.n2.tzero?) then
+  Some(tfalse)
+  /* EqFalse2 */   else if (t.teq? && t.n1.tzero? && t.n2.tsucc? && peano(t.n2)) then
+  Some(tfalse)
+  /* EqRec */      else if (t.teq? && t.n1.tsucc? && t.n2.tsucc? && peano(t.n1) && peano(t.n2)) then
+  Some(teq(t.n1.p, t.n2.p))
+  /* Eq1 */        else if (t.teq? && step(t.n1).Some?) then
+  Some(teq(step(t.n1).get, t.n2))
+  /* Eq2 */        else if (t.teq? && peano(t.n1) && step(t.n2).Some?) then
+  Some(teq(t.n1, step(t.n2).get))
+//?BOOL*/
+//?NAT*/
+//*REC?
+  /* UnfoldFold */ else if (t.tunfold? && t.tu.tfold? && value(t.tu.tf)) then Some(t.tu.tf)
+  /* Fold */       else if (t.tfold? && step(t.tf).Some?) then Some(tfold(t.Tf, step(t.tf).get))
+  /* Unfold */     else if (t.tunfold? && step(t.tu).Some?) then Some(tunfold(step(t.tu).get))
+//?REC*/
+  else None
+}
+
+// Multistep reduction:
+// The term t reduces to the term t' in n or less number of steps.
+predicate reduces_to(t: tm, t': tm, n: nat)
+  decreases n
+{
+  t == t' || (n > 0 && step(t).Some? && reduces_to(step(t).get, t', n-1))
+}
+
+// Examples
+lemma lemma_step_example1(n: nat)
+  requires n > 0
+  // (\x:B=>B.x) (\x:B.x) reduces to (\x:B.x)
+  ensures reduces_to(tapp(tabs(0, TArrow(TBase, TBase), tvar(0)), tabs(0, TBase, tvar(0))),
+                     tabs(0, TBase, tvar(0)), n)
+{
+}
+
+
+/// Typing
+
+// A context is a partial map from variable names to types.
+function find(c: map<int,ty>, x: int): option<ty>
+{
+  if (x in c) then Some(c[x]) else None
+}
+function extend(x: int, T: ty, c: map<int,ty>): map<int,ty>
+{
+  c[x:=T]
+}
+
+// Typing Relation
+function has_type(c: map<int,ty>, t: tm): option<ty>
+  decreases t
+{
+  match t
+  /* Var */  case tvar(id) => find(c, id)
+  /* Abs */  case tabs(x, T, body) =>
+  var ty_body := has_type(extend(x, T, c), body);
+                     if (ty_body.Some?) then
+  Some(TArrow(T, ty_body.get))          else None
+  /* App */  case tapp(f, arg) =>
+  var ty_f   := has_type(c, f);
+  var ty_arg := has_type(c, arg);
+                     if (ty_f.Some? && ty_arg.Some?) then
+  if ty_f.get.TArrow? && ty_f.get.T1 == ty_arg.get then
+  Some(ty_f.get.T2)  else None else None
+//*BOOL?
+  /* True */  case ttrue => Some(TBool)
+  /* False */ case tfalse => Some(TBool)
+  /* If */    case tif(cond, a, b) =>
+  var ty_c := has_type(c, cond);
+  var ty_a := has_type(c, a);
+  var ty_b := has_type(c, b);
+                     if (ty_c.Some? && ty_a.Some? && ty_b.Some?) then
+  if ty_c.get == TBool && ty_a.get == ty_b.get then
+  ty_a
+                     else None else None
+//?BOOL*/
+//*NAT?
+  /* Zero */  case tzero => Some(TNat)
+  /* Prev */  case tprev(n) =>
+  var ty_n := has_type(c, n);
+                     if (ty_n.Some?) then
+  if ty_n.get == TNat then
+  Some(TNat)         else None else None
+  /* Succ */  case tsucc(p) =>
+  var ty_p := has_type(c, p);
+                     if (ty_p.Some?) then
+  if ty_p.get == TNat then
+  Some(TNat)         else None else None
+//*BOOL?
+  /* Eq */    case teq(n1, n2) =>
+  var ty_n1 := has_type(c, n1);
+  var ty_n2 := has_type(c, n2);
+                      if (ty_n1.Some? && ty_n2.Some?) then
+  if ty_n1.get == TNat && ty_n2.get == TNat then
+  Some(TBool)         else None else None
+//?BOOL*/
+//?NAT*/
+//*REC?
+  /* Fold */  case tfold(U, t1) =>
+  var ty_t1 := if (ty_closed(U)) then has_type(c, t1) else None;
+                      if (ty_t1.Some?) then
+  if U.TRec? && ty_t1.get==tsubst(U.X, U, U.T) then
+  Some(U)             else None else None
+  /* Unfold */ case tunfold(t1) =>
+  var ty_t1 := has_type(c, t1);
+                      if ty_t1.Some? then
+  var U := ty_t1.get;
+  if U.TRec? then
+  Some(tsubst(U.X, U, U.T)) else None else None
+//?REC*/
+}
+
+// Examples
+
+lemma example_typing_1()
+  ensures has_type(map[], tabs(0, TBase, tvar(0))) == Some(TArrow(TBase, TBase)){
+}
+
+lemma example_typing_2()
+  ensures has_type(map[], tabs(0, TBase, tabs(1, TArrow(TBase, TBase), tapp(tvar(1), tapp(tvar(1), tvar(0)))))) ==
+          Some(TArrow(TBase, TArrow(TArrow(TBase, TBase), TBase)))
+{
+}
+
+lemma nonexample_typing_1()
+  ensures has_type(map[], tabs(0, TBase, tabs(1, TBase, tapp(tvar(0), tvar(1))))) == None
+{
+}
+
+lemma self_arrow_false(S: ty)
+requires S.TArrow?
+requires S.T1 == S
+ensures false
+{
+  self_arrow_false(S.T1);
+}
+
+lemma nonexample_typing_3(S: ty, T: ty)
+  ensures has_type(map[], tabs(0, S, tapp(tvar(0), tvar(0)))) != Some(T)
+{
+  assert has_type(map[0 := S], tvar(0)) == Some(S);
+  if (S.TArrow?) {
+    if (S.T1 == S) {
+      self_arrow_false(S);
+    }
+  }
+}
+
+//*BOOL?
+lemma example_typing_bool()
+  ensures has_type(map[], tabs(0, TBase, tabs(1, TBase, tabs(2, TBool, tif(tvar(2), tvar(0), tvar(1)))))) == Some(TArrow(TBase, TArrow(TBase, TArrow(TBool, TBase))))
+{
+}
+//?BOOL*/
+
+//*NAT?
+lemma example_typing_nat()
+  ensures has_type(map[], tabs(0, TNat, tprev(tvar(0)))) == Some(TArrow(TNat, TNat))
+{
+}
+//?NAT*/
+
+//*REC?
+lemma example_typing_rec()
+  // ∅ |- foldµT. T→α(λx : µT. T → α. (unfold x) x) : µT. T → α
+  ensures has_type(map[], tfold(TRec(0, TArrow(TVar(0), TBase)), tabs(0, TRec(0, TArrow(TVar(0), TBase)), tapp(tunfold(tvar(0)), tvar(0))))) ==
+          Some(TRec(0, TArrow(TVar(0), TBase)))
+{
+}
+//?REC*/
+
+/// -----------------------
+/// Type-Safety Properties
+/// -----------------------
+
+// Progress:
+// A well-typed term is either a value or it can step.
+lemma theorem_progress(t: tm)
+  requires has_type(map[], t).Some?
+  ensures value(t) || step(t).Some?
+{
+}
+
+// Towards preservation and the substitution lemma
+
+// If x is free in t and t is well-typed in some context,
+// then this context must contain x.
+lemma {:induction c, t} lemma_free_in_context(c: map<int,ty>, x: int, t: tm)
+  requires x in fv(t)
+  requires has_type(c, t).Some?
+  ensures find(c, x).Some?
+  decreases t
+{
+}
+
+// A closed term does not contain any free variables.
+// N.B. We're only interested in proving type soundness of closed terms.
+predicate closed(t: tm)
+{
+  forall x :: x !in fv(t)
+}
+
+// If a term can be well-typed in an empty context,
+// then it is closed.
+lemma corollary_typable_empty__closed(t: tm)
+  requires has_type(map[], t).Some?
+  ensures closed(t)
+{
+  forall x:int ensures x !in fv(t)
+  {
+    if (x in fv(t)) {
+      lemma_free_in_context(map[], x, t);
+      assert false;
+    }
+  }
+}
+
+// If a term t is well-typed in context c,
+//    and context c' agrees with c on all free variables of t,
+// then the term t is well-typed in context c',
+//      with the same type as in context c.
+lemma {:induction t} lemma_context_invariance(c: map<int,ty>, c': map<int,ty>, t: tm)
+  requires has_type(c, t).Some?
+  requires forall x: int :: x in fv(t) ==> find(c, x) == find(c', x)
+  ensures has_type(c, t) == has_type(c', t)
+  decreases t
+{
+  if (t.tabs?) {
+    assert fv(t.body) == fv(t) || fv(t.body) == fv(t) + {t.x};
+    lemma_context_invariance(extend(t.x, t.T, c), extend(t.x, t.T, c'), t.body);
+  }
+}
+
+// Substitution preserves typing:
+// If  s has type S in an empty context,
+// and t has type T in a context extended with x having type S,
+// then [x -> s]t has type T as well.
+lemma lemma_substitution_preserves_typing(c: map<int,ty>, x: int, s: tm, t: tm)
+  requires has_type(map[], s).Some?
+  requires has_type(extend(x, has_type(map[], s).get, c), t).Some?
+  ensures has_type(c, subst(x, s, t)) == has_type(extend(x, has_type(map[], s).get, c), t)
+  decreases t
+{
+  var S := has_type(map[], s).get;
+  var cs := extend(x, S, c);
+  var T  := has_type(cs, t).get;
+
+  if (t.tvar?) {
+    if (t.id==x) {
+      assert T == S;
+      corollary_typable_empty__closed(s);
+      lemma_context_invariance(map[], c, s);
+    }
+  }
+  if (t.tabs?) {
+    if (t.x==x) {
+      lemma_context_invariance(cs, c, t);
+    } else {
+      var cx  := extend(t.x, t.T, c);
+      var csx := extend(x, S, cx);
+      var cxs := extend(t.x, t.T, cs);
+      lemma_context_invariance(cxs, csx, t.body);
+      lemma_substitution_preserves_typing(cx, x, s, t.body);
+    }
+  }
+}
+
+
+// Preservation:
+// A well-type term which steps preserves its type.
+lemma  theorem_preservation(t: tm)
+  requires has_type(map[], t).Some?
+  requires step(t).Some?
+  ensures has_type(map[], step(t).get) == has_type(map[], t)
+{
+    // Inductive proof using rule induction
+    // following function: step
+    if (t.tapp? && t.f.tabs? && value(t.arg)) {// AppAbs case: (\x:T.body) v -> [x -> v]body
+        // We need to show that substitution preserves typing
+        var f := t.f;
+        var arg := t.arg;
+        var x := f.x;
+        var T := f.T;
+        var body := f.body;
+        
+        // From has_type(map[], t).Some?, we know t : S for some S
+        // Since t = tapp(f, arg), we have:
+        // - f : T1 -> T2 for some T1, T2
+        // - arg : T1
+        // - t : T2
+        
+        // From has_type on application, f must be TArrow type
+        var f_type := has_type(map[], f).get;
+        assert f_type.TArrow?;
+        var arg_type := has_type(map[], arg).get;
+        assert f_type.T1 == arg_type;
+        
+        // From has_type on abstraction f = \x:T.body:
+        // has_type(extend(x, T, map[]), body) == Some(f_type.T2)
+        // and T == f_type.T1 == arg_type
+        
+        // The step result is subst(x, arg, body)
+        // We need to show: has_type(map[], subst(x, arg, body)) == Some(f_type.T2)
+        
+        // Apply substitution lemma:
+        // - arg has type arg_type in empty context
+        // - body has type f_type.T2 in context extended with x:arg_type
+        // - therefore subst(x, arg, body) has type f_type.T2 in empty context
+        lemma_substitution_preserves_typing(map[], x, arg, body);} else if (t.tapp? && step(t.f).Some?) {
+        theorem_preservation(t.f);
+    } else if (t.tapp? && value(t.f) && step(t.arg).Some?) {
+        theorem_preservation(t.arg);
+    } else if (t.tif? && t.c == tm.ttrue) {
+    } else if (t.tif? && t.c == tm.tfalse) {
+    } else if (t.tif? && step(t.c).Some?) {
+        theorem_preservation(t.c);
+    } else if (t.tprev? && t.n.tzero?) {
+    } else if (t.tprev? && peano(t.n) && t.n.tsucc?) {
+    } else if (t.tprev? && step(t.n).Some?) {
+        theorem_preservation(t.n);
+    } else if (t.tsucc? && step(t.p).Some?) {
+        theorem_preservation(t.p);
+    } else if (t.teq? && t.n1.tzero? && t.n2.tzero?) {
+    } else if (t.teq? && t.n1.tsucc? && peano(t.n1) && t.n2.tzero?) {
+    } else if (t.teq? && t.n1.tzero? && t.n2.tsucc? && peano(t.n2)) {
+    } else if (t.teq? && t.n1.tsucc? && t.n2.tsucc? && peano(t.n1) && peano(t.n2)) {
+    } else if (t.teq? && step(t.n1).Some?) {
+        theorem_preservation(t.n1);
+    } else if (t.teq? && peano(t.n1) && step(t.n2).Some?) {
+        theorem_preservation(t.n2);
+    } else if (t.tunfold? && t.tu.tfold? && value(t.tu.tf)) {
+    } else if (t.tfold? && step(t.tf).Some?) {
+        theorem_preservation(t.tf);
+    } else if (t.tunfold? && step(t.tu).Some?) {
+        theorem_preservation(t.tu);
+    } else {
+    }
+
+
+}
+
+// A normal form cannot step.
+predicate normal_form(t: tm)
+{
+  step(t).None?
+}
+
+// A stuck term is a normal form that is not a value.
+predicate stuck(t: tm)
+{
+  normal_form(t) && !value(t)
+}
+
+// Type soundness:
+// A well-typed term cannot be stuck.
+lemma corollary_soundness(t: tm, t': tm, T: ty, n: nat)
+  requires has_type(map[], t) == Some(T)
+  requires reduces_to(t, t', n)
+  ensures !stuck(t')
+  decreases n
+{
+  theorem_progress(t);
+  if (t != t') {
+   theorem_preservation(t);
+   corollary_soundness(step(t).get, t', T, n-1);
+  }
+}
+
+/// QED
+
+
