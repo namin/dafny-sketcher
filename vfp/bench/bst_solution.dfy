@@ -53,35 +53,76 @@ function {:spec} Min(t: Tree): int
   case Node(v, l, _) => Min(l)
 }
 
-lemma {:axiom} Contains_Correct(t: Tree, k: int)
+lemma Contains_Correct(t: Tree, k: int)
   requires IsBST(t)
   ensures Contains(t, k) <==> InTree(k, t)
   decreases t
+{}
 
-lemma {:axiom}Insert_InTree_Subset(t: Tree, x: int, y: int)
+lemma Insert_InTree_Subset(t: Tree, x: int, y: int)
   requires IsBST(t)
   ensures InTree(y, Insert(t, x)) ==> InTree(y, t) || y == x
   decreases t
+{
+  match t
+  case Leaf =>
+  case Node(v, l, r) =>
+    if x == v {
+    } else if x < v {
+      Insert_InTree_Subset(l, x, y);
+    } else {
+      Insert_InTree_Subset(r, x, y);
+    }
+}
 
-lemma {:axiom} Insert_Preserves_BST(t: Tree, x: int)
+lemma Insert_Preserves_BST(t: Tree, x: int)
   requires IsBST(t)
   ensures IsBST(Insert(t, x))
+{
+  match t
+  case Leaf => 
+  case Node(v, l, r) =>
+    if x == v {
+    } else if x < v {
+      forall y | InTree(y, Insert(l, x))
+        ensures y < v
+      {
+        Insert_InTree_Subset(l, x, y);
+      }
+    } else {
+      forall y | InTree(y, Insert(r, x))
+        ensures y > v
+      {
+        Insert_InTree_Subset(r, x, y);
+      }
+    }
+}
 
-lemma {:axiom} Min_Absolute(t: Tree)
+lemma Min_Absolute(t: Tree)
   requires IsBST(t)
   requires t.Node?
   ensures forall v :: InTree(v, t) ==> Min(t) <= v
   ensures InTree(Min(t), t)
+{}
 
-lemma {:axiom} Insert_Preserves_Node(t: Tree, x: int)
+lemma Insert_Preserves_Node(t: Tree, x: int)
   requires IsBST(t)
   requires t.Node?
   ensures Insert(t, x).Node?
+{}
 
-lemma {:axiom} Insert_New_Min(t: Tree, x: int)
+lemma Insert_New_Min(t: Tree, x: int)
   requires IsBST(t)
   requires t.Node?
   requires !Contains(t, x)
   requires x < Min(t)
   requires IsBST(Insert(t, x))
   ensures Min(Insert(t, x)) == x
+{
+  match t
+  case Node(v, l, r) =>
+    match l
+    case Leaf =>
+    case Node(_, _, _) =>
+      Min_Absolute(l);
+}
