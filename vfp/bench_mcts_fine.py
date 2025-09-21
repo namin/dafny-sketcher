@@ -17,10 +17,22 @@ def lemma1(lemma, p, stats):
     else:
         stats[name] = -1
 
-def print_stats(stats):
+def print_summary_stats(stats):
     print('total for empty proof works:', len([v for v in stats.values() if v == 0]))
     print('total for MCTS works:', len([v for v in stats.values() if not isinstance(v, int)]))
     print('total for failure:', len([v for v in stats.values() if v == -1]))
+
+def print_stats(stats):
+    print_summary_stats(stats)
+    for k, v in stats.items():
+        if not isinstance(v, int):
+            print('MCTS solution for', k)
+            # Note: this pint the entire solution, not just the lemma
+            print(v)
+    for k, v in stats.items():
+        if v == -1:
+            print('MCTS solutionfailed for', k)
+    print_summary_stats(stats)
 
 if __name__ == "__main__":
     import bench_driver
