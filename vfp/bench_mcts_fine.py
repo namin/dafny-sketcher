@@ -27,7 +27,7 @@ def print_stats(stats):
     for k, v in stats.items():
         if not isinstance(v, int):
             print('MCTS solution for', k)
-            # Note: this pint the entire solution, not just the lemma
+            # Note: this prints the entire solution, not just the lemma
             print(v)
     for k, v in stats.items():
         if v == -1:
