@@ -13,43 +13,31 @@ def try_llm_repair(program, sketch, lemma):
     else:
         return False, e, repaired
 
-def main1(f, stats):
-    p = tests.read_file(f)
-    print('PROGRAM')
-    print(p)
-    if True:
-        e = sketcher.show_errors(p)
-        if e is not None:
-            print('ERRORS')
-            print(e)
-    done = sketcher.sketch_done(p)
-    lemmas = [x for x in done if x['type'] == 'lemma']
-    for lemma in lemmas:
-        name = lemma['name']
-        print('lemma', name)
-        xp = driver.insert_program_todo(lemma, p, "")
-        e = sketcher.list_errors_for_method(xp, name)
-        if not e:
-            print("empty proof works")
-            stats[name] = 0
-            continue
-        ix = sketcher.sketch_induction(xp, name)
-        ip = driver.insert_program_todo(lemma, p, ix)
-        e = sketcher.list_errors_for_method(ip, name)
-        if not e:
-            print("inductive proof sketch works")
-            stats[name] = 1
-            continue
-
-        # Strategy 3: inductive sketch + LLM repair
-        ok, errs, repaired = try_llm_repair(xp, ix, lemma)
-        if ok:
-            print("inductive + LLM repair works")
-            stats[name] = 2
-            
-        else:
-            print("all failed :(")
-            stats[name] = (ix, repaired)
+def lemma1(lemma, p, stats):
+    name = lemma['name']
+    print('lemma', name)
+    xp = driver.insert_program_todo(lemma, p, "")
+    e = sketcher.list_errors_for_method(xp, name)
+    if not e:
+        print("empty proof works")
+        stats[name] = 0
+        return
+    ix = sketcher.sketch_induction(xp, name)
+    ip = driver.insert_program_todo(lemma, p, ix)
+    e = sketcher.list_errors_for_method(ip, name)
+    if not e:
+        print("inductive proof sketch works")
+        stats[name] = 1
+        return
+    # Strategy 3: inductive sketch + LLM repair
+    ok, errs, repaired = try_llm_repair(xp, ix, lemma)
+    if ok:
+        print("inductive + LLM repair works")
+        stats[name] = 2
+        
+    else:
+        print("all failed :(")
+        stats[name] = (ix, repaired)
 
 def print_stats(stats):
     print('STATS')
@@ -71,5 +59,5 @@ def print_stats(stats):
 
 if __name__ == "__main__":
     import bench_driver
-    bench_driver.run(main1, print_stats)
+    bench_driver.run(lemma1, print_stats)
 

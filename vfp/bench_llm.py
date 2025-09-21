@@ -15,22 +15,17 @@ def try_llm_generate(program, lemma):
         return False, e, generated
 
 
-def main1(f, stats):
-    """Run LLM proof generation on all lemmas in one file."""
-    program = tests.read_file(f)
-    lemmas = [x for x in sketcher.sketch_done(program) if x['type'] == 'lemma']
+def lemma1(lemma, program, stats):
+    name = lemma['name']
+    print(f"lemma {name}")
 
-    for lemma in lemmas:
-        name = lemma['name']
-        print(f"lemma {name}")
-
-        ok, errs, proof = try_llm_generate(program, lemma)
-        if ok:
-            print(":) :) :) LLM generation works")
-            stats[name] = {"status": "success", "proof": proof}
-        else:
-            print(":( :( :( LLM generation failed")
-            stats[name] = {"status": "error", "errors": errs, "proof": proof}
+    ok, errs, proof = try_llm_generate(program, lemma)
+    if ok:
+        print(":) :) :) LLM generation works")
+        stats[name] = {"status": "success", "proof": proof}
+    else:
+        print(":( :( :( LLM generation failed")
+        stats[name] = {"status": "error", "errors": errs, "proof": proof}
 
 
 def print_stats(stats):
@@ -61,4 +56,4 @@ def print_stats(stats):
 
 if __name__ == "__main__":
     import bench_driver
-    bench_driver.run(main1, print_stats)
+    bench_driver.run(lemma1, print_stats)

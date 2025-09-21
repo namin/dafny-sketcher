@@ -2,35 +2,24 @@ import driver
 import sketcher
 import tests
 
-def main1(f, stats):
-    print('---------- Looking at file: ', f, '--------------')
-    p = tests.read_file(f)
-    if False:
-        e = sketcher.show_errors(p)
-        if e is not None:
-            stats[f] = e
-        else:
-            stats[f] = "OK"
-    done = sketcher.sketch_done(p)
-    lemmas = [x for x in done if x['type'] == 'lemma']
-    for lemma in lemmas:
-        name = lemma['name']
-        print('lemma', name)
-        xp = driver.insert_program_todo(lemma, p, "")
-        e = sketcher.list_errors_for_method(xp, name)
-        if not e:
-            print("empty proof works")
-            stats[name] = -1
-            continue
-        ix = sketcher.sketch_induction(xp, name)
-        ip = driver.insert_program_todo(lemma, p, ix)
-        e = sketcher.list_errors_for_method(ip, name)
-        if not e:
-            print("inductive proof sketch works")
-            stats[name] = 0
-        else:
-            print("inductive proof failed")
-            stats[name] = ix
+def lemma1(lemma, p, stats):
+    name = lemma['name']
+    print('lemma', name)
+    xp = driver.insert_program_todo(lemma, p, "")
+    e = sketcher.list_errors_for_method(xp, name)
+    if not e:
+        print("empty proof works")
+        stats[name] = -1
+        return
+    ix = sketcher.sketch_induction(xp, name)
+    ip = driver.insert_program_todo(lemma, p, ix)
+    e = sketcher.list_errors_for_method(ip, name)
+    if not e:
+        print("inductive proof sketch works")
+        stats[name] = 0
+    else:
+        print("inductive proof failed")
+        stats[name] = ix
 
 def print_stats(stats):
     print('FINISHED RUNNING THE BENCH')
@@ -46,4 +35,4 @@ def print_stats(stats):
 
 if __name__ == "__main__":
     import bench_driver
-    bench_driver.run(main1, print_stats)
+    bench_driver.run(lemma1, print_stats)
