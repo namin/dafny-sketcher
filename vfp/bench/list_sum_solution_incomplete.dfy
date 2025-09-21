@@ -54,8 +54,26 @@ lemma sumAppend(xs: seq<int>, ys: seq<int>)
 lemma sumDistributive(xs: seq<int>, c: int)
   ensures sum(seq(|xs|, i requires 0 <= i < |xs| => c * xs[i])) == c * sum(xs)
 {
-  sumDistributiveHelper(xs, c);
+  if |xs| == 0 {
+    // Base case: empty sequence
+    assert seq(|xs|, i requires 0 <= i < |xs| => c * xs[i]) == [];
+    assert sum([]) == 0;
+    assert c * sum([]) == c * 0 == 0;
+  } else {
+    // Inductive case: non-empty sequence
+    var scaled_xs := seq(|xs|, i requires 0 <= i < |xs| => c * xs[i]);
+    assert scaled_xs == [c * xs[0]] + seq(|xs[1..]|, i requires 0 <= i < |xs[1..]| => c * xs[1..][i]);
+    
+    calc {
+      sum(scaled_xs);
+      == sum([c * xs[0]] + seq(|xs[1..]|, i requires 0 <= i < |xs[1..]| => c * xs[1..][i]));
+      == { sumAppend([c * xs[0]], seq(|xs[1..]|, i requires 0 <= i < |xs[1..]| => c * xs[1..][i])); }
+      sum([c * xs[0]]) + sum(seq(|xs[1..]|, i requires 0 <= i < |xs[1..]| => c * xs[1..][i]));
+      == c * xs[0] + sum(seq(|xs[1..]|, i requires 0 <= i < |xs[1..]| => c * xs[1..][i]));
+      == { sumDistributive(xs[1..], c); }
+      c * xs[0] + c * sum(xs[1..]);
+      == c * (xs[0] + sum(xs[1..]));
+      == c * sum(xs);
+    }
+  }
 }
-
-lemma {:axiom} sumDistributiveHelper(xs: seq<int>, c: int)
-  ensures sum(seq(|xs|, i requires 0 <= i < |xs| => c * xs[i])) == c * sum(xs)
