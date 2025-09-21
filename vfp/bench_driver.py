@@ -13,12 +13,19 @@ def main(main1, print_stats):
 
 
 def run(main1, print_stats):
-    import sys
-    if len(sys.argv) < 2:
-        main(main1, print_stats)
-    else:
+    import argparse
+    
+    parser = argparse.ArgumentParser(description='Run the bench suite')
+    parser.add_argument('--file', type=str, help='Path to Dafny file to process')
+    
+    args = parser.parse_args()
+    
+    if args.file:
         stats = {}
-        # just run main1 on a single file
-        f = sys.argv[1]
+        # run on a single file
+        f = args.file
         main1(f, stats)
         print_stats(stats)
+    else:
+        main(main1, print_stats)
+        
