@@ -1,6 +1,5 @@
 import driver
 import sketcher
-import tests
 
 def lemma1(lemma, p, stats):
     name = lemma['name']

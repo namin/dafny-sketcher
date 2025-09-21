@@ -1,6 +1,5 @@
 import driver
 import sketcher
-import tests
 import llm_repair
 
 def try_llm_repair(program, sketch, lemma):
