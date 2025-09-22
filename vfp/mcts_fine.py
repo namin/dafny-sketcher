@@ -19,6 +19,8 @@ def add_standard_node(node, p):
     node.add_child(child)
     child.update_policy_value(0.2)
 
+#Called by MCTs to find new children. With in this, we add/take away todos. 
+#If it fails, then we take the node out. If it succeeds then it will loop back. 
 def child_finder(node, montecarlo):
     p = node.state
     todo_lemmas = sketcher.sketch_todo_lemmas(p)
@@ -42,7 +44,7 @@ def child_finder(node, montecarlo):
             # can we enter fine mode with sketch?
             # for now, let's try a symbolic inductive sketch
             # we could also ask the LLM for a sketch, but we need a good way to evaluate it
-            x = sketcher.sketch_induction(driver.insert_program_todo(todo, p, ""), todo['name'])
+            x = sketcher.sketch_induction(driver.insert_program_todo(todo, p, ""), todo['name']) #Why are we calling this again, it was already called in dispatch_implementer --> lemma_implmenter
             xp = xp = driver.insert_program_todo(todo, p, x)
             if xp:
                 add_standard_node(node, xp)
