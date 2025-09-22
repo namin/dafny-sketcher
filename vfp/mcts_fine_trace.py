@@ -46,8 +46,10 @@ def child_finder(node, montecarlo):
             x = sketcher.sketch_induction(driver.insert_program_todo(todo, p, ""), todo['name'])
             xp = xp = driver.insert_program_todo(todo, p, x)
             if xp:
-                add_standard_node(node, xp)
-                return
+                errors = sketcher.list_errors_for_method(xp, todo['name'])
+                if fine.proper_only(errors): # maybe backport to mcts_fine.py?
+                    add_standard_node(node, xp)
+                    return
         node.update_win_value(-1)
     else:
         add_standard_node(node, xp)
