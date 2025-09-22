@@ -69,21 +69,31 @@ def dispatch_implementer(p: str, todo, done, cache=None) -> str:
         return lemma_implementer(p, todo, done, cache=cache)
 
 def lemma_implementer(p: str, todo, done, cache=None) -> str:
+
+    #Try the empty proof
     xp = implementer(p, "", todo)
     if xp:
         print("Empty proof works!")
         return xp
+    
+    #Trys ind proof
     x = sketcher.sketch_induction(insert_program_todo(todo, p, ""), todo['name'])
     xp = implementer(p, x, todo)
     if xp:
         print("Induction sketcher works!")
         return xp
     ip = insert_program_todo(todo, p, "")
+
+    #Sketches counter example
     cs = sketcher.sketch_counterexamples(ip, todo['name'])
     if cs:
         cs_str = "\n".join(cs)
         # TODO: could force the edit further
+
+        #Possibly changes the function
         return llm_implementer(p, todo, done=done, hint="We found the following counterexamples to the lemma:\n" + cs_str+ "\nConsider editing the code instead of continuing to prove an impossible lemma.", edit_hint="A previous attempt had the following counterexamples for a desired property -- consider these carefully:\n" + cs_str)
+    
+    #Maybe a repair
     return llm_implementer(p, todo, done=done, hint="This induction sketch did NOT work on its own, but could be a good starting point if you vary/augment it:\n" + x, cache=cache)
 
 def llm_implementer(p: str, todo, prev: str = None, hint: str = None, done: list[object] = None, edit_hint: str = None, cache=None) -> str:
@@ -162,6 +172,7 @@ def extract_dafny_body(x: str, todo) -> str:
             return x[x.index('{')+1:x.rindex('}')-1]
     return x
 
+#Removes the to-do and sees if it works. 
 def implementer(p: str, x: str, todo) -> str:
     if x is None:
         print("Missing Dafny program")
