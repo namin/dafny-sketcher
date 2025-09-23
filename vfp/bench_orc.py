@@ -1,75 +1,50 @@
-import os
-import glob
-import tests
+import driver
 import sketcher
 import orc
 
 
-def main(filenames=None):
-    stats = {
-        "total": 0,
-        "solved": 0,
-        "failed": 0,
-        "files": {}
-    }
+def bench_orc(lemma, p, stats):
+    name = lemma["name"]
+    print("lemma", name)
 
-    if not filenames:
-        filenames = sorted(glob.glob("bench/*_solution.dfy"))
-        filenames = [f for f in filenames if os.path.basename(f)[0].islower()]
+    # Insert the lemma into the program
+    xp = driver.insert_program_todo(lemma, p, "")
 
-    print(len(filenames))
-    print(filenames)
+    # Check if the empty proof works
+    e = sketcher.list_errors_for_method(xp, name)
+    if not e:
+        print("empty proof works")
+        stats[name] = 0
+        return
 
-    for f in filenames:
-        print('---------- Looking at file: ', f, '--------------')
-        p = tests.read_file(f)
+    # Try the ORC solver
+    sol = orc.main(xp, max_attempts=50)
 
-        # Optionally check errors
-        if False:
-            e = sketcher.show_errors(p)
-            if e is not None:
-                print('ERRORS')
-                print(e)
+    if sol is not None:
+        stats[name] = sol
+    else:
+        stats[name] = -1
 
-        stats["total"] += 1
 
-        solution = orc.main(p)
-
-        if solution is None:
-            stats["failed"] += 1
-            stats["files"][f] = "FAILED"
-        else:
-            stats["solved"] += 1
-            stats["files"][f] = "SOLVED"
-
-    print_stats(stats)
+def print_summary_stats(stats):
+    print("total for empty proof works:", len([v for v in stats.values() if v == 0]))
+    print("total for ORC works:", len([v for v in stats.values() if not isinstance(v, int)]))
+    print("total for failure:", len([v for v in stats.values() if v == -1]))
 
 
 def print_stats(stats):
-    print("\n===== BENCHMARK STATS =====")
-    print(f"Total: {stats['total']}")
-    print(f"Solved: {stats['solved']}")
-    print(f"Failed: {stats['failed']}")
-    print("\nPer-file results:")
-    for f, result in stats["files"].items():
-        print(f"  {os.path.basename(f)}: {result}")
-    print("===========================\n")
-
-
-def run():
-    import argparse
-
-    parser = argparse.ArgumentParser(description='Run the simple bench suite')
-    parser.add_argument(
-        '--file',
-        type=str,
-        action='append',
-        help='Path to Dafny file to process (can be used multiple times)',
-    )
-
-    args = parser.parse_args()
-    main(args.file)
+    print_summary_stats(stats)
+    for k, v in stats.items():
+        if not isinstance(v, int):
+            print("ORC solution for", k)
+            # Note: prints entire solution, not just lemma
+            print(v)
+    for k, v in stats.items():
+        if v == -1:
+            print("ORC solution failed for", k)
+    print_summary_stats(stats)
 
 
 if __name__ == "__main__":
-    run()
+    import bench_driver
+    bench_driver.run(bench_orc, print_stats)

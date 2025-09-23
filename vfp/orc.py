@@ -77,64 +77,7 @@ if __name__ == "__main__":
     import tests
     tests.run(main)
 
-'''
-def assesment:
-    #takes a program and asseses how far along it is
-    #this is a metric of 1) how many errors there are 2) how many branches are there 3) how many times we habe workshoped it
-    
-def main_loop_better:
-    #parameters: llm temp
-    #number of attempts until gibing up
-    #keep a map of all the methods and their assesment numbers
-    #while there are still to dos:
-        #asses: record the number of errors/how good it is xurrently?
-        #rule: if it improbes, keep
-        #try nadas method
-        #repair loop -- retry what works
-            #how good is each one?
-            #try llm repair if it is the best
-            #try counter example if it is the best
-        #reflextion loop 
-            #do llm refelextion
-            #llm repar with reflextion
-            #llm counter example with reflextion 
 
 
 
 
-
-#Call the lemma 
-
-#List action functions 
-
-#Try empty proof
-
-def empty_proof_try (p):
-    print ("Trying the empty proof")
-
-#Call inductibe sketcher
-def induct (p):
-    print ("Trying the ind sketchter")
-
-
-#Call LLM-reparir 
-def llm_repair_local (p):
-    print ("Trying LLM repair local")
-
-#Call LLM-reparir global
-def llm_repair_local (p):
-    print ("Trying LLM repair global")
-
-
-
-
-
-try again,
-try again with more info (past attempts, counterexamples, reflection),
-roll back to a prior version,
-change the spec (often after counterexamples),
-or go fine-grained (fill in a missing case/statement).
-
-
-
-'''

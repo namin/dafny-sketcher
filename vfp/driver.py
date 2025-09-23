@@ -70,13 +70,13 @@ def dispatch_implementer(p: str, todo, done, cache=None) -> str:
 
 def lemma_implementer(p: str, todo, done, cache=None) -> str:
 
-    #Try the empty proof
+    # Trys the empty proof
     xp = implementer(p, "", todo)
     if xp:
         print("Empty proof works!")
         return xp
     
-    #Trys ind proof
+    # Trys the inductive proof 
     x = sketcher.sketch_induction(insert_program_todo(todo, p, ""), todo['name'])
     xp = implementer(p, x, todo)
     if xp:
@@ -84,16 +84,16 @@ def lemma_implementer(p: str, todo, done, cache=None) -> str:
         return xp
     ip = insert_program_todo(todo, p, "")
 
-    #Sketches counter example
+    # Sketches counter example
     cs = sketcher.sketch_counterexamples(ip, todo['name'])
     if cs:
         cs_str = "\n".join(cs)
         # TODO: could force the edit further
 
-        #Possibly changes the function
+        # Uses counter examples to inspire changing the code
         return llm_implementer(p, todo, done=done, hint="We found the following counterexamples to the lemma:\n" + cs_str+ "\nConsider editing the code instead of continuing to prove an impossible lemma.", edit_hint="A previous attempt had the following counterexamples for a desired property -- consider these carefully:\n" + cs_str)
     
-    #Maybe a repair
+    # Repairs the sketch using a llm
     return llm_implementer(p, todo, done=done, hint="This induction sketch did NOT work on its own, but could be a good starting point if you vary/augment it:\n" + x, cache=cache)
 
 def llm_implementer(p: str, todo, prev: str = None, hint: str = None, done: list[object] = None, edit_hint: str = None, cache=None) -> str:
