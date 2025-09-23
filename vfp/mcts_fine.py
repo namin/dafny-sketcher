@@ -44,7 +44,7 @@ def child_finder(node, montecarlo):
             # can we enter fine mode with sketch?
             # for now, let's try a symbolic inductive sketch
             # we could also ask the LLM for a sketch, but we need a good way to evaluate it
-            x = sketcher.sketch_induction(driver.insert_program_todo(todo, p, ""), todo['name']) #Why are we calling this again, it was already called in dispatch_implementer --> lemma_implmenter
+            x = sketcher.sketch_induction(driver.insert_program_todo(todo, p, ""), todo['name'])
             xp = xp = driver.insert_program_todo(todo, p, x)
             if xp:
                 add_standard_node(node, xp)
