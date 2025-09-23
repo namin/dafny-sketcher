@@ -72,6 +72,7 @@ def child_finder(node, montecarlo):
                 if fine.proper_only(errors): # maybe backport to mcts_fine.py?
                     add_standard_node(node, xp)
                     return
+            llm_calls = []
         node.update_win_value(-1)
     else:
         add_standard_node(node, xp)
