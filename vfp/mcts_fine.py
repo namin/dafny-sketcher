@@ -10,7 +10,7 @@ import driver
 import fine
 
 import os
-INDUCTIVE_SKETCH = os.environ.get('INDUCTIVE_SKETCH', 'false').lower() != 'false'
+INDUCTIVE_SKETCH = os.environ.get('INDUCTIVE_SKETCH', 'true').lower() != 'false'
 
 def add_standard_node(node, p):
     child = Node(p)
