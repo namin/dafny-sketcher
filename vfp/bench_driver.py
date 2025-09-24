@@ -26,7 +26,10 @@ def main1(lemma1, f, stats, lemma_names=None):
     lemmas = [x for x in done if x['type'] == 'lemma']
     for lemma in lemmas:
         if not lemma_names or lemma['name'] in lemma_names:
-            lemma1(lemma, p, stats)
+            try:
+                lemma1(lemma, p, stats)
+            except Exception as e:
+                print(f"Error processing lemma {lemma['name']}: {e}")
 
 def run(lemma1, print_stats):
     import argparse

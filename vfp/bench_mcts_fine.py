@@ -31,7 +31,7 @@ def print_stats(stats):
             print(v)
     for k, v in stats.items():
         if v == -1:
-            print('MCTS solutionfailed for', k)
+            print('MCTS solution failed for', k)
     print_summary_stats(stats)
 
 if __name__ == "__main__":
