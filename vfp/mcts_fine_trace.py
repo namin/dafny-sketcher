@@ -19,6 +19,9 @@ import sketcher
 import driver
 import fine
 
+import os
+INDUCTIVE_SKETCH = os.environ.get('INDUCTIVE_SKETCH', 'false').lower() != 'false'
+
 @dataclass
 class State:
     program: str
@@ -61,15 +64,15 @@ def child_finder(node, montecarlo):
         print("Didn't solve todo")
         failed_llm_calls_per_parent[node] = llm_calls + failed_llm_calls_per_parent.get(node, [])
         llm_calls = []
-        if todo['type'] == 'lemma':
+        if INDUCTIVE_SKETCH and todo['type'] == 'lemma':
             # can we enter fine mode with sketch?
             # for now, let's try a symbolic inductive sketch
             # we could also ask the LLM for a sketch, but we need a good way to evaluate it
             x = sketcher.sketch_induction(driver.insert_program_todo(todo, p, ""), todo['name'])
-            xp = xp = driver.insert_program_todo(todo, p, x)
+            xp = driver.insert_program_todo(todo, p, x)
             if xp:
                 errors = sketcher.list_errors_for_method(xp, todo['name'])
-                if fine.proper_only(errors): # maybe backport to mcts_fine.py?
+                if fine.proper_only(errors):
                     add_standard_node(node, xp)
                     return
             llm_calls = []
