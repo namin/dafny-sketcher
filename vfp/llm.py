@@ -278,7 +278,7 @@ if MLX_API_KEY and (len(generators) < 2 or LLM_PROVIDER == 'mlx'):
             except Exception as e:
                 debug(f"Error generating response: {e}")
                 return None
-
+        models['mlx'] = model_name
     generators['mlx'] = generate
 
 def multiline_input():
