@@ -39,17 +39,19 @@ def child_finder(node, montecarlo):
         return
     done = sketcher.sketch_done(p)
     xp = driver.dispatch_implementer(p, todo, done)
-    if INDUCTIVE_SKETCH and todo['type'] == 'lemma':
-        # can we enter fine mode with sketch?
-        # for now, let's try a symbolic inductive sketch
-        # we could also ask the LLM for a sketch, but we need a good way to evaluate it
-        x = sketcher.sketch_induction(driver.insert_program_todo(todo, p, ""), todo['name'])
-        xp = driver.insert_program_todo(todo, p, x)
-        if xp:
-            errors = sketcher.list_errors_for_method(xp, todo['name'])
-            if fine.proper_only(errors):
-                add_standard_node(node, xp)
-                return
+    if xp is None:
+        print("Didn't solve todo")
+        if INDUCTIVE_SKETCH and todo['type'] == 'lemma':
+            # can we enter fine mode with sketch?
+            # for now, let's try a symbolic inductive sketch
+            # we could also ask the LLM for a sketch, but we need a good way to evaluate it
+            x = sketcher.sketch_induction(driver.insert_program_todo(todo, p, ""), todo['name'])
+            xp = driver.insert_program_todo(todo, p, x)
+            if xp:
+                errors = sketcher.list_errors_for_method(xp, todo['name'])
+                if fine.proper_only(errors):
+                    add_standard_node(node, xp)
+                    return
         node.update_win_value(-1)
     else:
         add_standard_node(node, xp)
