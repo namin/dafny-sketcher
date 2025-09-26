@@ -35,7 +35,11 @@ def child_finder(node, montecarlo):
         return
     todo = sketcher.sketch_next_todo(p)
     if todo is None:
-        montecarlo.solution = p
+        if sketcher.list_errors_for_method(p, None):
+            print("WARNING: still errors but not TODOs")
+            node.update_win_value(-1)
+        else:
+            montecarlo.solution = p
         return
     done = sketcher.sketch_done(p)
     xp = driver.dispatch_implementer(p, todo, done)

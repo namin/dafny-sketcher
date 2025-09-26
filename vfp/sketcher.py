@@ -32,7 +32,9 @@ def show_errors_for_method(file_input: str, method_name: str) -> Optional[str]:
     
     try:
         # Run dafny verify with filter-symbol
-        cmd = ['dafny', 'verify', file_path, '--filter-symbol', method_name]
+        cmd = ['dafny', 'verify', file_path]
+        if method_name:
+            cmd = cmd + ['--filter-symbol', method_name]
         
         result = subprocess.run(
             cmd,
@@ -65,7 +67,7 @@ def show_errors_for_method(file_input: str, method_name: str) -> Optional[str]:
             pass  # Ignore cleanup errors
 
 
-def list_errors_for_method(file_input: str, method_name: str) -> List[tuple[int, int, str, str]]:
+def list_errors_for_method(file_input: str, method_name: Optional[str]) -> List[tuple[int, int, str, str]]:
     errors = show_errors_for_method(file_input, method_name)
     if errors is None:
         return []
@@ -315,6 +317,8 @@ if __name__ == "__main__":
         print(show_errors(p))
         print("SHOW ERRORS FOR SOLUTION")
         print(show_errors(tests.read_file('bench/bst_solution.dfy')))
+        print("LIST ERRORS FOR TEST FILE")
+        print(list_errors_for_method(tests.read_file('test.dfy'), "reverse_involutes"))
 
     if False:
         print('StlcDemo')
