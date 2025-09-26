@@ -26,6 +26,15 @@ def child_finder(node, montecarlo):
     p = node.state
     todo_lemmas = sketcher.sketch_todo_lemmas(p)
     if todo_lemmas:
+        if INDUCTIVE_SKETCH:
+            p_empty = driver.insert_program_todo(todo_lemmas[0], p, "")
+            if p_empty == p:
+                print("Let's start with inductive sketch")
+                x = sketcher.sketch_induction(p_empty, todo_lemmas[0]['name'])
+                p = driver.insert_program_todo(todo_lemmas[0], p, x)
+                if not sketcher.list_errors_for_method(p, todo_lemmas[0]['name']):
+                    add_standard_node(node, p)
+                    return
         xp = fine.fine_implementer(p, todo_lemmas[0])
         if xp is None:
             print("Didn't solve todo")
@@ -45,17 +54,6 @@ def child_finder(node, montecarlo):
     xp = driver.dispatch_implementer(p, todo, done)
     if xp is None:
         print("Didn't solve todo")
-        if INDUCTIVE_SKETCH and todo['type'] == 'lemma':
-            # can we enter fine mode with sketch?
-            # for now, let's try a symbolic inductive sketch
-            # we could also ask the LLM for a sketch, but we need a good way to evaluate it
-            x = sketcher.sketch_induction(driver.insert_program_todo(todo, p, ""), todo['name'])
-            xp = driver.insert_program_todo(todo, p, x)
-            if xp:
-                errors = sketcher.list_errors_for_method(xp, todo['name'])
-                if fine.proper_only(errors):
-                    add_standard_node(node, xp)
-                    return
         node.update_win_value(-1)
     else:
         add_standard_node(node, xp)
