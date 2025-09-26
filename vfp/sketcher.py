@@ -202,7 +202,7 @@ def show_errors(file_input: str) -> Optional[str]:
         file_input: String content of the Dafny file
     
     Returns:
-        Error information or "OK" if no errors
+        Error information or None if no errors
     """
     result = dafny_sketcher(file_input, ['--sketch', 'errors_warnings'])
     return result or None
@@ -306,9 +306,15 @@ def sketch_counterexamples(file_input: str, method_name: Optional[str] = None) -
 if __name__ == "__main__":
     import tests
     if True:
-        p = tests.read_file('examples/StlcDemo.dfy')
+        p = tests.read_file('bench/stlc_fine.dfy')
+        print("SHOW ERRORS FOR METHOD")
         print(show_errors_for_method(p, "preservation"))
+        print("LIST ERRORS FOR METHOD")
         print(list_errors_for_method(p, "preservation"))
+        print("SHOW ERRORS")
+        print(show_errors(p))
+        print("SHOW ERRORS FOR SOLUTION")
+        print(show_errors(tests.read_file('bench/bst_solution.dfy')))
 
     if False:
         print('StlcDemo')
