@@ -101,8 +101,9 @@ def list_errors_for_method(file_input: str, method_name: str) -> List[tuple[int,
                                 snippet_start = next_line.find(f"{line_num} |") + len(f"{line_num} |")
                                 code_snippet = next_line[snippet_start:].strip()
                                 break
-                        
-                        result.append((line_num, col_num, error_msg, code_snippet))
+                        err = (line_num, col_num, error_msg, code_snippet)
+                        if err not in result:
+                            result.append(err)
             except (ValueError, IndexError):
                 # Skip lines that don't parse correctly
                 continue
