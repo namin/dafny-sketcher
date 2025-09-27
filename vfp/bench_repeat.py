@@ -46,7 +46,7 @@ def bench_repeat(lemma, p, stats, max_attempts: int = 3):
 
 def print_summary_stats(stats):
     print("total for empty proof works:", len([v for v in stats.values() if v == 0]))
-    print("total for repeatworks:", len([v for v in stats.values() if not isinstance(v, int)]))
+    print("total for repeat works:", len([v for v in stats.values() if not isinstance(v, int)]))
     print("total for failure:", len([v for v in stats.values() if v == -1]))
 
 
