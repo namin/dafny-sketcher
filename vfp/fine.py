@@ -25,7 +25,15 @@ def drive_program(p: str, max_iterations: Optional[int] = None) -> str:
     print(f'Solved in {i} iterations')
     return p
 
+def refresh_todo(p, todo):
+    todos = sketcher.sketch_todo_lemmas(p)
+    for fresh_todo in todos:
+        if fresh_todo['name'] == todo['name']:
+            return fresh_todo
+    return None
+
 def fine_implementer(p: str, todo) -> Optional[str]:
+    todo = refresh_todo(p, todo)
     print('## FINE IMPLEMENTER')
     lines = p.splitlines(keepends=True)
     start_offset = driver.line_col_to_start_offset(p, lines, todo['insertLine'], todo['insertColumn'])
@@ -156,11 +164,12 @@ The errors in the work-in-progress lemma are:
 """
 
 if __name__ == "__main__":
-    demo = None
-    from tests import read_file
-    demo = read_file('bench/stlc_fine.dfy')
-    todos = sketcher.sketch_todo_lemmas(demo)
-    print(todos)
-    todo = todos[0]
-    xp = fine_implementer(demo, todo)
-    print(xp)
+    if True:
+        demo = None
+        from tests import read_file
+        demo = read_file('bench/stlc_fine.dfy')
+        todos = sketcher.sketch_todo_lemmas(demo)
+        print(todos)
+        todo = todos[0]
+        xp = fine_implementer(demo, todo)
+        print(xp)
