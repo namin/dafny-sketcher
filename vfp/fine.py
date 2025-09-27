@@ -164,12 +164,16 @@ The errors in the work-in-progress lemma are:
 """
 
 if __name__ == "__main__":
+    from tests import read_file
     if True:
         demo = None
-        from tests import read_file
         demo = read_file('bench/stlc_fine.dfy')
         todos = sketcher.sketch_todo_lemmas(demo)
         print(todos)
         todo = todos[0]
         xp = fine_implementer(demo, todo)
         print(xp)
+    if False:
+        p = read_file('scratch.dfy')
+        todos = sketcher.sketch_todo_lemmas(p)
+        print(todos)

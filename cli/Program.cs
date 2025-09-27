@@ -136,6 +136,7 @@ namespace DafnySketcherCli {
           var diagnostics = await GetDiagnosticsAsync(filePath, false /* not warnings, just errors */);
           var all_lemmas = ListAllLemmas(dafnyProgram);
           var error_methods = new HashSet<string>();
+          var ignoredErrors = false;
           foreach (var (ln, col, msg) in diagnostics)
           {
             var m = Utility.GetEnclosingMethodByPosition(
@@ -145,10 +146,14 @@ namespace DafnySketcherCli {
             {
               error_methods.Add(m.Name);
             }
-            // TODO: is silently ignoring the null case OK?
+            ignoredErrors = true;
           }
           var todo_lemmas = all_lemmas.Where(x => error_methods.Contains(x.Name)).ToList();
           var json = JsonSerializer.Serialize(todo_lemmas);
+          if (todo_lemmas.Count == 0 && ignoredErrors)
+          {
+            json = JsonSerializer.Serialize("errors");
+          }
           await Console.Out.WriteLineAsync(json);
         }
         else

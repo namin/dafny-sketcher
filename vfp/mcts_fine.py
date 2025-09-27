@@ -25,6 +25,10 @@ def add_standard_node(node, p):
 def child_finder(node, montecarlo):
     p = node.state
     todo_lemmas = sketcher.sketch_todo_lemmas(p)
+    if todo_lemmas == "errors":
+        print("WARNING: sketch has indiscriminate errors")
+        node.update_win_value(-1)
+        return
     if todo_lemmas:
         if INDUCTIVE_SKETCH:
             p_empty = driver.insert_program_todo(todo_lemmas[0], p, "")

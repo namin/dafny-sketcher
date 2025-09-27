@@ -239,7 +239,7 @@ def sketch_todo_lemmas(file_input: str) -> list[object]:
         file_input: String content of the Dafny file
     
     Returns:
-        TODOs as JSON
+        TODOs as JSON or "errors" if there are indiscriminate errors
     """
     result = dafny_sketcher(file_input, ['--sketch', 'todo_lemmas'])
     print(result)
