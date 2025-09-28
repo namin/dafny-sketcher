@@ -44,17 +44,8 @@ lemma flattenCorrect<T>(t: Tree<T>)
 {
   match t
   case Leaf(v) =>
-    assert flatten(t) == [v];
-    assert toMultiset([v]) == multiset{v};
   case Node(l, r) =>
     flattenCorrect(l);
     flattenCorrect(r);
-    assert |flatten(t)| == |flatten(l) + flatten(r)| == |flatten(l)| + |flatten(r)|;
-    assert |flatten(l)| == size(l);
-    assert |flatten(r)| == size(r);
     toMultisetAppend(flatten(l), flatten(r));
-    assert toMultiset(flatten(t)) == toMultiset(flatten(l) + flatten(r));
-    assert toMultiset(flatten(l) + flatten(r)) == toMultiset(flatten(l)) + toMultiset(flatten(r));
-    assert toMultiset(flatten(l)) == treeToMultiset(l);
-    assert toMultiset(flatten(r)) == treeToMultiset(r);
 }
