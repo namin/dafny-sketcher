@@ -14,16 +14,22 @@ def greedy_search(program: str):
     return response.json()
 
 if __name__ == "__main__":
-    p = """
-method SquareRoot(n: nat)
-returns (r: nat)
-ensures r*r <= n <= (r+1)*(r+1)
-{
-    r := 0;
-    while (r+1)*(r+1) <= n
+    import tests
+    import sys
+    if len(sys.argv) > 1:
+        f = sys.argv[1]
+        p = tests.read_file(f)
+    else:
+        p = """
+    method SquareRoot(n: nat)
+    returns (r: nat)
+    ensures r*r <= n <= (r+1)*(r+1)
     {
-        r := r + 1;
+        r := 0;
+        while (r+1)*(r+1) <= n
+        {
+            r := r + 1;
+        }
     }
-}
-"""
+    """
     print(greedy_search(p))
