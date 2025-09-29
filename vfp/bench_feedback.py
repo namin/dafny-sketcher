@@ -28,6 +28,8 @@ def lemma1(lemma, p, stats):
             print("inductive proof sketch works")
             stats[name] = 0
             return
+    else:
+        print('Not using sketchers!')
     for i in range(3):
         prompt = prompt_lemma_implementer(p, name, e)
         r = generate(prompt)
