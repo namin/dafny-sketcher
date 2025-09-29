@@ -100,8 +100,19 @@ def show_errors_for_method(file_input: str, method_name: str) -> Optional[str]:
         return _show_errors_for_method_core(file_input, method_name)
 
 
-def list_errors_for_method(file_input: str, method_name: Optional[str]) -> List[tuple[int, int, str, str]]:
-    errors = show_errors_for_method(file_input, method_name)
+def _list_errors_for_method_core(file_input: str, method_name: Optional[str]) -> List[tuple[int, int, str, str]]:
+    """
+    Core function that parses errors for a specific method.
+    This is the function that gets cached by joblib.
+    
+    Args:
+        file_input: String content of the Dafny file
+        method_name: Name of the method to verify (can be None)
+    
+    Returns:
+        List of tuples containing (line_num, col_num, error_msg, code_snippet)
+    """
+    errors = _show_errors_for_method_core(file_input, method_name)
     if errors is None:
         return []
     
@@ -144,6 +155,28 @@ def list_errors_for_method(file_input: str, method_name: Optional[str]) -> List[
                 continue
     
     return result
+
+
+# Create cached version if caching is enabled
+_cached_list_errors_for_method_core = memory.cache(_list_errors_for_method_core) if memory else None
+
+
+def list_errors_for_method(file_input: str, method_name: Optional[str]) -> List[tuple[int, int, str, str]]:
+    """
+    List errors for a specific method in the Dafny file.
+    
+    Args:
+        file_input: String content of the Dafny file
+        method_name: Name of the method to verify (can be None)
+    
+    Returns:
+        List of tuples containing (line_num, col_num, error_msg, code_snippet)
+    """
+    # Use cached version if caching is enabled, otherwise use direct version
+    if _cached_list_errors_for_method_core:
+        return _cached_list_errors_for_method_core(file_input, method_name)
+    else:
+        return _list_errors_for_method_core(file_input, method_name)
 
 def _run_dafny_sketcher_core(file_input: str, args: tuple) -> str:
     """
