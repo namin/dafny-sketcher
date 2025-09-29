@@ -11,11 +11,11 @@ def prompt_lemma_implementer(program: str, name: str, e: list[str]) -> str:
     return f'You are implementing a lemma in a Dafny program that is specified but not fully implemented. The current program is\n{program}\n\nThe lemma to implement is {name}. {prompt_begin_dafny("lemma")}\nThe errors in the work-in-progress lemma are:\n{format_errors(e)}'
 
 def lemma1(lemma, p, stats):
+    init_p = p # the offsets for insertion are based on original program
     name = lemma['name']
     print('lemma', name)
     x = ""
-    init_p = driver.insert_program_todo(lemma, p, x)
-    xp = init_p
+    xp = driver.insert_program_todo(lemma, init_p, x)
     e = sketcher.list_errors_for_method(xp, name)
     if not e:
         print("empty proof works")
@@ -39,7 +39,7 @@ def lemma1(lemma, p, stats):
             continue
         # TODO: maybe consider starting from initial point if program can be judged too bad
         p = driver.insert_program_todo(lemma, init_p, x)
-        e = sketcher.list_errors_for_method(p, name)
+        e = sketcher._list_errors_for_method_core(p, name) # no need to use the cached version
         if not e:
             print("LLM repair loop works " + str(i))
             stats[name] = 1
