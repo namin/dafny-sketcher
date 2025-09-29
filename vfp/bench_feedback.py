@@ -8,13 +8,14 @@ from driver import prompt_begin_dafny, extract_dafny_program
 USE_SKETCHERS = os.environ.get('USE_SKETCHERS', 'true').lower() != 'false'
 
 def prompt_lemma_implementer(program: str, name: str, e: list[str]) -> str:
-    return f"You are implementing a lemma in a Dafny program that is specified but not fully implemented. The current program is\n{program}\n\nThe lemma to implement is {name}. {prompt_begin_dafny("lemma")}\nThe errors in the work-in-progress lemma are:\n{format_errors(e)}"
+    return f'You are implementing a lemma in a Dafny program that is specified but not fully implemented. The current program is\n{program}\n\nThe lemma to implement is {name}. {prompt_begin_dafny("lemma")}\nThe errors in the work-in-progress lemma are:\n{format_errors(e)}'
 
 def lemma1(lemma, p, stats):
     name = lemma['name']
     print('lemma', name)
     x = ""
-    xp = driver.insert_program_todo(lemma, p, x)
+    init_p = driver.insert_program_todo(lemma, p, x)
+    xp = init_p
     e = sketcher.list_errors_for_method(xp, name)
     if not e:
         print("empty proof works")
@@ -22,7 +23,7 @@ def lemma1(lemma, p, stats):
         return
     if USE_SKETCHERS:
         ix = sketcher.sketch_induction(xp, name)
-        p = driver.insert_program_todo(lemma, p, ix)
+        p = driver.insert_program_todo(lemma, init_p, ix)
         e = sketcher.list_errors_for_method(p, name)
         if not e:
             print("inductive proof sketch works")
@@ -37,7 +38,7 @@ def lemma1(lemma, p, stats):
         if x is None:
             continue
         # TODO: maybe consider starting from initial point if program can be judged too bad
-        p = driver.insert_program_todo(lemma, p, x)
+        p = driver.insert_program_todo(lemma, init_p, x)
         e = sketcher.list_errors_for_method(p, name)
         if not e:
             print("LLM repair loop works " + str(i))
