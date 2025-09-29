@@ -20,17 +20,21 @@ def lemma1(lemma, p, stats):
         print("inductive proof failed")
         stats[name] = ix
 
-def print_stats(stats):
-    print('FINISHED RUNNING THE BENCH')
-    print(stats)
+def print_summary_stats(stats):
     print('total for empty proof works:', len([v for v in stats.values() if isinstance(v, int) and v == -1]))
     print('total for inductive proof sketch works:', len([v for v in stats.values() if isinstance(v, int) and v == 0]))
     print('total for errors:', len([v for v in stats.values() if not isinstance(v, int)]))
+
+def print_stats(stats):
+    print('FINISHED RUNNING THE BENCH')
+    print(stats)
+    print_summary_stats(stats)
     print('lemmas with errors:')
     for k, v in stats.items():
         if not isinstance(v, int):
             print(k)
             print(v)
+    print_summary_stats(stats)
 
 if __name__ == "__main__":
     import bench_driver

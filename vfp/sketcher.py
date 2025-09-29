@@ -25,7 +25,18 @@ def write_content_to_temp_file(content: str) -> Optional[str]:
     except Exception:
         return None
 
-def show_errors_for_method(file_input: str, method_name: str) -> Optional[str]:
+def _show_errors_for_method_core(file_input: str, method_name: str) -> Optional[str]:
+    """
+    Core function that runs dafny verify for a specific method.
+    This is the function that gets cached by joblib.
+    
+    Args:
+        file_input: String content of the Dafny file
+        method_name: Name of the method to verify
+    
+    Returns:
+        Output from dafny verify or error message
+    """
     file_path = write_content_to_temp_file(file_input)
     if not file_path:
         return "Error writing temporary file"
@@ -65,6 +76,28 @@ def show_errors_for_method(file_input: str, method_name: str) -> Optional[str]:
                 Path(file_path).unlink()
         except Exception:
             pass  # Ignore cleanup errors
+
+
+# Create cached version if caching is enabled
+_cached_show_errors_for_method_core = memory.cache(_show_errors_for_method_core) if memory else None
+
+
+def show_errors_for_method(file_input: str, method_name: str) -> Optional[str]:
+    """
+    Show errors for a specific method in the Dafny file.
+    
+    Args:
+        file_input: String content of the Dafny file
+        method_name: Name of the method to verify
+    
+    Returns:
+        Error information or None if no errors
+    """
+    # Use cached version if caching is enabled, otherwise use direct version
+    if _cached_show_errors_for_method_core:
+        return _cached_show_errors_for_method_core(file_input, method_name)
+    else:
+        return _show_errors_for_method_core(file_input, method_name)
 
 
 def list_errors_for_method(file_input: str, method_name: Optional[str]) -> List[tuple[int, int, str, str]]:
