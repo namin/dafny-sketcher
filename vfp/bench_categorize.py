@@ -25,10 +25,14 @@ def lemma1(lemma, p, stats):
         end_offset = line_col_to_end_offset(p, lines, todo['endLine'], todo['endColumn'])
         stats["other"] = stats.get("other", []) + [(name, p[start_offset:end_offset])]
 
+def print_category_summary(category, names):
+    print(f'### {category} proofs')
+    print(f'{len(names)}: {", ".join([f"`{name}`" for name in names])}')
+
 def print_summary_stats(stats):
-    print('empty proof works:', len(stats.get("empty", [])), stats.get("empty", []))
-    print('inductive proof sketch works:', len(stats.get("induction", [])), stats.get("induction", []))
-    print('other:', len(stats.get("other", [])), [name for name, _ in stats.get("other", [])])
+    print_category_summary("empty", stats.get("empty", []))
+    print_category_summary("induction", stats.get("induction", []))
+    print_category_summary("other", [name for name, _ in stats.get("other", [])])
 
 def print_stats(stats):
     print('FINISHED RUNNING THE BENCH')
@@ -37,8 +41,10 @@ def print_stats(stats):
     print('')
     print('# lemmas to investigate')
     for name, p in stats["other"]:
-        print('## lemma', name)
+        print(f'## lemma `{name}`')
+        print('```dafny')
         print(p)
+        print('```')
     print('## summary')
     print_summary_stats(stats)
 
