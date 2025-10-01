@@ -2,6 +2,12 @@
 ## lemma `binarySearchCorrect`
 ### working solution
 ```dafny
+lemma binarySearchCorrect(s: seq<int>, key: int)
+  requires sorted(s)
+  ensures var idx := binarySearch(s, key);
+    0 <= idx <= |s| &&
+    (idx < |s| ==> s[idx] == key) &&
+    (idx == |s| ==> key !in s)
 {
   binarySearchHelperCorrect(s, key, 0, |s|);
 }
@@ -18,6 +24,9 @@
 ## lemma `Insert_Preserves_BST`
 ### working solution
 ```dafny
+lemma Insert_Preserves_BST(t: Tree, x: int)
+  requires IsBST(t)
+  ensures IsBST(Insert(t, x))
 {
   match t
   case Leaf => 
@@ -63,6 +72,13 @@
 ## lemma `Insert_New_Min`
 ### working solution
 ```dafny
+lemma Insert_New_Min(t: Tree, x: int)
+  requires IsBST(t)
+  requires t.Node?
+  requires !Contains(t, x)
+  requires x < Min(t)
+  requires IsBST(Insert(t, x))
+  ensures Min(Insert(t, x)) == x
 {
   match t
   case Node(v, l, r) =>
@@ -98,6 +114,9 @@
 ## lemma `dedupCorrect`
 ### working solution
 ```dafny
+lemma dedupCorrect(xs: seq<int>)
+  ensures noDuplicates(dedup(xs))
+  ensures toSet(dedup(xs)) == toSet(xs)
 {
   if |xs| == 0 {
   } else {
@@ -155,6 +174,8 @@
 ## lemma `toMultisetAppend`
 ### working solution
 ```dafny
+lemma toMultisetAppend<T>(s1: seq<T>, s2: seq<T>)
+  ensures toMultiset(s1 + s2) == toMultiset(s1) + toMultiset(s2)
 {
   if |s1| == 0 {
     assert s1 + s2 == s2;
@@ -180,6 +201,9 @@
 ## lemma `flattenCorrect`
 ### working solution
 ```dafny
+lemma flattenCorrect<T>(t: Tree<T>)
+  ensures |flatten(t)| == size(t)
+  ensures toMultiset(flatten(t)) == treeToMultiset(t)
 {
   match t
   case Leaf(v) =>
@@ -209,6 +233,10 @@
 ## lemma `SelfReachable`
 ### working solution
 ```dafny
+lemma SelfReachable(g: Graph, n: Node)
+  requires validGraph(g)
+  requires n in g.nodes
+  ensures reachable(g, n, n)
 {
   var path := [n];
   assert |path| == 1;
@@ -242,6 +270,11 @@
 ## lemma `DirectEdgeReachable`
 ### working solution
 ```dafny
+lemma DirectEdgeReachable(g: Graph, a: Node, b: Node)
+  requires validGraph(g)
+  requires a in g.nodes && b in g.nodes
+  requires hasEdge(g, a, b)
+  ensures reachable(g, a, b)
 {
   assert b in neighbors(g, a);
   if a == b {
@@ -282,6 +315,10 @@
 ## lemma `EmptyGraphAcyclic`
 ### working solution
 ```dafny
+lemma EmptyGraphAcyclic(g: Graph)
+  requires validGraph(g)
+  requires g.edges == {}
+  ensures isAcyclic(g)
 {
   if hasCycle(g) {
     var path :| isPath(g, path) && |path| > 1 && path[0] == path[|path| - 1];
@@ -302,6 +339,11 @@
 ## lemma `SingleNodeAcyclic`
 ### working solution
 ```dafny
+lemma SingleNodeAcyclic(g: Graph)
+  requires validGraph(g)
+  requires |g.nodes| == 1
+  requires g.edges == {}
+  ensures isAcyclic(g)
 {
   EmptyGraphAcyclic(g);
 }
@@ -316,6 +358,10 @@
 ## lemma `MinHeapRootIsMinimum`
 ### working solution
 ```dafny
+lemma MinHeapRootIsMinimum(h: Heap)
+  requires !heapIsEmpty(h)
+  requires isMinHeap(h)
+  ensures forall i :: 0 <= i < |h.elements| ==> h.elements[0] <= h.elements[i]
 {
   if |h.elements| == 1 {
     forall i | 0 <= i < |h.elements|
@@ -351,6 +397,10 @@
 ## lemma `MinHeapPathToRoot`
 ### working solution
 ```dafny
+lemma MinHeapPathToRoot(h: Heap, i: nat)
+  requires isMinHeap(h)
+  requires 0 < i < |h.elements|
+  ensures h.elements[0] <= h.elements[i]
 {
   if parent(i) == 0 {
     assert h.elements[0] <= h.elements[i];
@@ -375,6 +425,10 @@
 ## lemma `MaxHeapRootIsMaximum`
 ### working solution
 ```dafny
+lemma MaxHeapRootIsMaximum(h: Heap)
+  requires !heapIsEmpty(h)
+  requires isMaxHeap(h)
+  ensures forall i :: 0 <= i < |h.elements| ==> h.elements[0] >= h.elements[i]
 {
   if |h.elements| == 1 {
     forall i | 0 <= i < |h.elements|
@@ -410,6 +464,10 @@
 ## lemma `MaxHeapPathToRoot`
 ### working solution
 ```dafny
+lemma MaxHeapPathToRoot(h: Heap, i: nat)
+  requires isMaxHeap(h)
+  requires 0 < i < |h.elements|
+  ensures h.elements[0] >= h.elements[i]
 {
   if parent(i) == 0 {
     assert h.elements[0] >= h.elements[i];
@@ -434,6 +492,8 @@
 ## lemma `HeapHeightBound`
 ### working solution
 ```dafny
+lemma HeapHeightBound(h: Heap)
+  ensures heapHeight(h) <= |h.elements|
 {
   if |h.elements| == 0 {
     assert heapHeight(h) == 0;
@@ -457,6 +517,10 @@
 ## lemma `CompleteInduction`
 ### working solution
 ```dafny
+lemma CompleteInduction(n: nat, P: nat -> bool)
+  requires P(0)
+  requires forall k: nat :: k > 0 && (forall j: nat :: j < k ==> P(j)) ==> P(k)
+  ensures P(n)
 {
   if n == 0 {
     // Base case
@@ -492,6 +556,8 @@ Error: Dafny Sketcher timed out
 ## lemma `ReverseLength`
 ### working solution
 ```dafny
+lemma ReverseLength<T>(list: LinkedList<T>)
+  ensures length(reverse(list)) == length(list)
 {
   ReverseHelperLength(list, Nil);
 }
@@ -515,6 +581,8 @@ Error: Dafny Sketcher timed out
 ## lemma `ReverseReverse`
 ### working solution
 ```dafny
+lemma ReverseReverse<T>(list: LinkedList<T>)
+  ensures reverse(reverse(list)) == list
 {
   ReverseReverseHelper(list, Nil);
 }
@@ -532,6 +600,8 @@ Error: Dafny Sketcher timed out
 ## lemma `sumCorrect`
 ### working solution
 ```dafny
+lemma sumCorrect(xs: seq<int>)
+  ensures sum(xs) == sumTail(xs, 0)
 {
   sumCorrectHelper(xs, 0);
 }
@@ -552,6 +622,8 @@ Error: Dafny Sketcher timed out
 ## lemma `sumAppend`
 ### working solution
 ```dafny
+lemma sumAppend(xs: seq<int>, ys: seq<int>)
+  ensures sum(xs + ys) == sum(xs) + sum(ys)
 {
   if |xs| == 0 {
     assert xs + ys == ys;
@@ -584,6 +656,8 @@ Error: Dafny Sketcher timed out
 ## lemma `sumDistributive`
 ### working solution
 ```dafny
+lemma sumDistributive(xs: seq<int>, c: int)
+  ensures sum(seq(|xs|, i requires 0 <= i < |xs| => c * xs[i])) == c * sum(xs)
 {
   if |xs| == 0 {
     // Base case: empty sequence
@@ -625,6 +699,9 @@ Error: Dafny Sketcher timed out
 ## lemma `GcdDividesBoth`
 ### working solution
 ```dafny
+lemma GcdDividesBoth(a: nat, b: nat)
+  requires a > 0 && b > 0
+  ensures gcd(a, b) > 0
 {
   GcdPositive(a, b);
 }
@@ -646,6 +723,9 @@ Error: Dafny Sketcher timed out
 ## lemma `maxIsCorrect`
 ### working solution
 ```dafny
+lemma maxIsCorrect(s: seq<int>)
+  requires |s| > 0
+  ensures isMax(s, max(s))
 {
   if |s| == 1 {
     // Base case is trivial
@@ -712,6 +792,8 @@ Error: Dafny Sketcher timed out
 ## lemma `reverseAppend`
 ### working solution
 ```dafny
+lemma reverseAppend<T>(xs: List<T>, ys: List<T>)
+  ensures reverse(append(xs, ys)) == append(reverse(ys), reverse(xs))
 {
   match xs
   case Nil => 
@@ -741,6 +823,8 @@ Error: Dafny Sketcher timed out
 ## lemma `reverseReverse`
 ### working solution
 ```dafny
+lemma reverseReverse<T>(xs: List<T>)
+  ensures reverse(reverse(xs)) == xs
 {
   match xs
   case Nil =>
@@ -769,6 +853,8 @@ Error: Dafny Sketcher timed out
 ## lemma `makePalindromeCorrect`
 ### working solution
 ```dafny
+lemma makePalindromeCorrect<T>(xs: List<T>)
+  ensures isPalindrome(makePalindrome(xs))
 {
   calc == {
     reverse(makePalindrome(xs));
@@ -799,6 +885,8 @@ Error: Dafny Sketcher timed out
 ## lemma `ReverseReverse`
 ### working solution
 ```dafny
+lemma ReverseReverse<T>(s: seq<T>)
+  ensures reverse(reverse(s)) == s
 {
   if |s| == 0 {
     // Base case
@@ -825,6 +913,8 @@ Error: Dafny Sketcher timed out
 ## lemma `ReverseAppend`
 ### working solution
 ```dafny
+lemma ReverseAppend<T>(s1: seq<T>, s2: seq<T>)
+  ensures reverse(s1 + s2) == reverse(s2) + reverse(s1)
 {
   if |s1| == 0 {
     assert s1 + s2 == s2;
@@ -851,6 +941,8 @@ Error: Dafny Sketcher timed out
 ## lemma `QueueSizeProperty`
 ### working solution
 ```dafny
+lemma QueueSizeProperty<T>(q: Queue<T>)
+  ensures queueSize(q) == |queueToSeq(q)|
 {
   ReverseLength(q.rear);
 }
@@ -870,6 +962,11 @@ Error: Dafny Sketcher timed out
 ## lemma `DequeueCorrect`
 ### working solution
 ```dafny
+lemma DequeueCorrect<T>(q: Queue<T>)
+  requires !queueIsEmpty(q)
+  ensures |queueToSeq(q)| > 0
+  ensures queueToSeq(dequeue(q)) == queueToSeq(q)[1..]
+  ensures queueFront(q) == queueToSeq(q)[0]
 {
   if |q.front| > 0 {
     assert queueToSeq(q) == q.front + reverse(q.rear);
@@ -917,6 +1014,10 @@ Error: Dafny Sketcher timed out
 ## lemma `SimpleQueueEquivalence`
 ### working solution
 ```dafny
+lemma SimpleQueueEquivalence<T>(sq: SimpleQueue<T>, q: Queue<T>)
+  requires sq.elements == queueToSeq(q)
+  ensures simpleQueueIsEmpty(sq) == queueIsEmpty(q)
+  ensures simpleQueueSize(sq) == queueSize(q)
 {
   if queueIsEmpty(q) {
     assert q.front == [] && q.rear == [];
@@ -941,6 +1042,8 @@ Error: Dafny Sketcher timed out
 ## lemma `reverse_append`
 ### working solution
 ```dafny
+lemma reverse_append<T>(s1: seq<T>, s2: seq<T>)
+  ensures reverse(s1 + s2) == reverse(s2) + reverse(s1)
 {
   if |s1| == 0 {
     assert s1 + s2 == s2;
@@ -980,6 +1083,8 @@ Error: Dafny Sketcher timed out
 ## lemma `reverse_involutes`
 ### working solution
 ```dafny
+lemma reverse_involutes<T>(l: seq<T>)
+  ensures reverse(reverse(l)) == l
 {
   if |l| == 0 {
   } else {
@@ -1012,6 +1117,8 @@ Error: Dafny Sketcher timed out
 ## lemma `encodeDecodeRoundTrip`
 ### working solution
 ```dafny
+lemma encodeDecodeRoundTrip(s: seq<char>)
+  ensures decode(encode(s)) == s
 {
   if |s| == 0 {
     // Base case: empty sequence
@@ -1051,6 +1158,8 @@ Error: Dafny Sketcher timed out
 ## lemma `RevAcc_Helper`
 ### working solution
 ```dafny
+lemma RevAcc_Helper(xs: List, acc: List)
+  ensures revAcc(xs, acc) == app(revAcc(xs, Nil), acc)
 {
   match xs {
     case Nil => 
@@ -1083,6 +1192,8 @@ Error: Dafny Sketcher timed out
 ## lemma `RevAcc_Correct`
 ### working solution
 ```dafny
+lemma RevAcc_Correct(xs: List, acc: List)
+  ensures revAcc(xs, acc) == app(revAcc(xs, Nil), acc)
 {
   RevAcc_Helper(xs, acc);
 }
@@ -1106,6 +1217,8 @@ Error: Dafny Sketcher timed out
 ## lemma `StackInduction`
 ### working solution
 ```dafny
+lemma StackInduction<T>(s: Stack<T>)
+  ensures s == emptyStack() || exists x, s' :: s == push(s', x)
 {
   if isEmpty(s) {
     assert s == emptyStack();

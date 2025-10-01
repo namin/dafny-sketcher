@@ -2,6 +2,21 @@ import driver
 import sketcher
 from driver import line_col_to_start_offset, line_col_to_end_offset
 
+def find_closest_lemma_before_offset(p, start_offset):
+    # Search backwards from start_offset for "lemma"
+    search_text = p[:start_offset]
+    
+    # Find the last occurrence of "lemma"
+    pos = search_text.rfind("lemma")
+    
+    # Optionally, verify it's a whole word
+    if pos != -1:
+        if (pos == 0 or not search_text[pos-1].isalnum()) and \
+           (pos + 5 >= len(search_text) or not search_text[pos+5].isalnum()):
+            return pos
+    
+    return -1  # No lemma found
+
 def lemma1(lemma, p, stats):
     name = lemma['name']
     print('lemma', name)
@@ -23,7 +38,8 @@ def lemma1(lemma, p, stats):
         lines = p.splitlines(keepends=True)
         start_offset = line_col_to_start_offset(p,lines, todo['insertLine'], todo['insertColumn'])
         end_offset = line_col_to_end_offset(p, lines, todo['endLine'], todo['endColumn'])
-        stats["other"] = stats.get("other", []) + [(name, p[start_offset:end_offset], ix, e)]
+        lemma_start = find_closest_lemma_before_offset(p, start_offset)
+        stats["other"] = stats.get("other", []) + [(name, p[lemma_start:end_offset], ix, e)]
 
 def print_category_summary(category, names):
     print(f'### {category} proofs')
