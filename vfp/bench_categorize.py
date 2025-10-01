@@ -23,7 +23,7 @@ def lemma1(lemma, p, stats):
         lines = p.splitlines(keepends=True)
         start_offset = line_col_to_start_offset(p,lines, todo['insertLine'], todo['insertColumn'])
         end_offset = line_col_to_end_offset(p, lines, todo['endLine'], todo['endColumn'])
-        stats["other"] = stats.get("other", []) + [(name, p[start_offset:end_offset])]
+        stats["other"] = stats.get("other", []) + [(name, p[start_offset:end_offset], ix, e)]
 
 def print_category_summary(category, names):
     print(f'### {category} proofs')
@@ -32,7 +32,7 @@ def print_category_summary(category, names):
 def print_summary_stats(stats):
     print_category_summary("empty", stats.get("empty", []))
     print_category_summary("induction", stats.get("induction", []))
-    print_category_summary("other", [name for name, _ in stats.get("other", [])])
+    print_category_summary("other", [name for name, _, _, _ in stats.get("other", [])])
 
 def print_stats(stats):
     print('FINISHED RUNNING THE BENCH')
@@ -40,11 +40,20 @@ def print_stats(stats):
     print_summary_stats(stats)
     print('')
     print('# lemmas to investigate')
-    for name, p in stats["other"]:
+    for name, p, ix, e in stats["other"]:
         print(f'## lemma `{name}`')
+        print('### working solution')
         print('```dafny')
         print(p)
         print('```')
+        print('### failed inductive sketch')
+        print('```dafny')
+        print(ix)
+        print('```')
+        print('#### errors')
+        for err in e:
+            print(f'* {err[2]} -- `{err[3]}`')
+
     print('## summary')
     print_summary_stats(stats)
 

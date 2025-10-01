@@ -1,11 +1,22 @@
 # lemmas to investigate
 ## lemma `binarySearchCorrect`
+### working solution
 ```dafny
 {
   binarySearchHelperCorrect(s, key, 0, |s|);
 }
 ```
+### failed inductive sketch
+```dafny
+    // Inductive proof using rule induction
+    // following function: sorted
+
+
+```
+#### errors
+* a postcondition could not be proved on this return path -- `{`
 ## lemma `Insert_Preserves_BST`
+### working solution
 ```dafny
 {
   match t
@@ -27,7 +38,30 @@
     }
 }
 ```
+### failed inductive sketch
+```dafny
+    // Inductive proof using rule induction
+    // following function: Insert
+    match t {
+        case Leaf => {
+        }
+        case Node(v, l, r) => {
+            if (x == v) {
+            } else if (x < v) {
+                Insert_Preserves_BST(l, x);
+            } else {
+                Insert_Preserves_BST(r, x);
+            }
+        }
+    }
+
+
+```
+#### errors
+* a postcondition could not be proved on this return path -- `} else if (x < v) {`
+* a postcondition could not be proved on this return path -- `} else {`
 ## lemma `Insert_New_Min`
+### working solution
 ```dafny
 {
   match t
@@ -38,7 +72,31 @@
       Min_Absolute(l);
 }
 ```
+### failed inductive sketch
+```dafny
+    // Inductive proof using rule induction
+    // following function: Contains
+    match t {
+        case Leaf => {
+        }
+        case Node(v, l, r) => {
+            if (x == v) {
+            } else if (x < v) {
+                Insert_New_Min(l, x);
+            } else {
+                Insert_New_Min(r, x);
+            }
+        }
+    }
+
+
+```
+#### errors
+* a precondition for this call could not be proved -- `Insert_New_Min(l, x);`
+* a postcondition could not be proved on this return path -- `} else {`
+* a precondition for this call could not be proved -- `Insert_New_Min(r, x);`
 ## lemma `dedupCorrect`
+### working solution
 ```dafny
 {
   if |xs| == 0 {
@@ -79,7 +137,23 @@
   }
 }
 ```
+### failed inductive sketch
+```dafny
+    // Inductive proof using rule induction
+    // following function: dedup
+    if (|xs| == 0) {
+    } else if (xs[0] in dedup(xs[1..])) {
+        dedupCorrect(xs[1..]);
+    } else {
+        dedupCorrect(xs[1..]);
+    }
+
+
+```
+#### errors
+* a postcondition could not be proved on this return path -- `} else {`
 ## lemma `toMultisetAppend`
+### working solution
 ```dafny
 {
   if |s1| == 0 {
@@ -90,7 +164,21 @@
   }
 }
 ```
+### failed inductive sketch
+```dafny
+    // Inductive proof using rule induction
+    // following function: toMultiset
+    if (|s2| == 0) {
+    } else {
+        toMultisetAppend(s1, s2[1..]);
+    }
+
+
+```
+#### errors
+* a postcondition could not be proved on this return path -- `} else {`
 ## lemma `flattenCorrect`
+### working solution
 ```dafny
 {
   match t
@@ -101,7 +189,25 @@
     toMultisetAppend(flatten(l), flatten(r));
 }
 ```
+### failed inductive sketch
+```dafny
+    // Inductive proof using rule induction
+    // following function: size
+    match t {
+        case Leaf(_) => {
+        }
+        case Node(l, r) => {
+            flattenCorrect(l);
+            flattenCorrect(r);
+        }
+    }
+
+
+```
+#### errors
+* a postcondition could not be proved on this return path -- `case Node(l, r) => {`
 ## lemma `SelfReachable`
+### working solution
 ```dafny
 {
   var path := [n];
@@ -126,7 +232,15 @@
   assert isPath(g, path);
 }
 ```
+### failed inductive sketch
+```dafny
+
+
+```
+#### errors
+* a postcondition could not be proved on this return path -- `{`
 ## lemma `DirectEdgeReachable`
+### working solution
 ```dafny
 {
   assert b in neighbors(g, a);
@@ -158,7 +272,15 @@
   }
 }
 ```
+### failed inductive sketch
+```dafny
+
+
+```
+#### errors
+* a postcondition could not be proved on this return path -- `{`
 ## lemma `EmptyGraphAcyclic`
+### working solution
 ```dafny
 {
   if hasCycle(g) {
@@ -170,13 +292,29 @@
   }
 }
 ```
+### failed inductive sketch
+```dafny
+
+
+```
+#### errors
+* a postcondition could not be proved on this return path -- `{`
 ## lemma `SingleNodeAcyclic`
+### working solution
 ```dafny
 {
   EmptyGraphAcyclic(g);
 }
 ```
+### failed inductive sketch
+```dafny
+
+
+```
+#### errors
+* a postcondition could not be proved on this return path -- `{`
 ## lemma `MinHeapRootIsMinimum`
+### working solution
 ```dafny
 {
   if |h.elements| == 1 {
@@ -198,7 +336,20 @@
   }
 }
 ```
+### failed inductive sketch
+```dafny
+    // Structural induction on h
+    match h {
+        case Heap(elements) => {
+        }
+    }
+
+
+```
+#### errors
+* a postcondition could not be proved on this return path -- `case Heap(elements) => {`
 ## lemma `MinHeapPathToRoot`
+### working solution
 ```dafny
 {
   if parent(i) == 0 {
@@ -209,7 +360,20 @@
   }
 }
 ```
+### failed inductive sketch
+```dafny
+    // Structural induction on h
+    match h {
+        case Heap(elements) => {
+        }
+    }
+
+
+```
+#### errors
+* a postcondition could not be proved on this return path -- `case Heap(elements) => {`
 ## lemma `MaxHeapRootIsMaximum`
+### working solution
 ```dafny
 {
   if |h.elements| == 1 {
@@ -231,7 +395,20 @@
   }
 }
 ```
+### failed inductive sketch
+```dafny
+    // Structural induction on h
+    match h {
+        case Heap(elements) => {
+        }
+    }
+
+
+```
+#### errors
+* a postcondition could not be proved on this return path -- `case Heap(elements) => {`
 ## lemma `MaxHeapPathToRoot`
+### working solution
 ```dafny
 {
   if parent(i) == 0 {
@@ -242,7 +419,20 @@
   }
 }
 ```
+### failed inductive sketch
+```dafny
+    // Structural induction on h
+    match h {
+        case Heap(elements) => {
+        }
+    }
+
+
+```
+#### errors
+* a postcondition could not be proved on this return path -- `case Heap(elements) => {`
 ## lemma `HeapHeightBound`
+### working solution
 ```dafny
 {
   if |h.elements| == 0 {
@@ -252,7 +442,20 @@
   }
 }
 ```
+### failed inductive sketch
+```dafny
+    // Inductive proof using rule induction
+    // following function: heapHeight
+    if (|h.elements| == 0) {
+    } else {
+    }
+
+
+```
+#### errors
+* a postcondition could not be proved on this return path -- `} else {`
 ## lemma `CompleteInduction`
+### working solution
 ```dafny
 {
   if n == 0 {
@@ -276,25 +479,78 @@
   }
 }
 ```
+### failed inductive sketch
+```dafny
+Error: Dafny Sketcher timed out
+```
+#### errors
+* invalid statement beginning here (is a 'label' keyword missing? or a 'const' or 'var' keyword?) -- `Error: Dafny Sketcher timed out`
+* missing semicolon at end of statement -- `Error: Dafny Sketcher timed out`
+* missing semicolon at end of statement -- `Error: Dafny Sketcher timed out`
+* missing semicolon at end of statement -- `Error: Dafny Sketcher timed out`
+* missing semicolon at end of statement -- `Error: Dafny Sketcher timed out`
 ## lemma `ReverseLength`
+### working solution
 ```dafny
 {
   ReverseHelperLength(list, Nil);
 }
 ```
+### failed inductive sketch
+```dafny
+    // Inductive proof using rule induction
+    // following function: length
+    match list {
+        case Nil => {
+        }
+        case Cons(_, tail) => {
+            ReverseLength(tail);
+        }
+    }
+
+
+```
+#### errors
+* a postcondition could not be proved on this return path -- `case Cons(_, tail) => {`
 ## lemma `ReverseReverse`
+### working solution
 ```dafny
 {
   ReverseReverseHelper(list, Nil);
 }
 ```
+### failed inductive sketch
+```dafny
+    // Inductive proof using rule induction
+    // following function: reverse
+    ReverseReverse(list);
+
+
+```
+#### errors
+* cannot prove termination; try supplying a decreases clause -- `ReverseReverse(list);`
 ## lemma `sumCorrect`
+### working solution
 ```dafny
 {
   sumCorrectHelper(xs, 0);
 }
 ```
+### failed inductive sketch
+```dafny
+    // Inductive proof using rule induction
+    // following function: sumTail
+    if (|xs| == 0) {
+    } else {
+        sumCorrect(xs[1..]);
+    }
+
+
+```
+#### errors
+* a postcondition could not be proved on this return path -- `} else {`
 ## lemma `sumAppend`
+### working solution
 ```dafny
 {
   if |xs| == 0 {
@@ -312,7 +568,21 @@
   }
 }
 ```
+### failed inductive sketch
+```dafny
+    // Inductive proof using rule induction
+    // following function: sum
+    if (|ys| == 0) {
+    } else {
+        sumAppend(xs, ys[1..]);
+    }
+
+
+```
+#### errors
+* a postcondition could not be proved on this return path -- `} else {`
 ## lemma `sumDistributive`
+### working solution
 ```dafny
 {
   if |xs| == 0 {
@@ -339,13 +609,42 @@
   }
 }
 ```
+### failed inductive sketch
+```dafny
+    // Inductive proof using rule induction
+    // following function: sum
+    if (|xs| == 0) {
+    } else {
+        sumDistributive(xs[1..], c);
+    }
+
+
+```
+#### errors
+* a postcondition could not be proved on this return path -- `} else {`
 ## lemma `GcdDividesBoth`
+### working solution
 ```dafny
 {
   GcdPositive(a, b);
 }
 ```
+### failed inductive sketch
+```dafny
+    // Inductive proof using rule induction
+    // following function: gcd
+    if (b == 0) {
+    } else {
+        GcdDividesBoth(b, a % b);
+    }
+
+
+```
+#### errors
+* cannot prove termination; try supplying a decreases clause -- `GcdDividesBoth(b, a % b);`
+* a precondition for this call could not be proved -- `GcdDividesBoth(b, a % b);`
 ## lemma `maxIsCorrect`
+### working solution
 ```dafny
 {
   if |s| == 1 {
@@ -393,7 +692,25 @@
   }
 }
 ```
+### failed inductive sketch
+```dafny
+    // Inductive proof using rule induction
+    // following function: max
+    if (|s| == 1) {
+    } else {
+        var restMax := max(s[1..]);
+        maxIsCorrect(s[1..]);
+        if (s[0] >= restMax) {
+        } else {
+        }
+    }
+
+
+```
+#### errors
+* a postcondition could not be proved on this return path -- `if (s[0] >= restMax) {`
 ## lemma `reverseAppend`
+### working solution
 ```dafny
 {
   match xs
@@ -405,7 +722,24 @@
     appendAssoc(reverse(ys), reverse(t), Cons(h, Nil));
 }
 ```
+### failed inductive sketch
+```dafny
+    // Inductive proof using rule induction
+    // following function: reverse
+    match xs {
+        case Nil => {
+        }
+        case Cons(h, t) => {
+            reverseAppend(t, ys);
+        }
+    }
+
+
+```
+#### errors
+* a postcondition could not be proved on this return path -- `case Cons(h, t) => {`
 ## lemma `reverseReverse`
+### working solution
 ```dafny
 {
   match xs
@@ -416,7 +750,24 @@
     assert reverse(Cons(h, Nil)) == Cons(h, Nil);
 }
 ```
+### failed inductive sketch
+```dafny
+    // Inductive proof using rule induction
+    // following function: reverse
+    match xs {
+        case Nil => {
+        }
+        case Cons(h, t) => {
+            reverseReverse(t);
+        }
+    }
+
+
+```
+#### errors
+* a postcondition could not be proved on this return path -- `case Cons(h, t) => {`
 ## lemma `makePalindromeCorrect`
+### working solution
 ```dafny
 {
   calc == {
@@ -430,7 +781,23 @@
   }
 }
 ```
+### failed inductive sketch
+```dafny
+    // Structural induction on xs
+    match xs {
+        case Nil() => {
+        }
+        case Cons(head, tail) => {
+            makePalindromeCorrect(tail);
+        }
+    }
+
+
+```
+#### errors
+* a postcondition could not be proved on this return path -- `case Cons(head, tail) => {`
 ## lemma `ReverseReverse`
+### working solution
 ```dafny
 {
   if |s| == 0 {
@@ -442,7 +809,21 @@
   }
 }
 ```
+### failed inductive sketch
+```dafny
+    // Inductive proof using rule induction
+    // following function: reverse
+    if (|s| == 0) {
+    } else {
+        ReverseReverse(s[1..]);
+    }
+
+
+```
+#### errors
+* a postcondition could not be proved on this return path -- `} else {`
 ## lemma `ReverseAppend`
+### working solution
 ```dafny
 {
   if |s1| == 0 {
@@ -454,13 +835,40 @@
   }
 }
 ```
+### failed inductive sketch
+```dafny
+    // Inductive proof using rule induction
+    // following function: reverse
+    if (|s1| == 0) {
+    } else {
+        ReverseAppend(s1[1..], s2);
+    }
+
+
+```
+#### errors
+* a postcondition could not be proved on this return path -- `} else {`
 ## lemma `QueueSizeProperty`
+### working solution
 ```dafny
 {
   ReverseLength(q.rear);
 }
 ```
+### failed inductive sketch
+```dafny
+    // Structural induction on q
+    match q {
+        case Queue(front, rear) => {
+        }
+    }
+
+
+```
+#### errors
+* a postcondition could not be proved on this return path -- `case Queue(front, rear) => {`
 ## lemma `DequeueCorrect`
+### working solution
 ```dafny
 {
   if |q.front| > 0 {
@@ -492,7 +900,22 @@
   }
 }
 ```
+### failed inductive sketch
+```dafny
+    // Inductive proof using rule induction
+    // following function: dequeue
+    if (|q.front| > 0) {
+    } else if (|q.rear| == 1) {
+    } else {
+    }
+
+
+```
+#### errors
+* a postcondition could not be proved on this return path -- `} else if (|q.rear| == 1) {`
+* a postcondition could not be proved on this return path -- `} else {`
 ## lemma `SimpleQueueEquivalence`
+### working solution
 ```dafny
 {
   if queueIsEmpty(q) {
@@ -503,7 +926,20 @@
   QueueSizeProperty(q);
 }
 ```
+### failed inductive sketch
+```dafny
+    // Structural induction on sq
+    match sq {
+        case SimpleQueue(elements) => {
+        }
+    }
+
+
+```
+#### errors
+* a postcondition could not be proved on this return path -- `case SimpleQueue(elements) => {`
 ## lemma `reverse_append`
+### working solution
 ```dafny
 {
   if |s1| == 0 {
@@ -528,7 +964,21 @@
   }
 }
 ```
+### failed inductive sketch
+```dafny
+    // Inductive proof using rule induction
+    // following function: reverse
+    if (|s1| == 0) {
+    } else {
+        reverse_append(s1[1..], s2);
+    }
+
+
+```
+#### errors
+* a postcondition could not be proved on this return path -- `} else {`
 ## lemma `reverse_involutes`
+### working solution
 ```dafny
 {
   if |l| == 0 {
@@ -546,7 +996,21 @@
   }
 }
 ```
+### failed inductive sketch
+```dafny
+    // Inductive proof using rule induction
+    // following function: reverse
+    if (|l| == 0) {
+    } else {
+        reverse_involutes(l[1..]);
+    }
+
+
+```
+#### errors
+* a postcondition could not be proved on this return path -- `} else {`
 ## lemma `encodeDecodeRoundTrip`
+### working solution
 ```dafny
 {
   if |s| == 0 {
@@ -577,7 +1041,15 @@
   }
 }
 ```
+### failed inductive sketch
+```dafny
+
+
+```
+#### errors
+* a postcondition could not be proved on this return path -- `{`
 ## lemma `RevAcc_Helper`
+### working solution
 ```dafny
 {
   match xs {
@@ -592,13 +1064,47 @@
   }
 }
 ```
+### failed inductive sketch
+```dafny
+    // Inductive proof using rule induction
+    // following function: revAcc
+    match xs {
+        case Nil => {
+        }
+        case Cons(x, xs') => {
+            RevAcc_Helper(xs', acc);
+        }
+    }
+
+
+```
+#### errors
+* a postcondition could not be proved on this return path -- `case Cons(x, xs') => {`
 ## lemma `RevAcc_Correct`
+### working solution
 ```dafny
 {
   RevAcc_Helper(xs, acc);
 }
 ```
+### failed inductive sketch
+```dafny
+    // Inductive proof using rule induction
+    // following function: revAcc
+    match xs {
+        case Nil => {
+        }
+        case Cons(x, xs') => {
+            RevAcc_Correct(xs', acc);
+        }
+    }
+
+
+```
+#### errors
+* a postcondition could not be proved on this return path -- `case Cons(x, xs') => {`
 ## lemma `StackInduction`
+### working solution
 ```dafny
 {
   if isEmpty(s) {
@@ -610,6 +1116,18 @@
   }
 }
 ```
+### failed inductive sketch
+```dafny
+    // Structural induction on s
+    match s {
+        case Stack(elements) => {
+        }
+    }
+
+
+```
+#### errors
+* a postcondition could not be proved on this return path -- `case Stack(elements) => {`
 ## summary
 ### empty proofs
 120: `binarySearchHelperCorrect`, `Contains_Correct`, `Min_Absolute`, `Insert_Preserves_Node`, `iter5_biz_day_idempotent`, `OptimizePreservesSemantics`, `FacPositive`, `factorialCorrect`, `factorialPositive`, `factorialIncreasing`, `fibCorrect`, `fibIncreasing`, `ok3_pizza`, `PathOfLengthTwo`, `TreeNoCycle`, `ValidGraphSubgraph`, `EmptyHeapIsMinHeap`, `EmptyHeapIsMaxHeap`, `SingletonIsMinHeap`, `SingletonIsMaxHeap`, `ParentChildRelation`, `Log2FloorBound`, `SwapPreservesMultiset`, `SumToFormula`, `SumOddsIsSquare`, `SumSquaresFormula`, `PowerOfTwo`, `PowerMonotonic`, `PowerPositive`, `FibonacciInequality`, `StrongInduction`, `isSortedCorrect`, `isSortedTransitive`, `isSortedSubsequence`, `LengthAppend`, `AppendNil`, `AppendAssociative`, `ReverseHelperLength`, `ReverseReverseHelper`, `ToSeqFromSeq`, `FromSeqToSeq`, `MapLength`, `FilterSubset`, `TakeDropConcat`, `RemoveDecreasesLength`, `InsertAtLength`, `AppendAssociative`, `AppendNeutral`, `AppendLength`, `NthAppend`, `IndexOfCorrect`, `TakeDropConcat`, `FilterSubset`, `MapLength`, `MapCompose`, `sumCorrectHelper`, `GcdZero`, `GcdPositive`, `PrimeHasOnlyTwoDivisors`, `TwoPrime`, `ThreePrime`, `PowerSquare`, `SumFormula`, `FactorialPositive`, `FibonacciMonotonic`, `BinomialSymmetry`, `appendNilRight`, `appendAssoc`, `partitionCorrect`, `powerCorrect`, `powerZero`, `powerOne`, `ReverseLength`, `ReverseFirst`, `SeqAssoc`, `EnqueueCorrect`, `repeat_correct`, `reverse_permutes`, `encodeProducesValidRLE`, `UnionCommutative`, `UnionAssociative`, `UnionIdentity`, `IntersectionCommutative`, `IntersectionAssociative`, `IntersectionDistributive`, `UnionDistributive`, `DifferenceProperties`, `SubsetTransitive`, `SubsetAntisymmetric`, `PowersetEmpty`, `PowersetSubsetProperty`, `PowerProduct`, `DeMorgan`, `InsertPreservesSortedBetween`, `AppendAssoc`, `PushPopIdentity`, `PopPushNotIdentity`, `PushIncreaseSize`, `PopDecreaseSize`, `EmptyStackProperties`, `LIFOProperty`, `PushAllCorrect`, `PopNCorrect`, `PushPreservesContains`, `StackToFromSeq`, `PushOrder`, `NthFromTopCorrect`, `sumToCorrect`, `sumToFormula`, `sumToIncreasing`, `check_activation`, `InorderLength`, `PreorderLength`, `PostorderLength`, `MirrorTwice`, `MirrorSize`, `MirrorHeight`, `LeafCountBound`, `InTreeInorder`, `HeightLogBound`
