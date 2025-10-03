@@ -26,12 +26,15 @@ def lemma1(lemma, p, stats):
     end_offset = driver.line_col_to_end_offset(p, lines, lemma['endLine'], lemma['endColumn'])
     focused_p = init_p[:end_offset+1]
     focused_p = driver.insert_program_todo(lemma, focused_p, x)
-    result_p = annotator.annotate(focused_p)
+    result_p = annotator.greedy_search(focused_p)
     if result_p is not None:
-        #e = sketcher.show_errors(result_p)
-        #if e is None:
-        print("annotator over inductive sketch works")
-        stats[name] = 1
+        e = sketcher.show_errors(result_p)
+        if e is None:
+            print("annotator over inductive sketch works")
+            stats[name] = 1
+        else:
+            print("annotator returned something, but not passing verifier")
+            stats[name] = 2
         return
     if stats[name] == 0:
         print("all failed :(")
@@ -41,6 +44,7 @@ def print_summary_stats(stats):
     print('total for empty proof works:', len([v for v in stats.values() if isinstance(v, int) and v == -1]))
     print('total for inductive proof sketch works:', len([v for v in stats.values() if isinstance(v, int) and v == 4]))
     print('total for annotator over sketch works:', len([v for v in stats.values() if isinstance(v, int) and v == 1]))
+    print('total for annotator returning something, but not passing verifier:', len([v for v in stats.values() if isinstance(v, int) and v == 2]))
     print('total for unsolved:', len([v for v in stats.values() if isinstance(v, int) and v == 0]))
 
 def print_stats(stats):
@@ -56,6 +60,6 @@ def print_stats(stats):
 
 if __name__ == "__main__":
     import bench_driver
-    assertions_needed = ["dedupCorrect", "maxIsCorrect", "DequeueCorrect"]
+    assertions_needed = ["dedupCorrect", "maxIsCorrect", "DequeueCorrect"] # TODO: these require more than just assertions
     on_track = assertions_needed
     bench_driver.run(lemma1, print_stats, only_lemmas=on_track)

@@ -13,10 +13,9 @@
   - `Insert_Preserves_BST`: two branches need complex `forall` arguments with helper calls rather than recursive calls
   - `Insert_New_Min`: one branch doesn't need to be expanded and calls helper lemma rather than recursive call
 
-- assertions needed
+- assertions needed, but also `forall` arguments
   - `dedupCorrect`
   - `maxIsCorrect`
-  - `DequeueCorrect`
 
 - helper call needed
   - `flattenCorrect`
@@ -26,6 +25,7 @@
   - `reverse_involutes`
 
 - missing both assertions and helper calls
+  - `DequeueCorrect`
   - `sumDistributive`
   - `reverseReverse`
   - `ReverseReverse`
