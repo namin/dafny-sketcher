@@ -31,7 +31,7 @@ def main1(lemma1, f, stats, lemma_names=None):
             except Exception as e:
                 print(f"Error processing lemma {lemma['name']}: {e}")
 
-def run(lemma1, print_stats):
+def run(lemma1, print_stats, only_lemmas=None):
     import argparse
     
     parser = argparse.ArgumentParser(description='Run the bench suite')
@@ -40,5 +40,5 @@ def run(lemma1, print_stats):
     
     args = parser.parse_args()
     
-    main(lemma1, print_stats, args.file, args.lemma)
+    main(lemma1, print_stats, args.file, args.lemma or only_lemmas)
 
