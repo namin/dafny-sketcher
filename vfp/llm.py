@@ -42,13 +42,17 @@ if AWS_BEARER_TOKEN_BEDROCK:
     if generate is None:
         model = os.environ.get('ANTHROPIC_AWS_MODEL')
         if not model:
-            claude_model = os.environ.get('CLAUDE_MODEL', 'sonnet')
+            claude_model = os.environ.get('CLAUDE_MODEL', 'sonnet3')
             if claude_model == 'opus':
                 model = 'us.anthropic.claude-opus-4-1-20250805-v1:0'
-            elif claude_model == 'testing':
+            elif claude_model == 'sonnet3':
                 model = 'anthropic.claude-3-sonnet-20240229-v1:0'
-            else:
+            elif claude_model == 'sonnet45':
+                model = 'global.anthropic.claude-sonnet-4-5-20250929-v1:0'
+            elif claude_model == 'sonnet4':
                 model = 'global.anthropic.claude-sonnet-4-20250514-v1:0'
+            else:
+                raise ValueError(f"Invalid Claude model: {claude_model}")
         aws_region = os.environ.get('AWS_REGION', 'us-east-1')
         def generate(prompt, max_tokens=1000, temperature=1.0, model=model):
             debug(f"Prompt:\n{prompt}")
@@ -86,7 +90,7 @@ if PROJECT_ID:
     except ModuleNotFoundError:
         generate = dummy_generate('anthropic[vertex]')
     if generate is None:
-        model = os.environ.get('ANTHROPIC_MODEL', 'claude-sonnet-4@20250514')
+        model = os.environ.get('ANTHROPIC_MODEL', 'claude-sonnet-4-5')
         def generate(prompt, max_tokens=1000, temperature=1.0, model=model):
             debug(f"Prompt:\n{prompt}")
             print(f"Sending request to Anthropic Vertex (model={model}, max_tokens={max_tokens}, temp={temperature})")
