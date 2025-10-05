@@ -14,6 +14,7 @@ CACHE_LLM = os.environ.get('CACHE_LLM')
 DEBUG_LLM = os.environ.get('DEBUG_LLM')
 LLM_PROVIDER = os.environ.get('LLM_PROVIDER')
 GEMINI_MODEL = os.environ.get('GEMINI_MODEL', "gemini-2.5-flash")
+TEMPERATURE = float(os.environ.get('TEMPERATURE', 1.0))
 
 def debug(msg: str):
     if DEBUG_LLM:
@@ -28,7 +29,7 @@ def dummy_generate(pkg, extra=""):
 models = {}
 generators = {}
 
-def generate(prompt, max_tokens=1000, temperature=1.0, model=None):
+def generate(prompt, max_tokens=1000, temperature=TEMPERATURE, model=None):
     debug(f"Prompt:\n{prompt}")
     return None
 generators[None] = generate
@@ -54,7 +55,7 @@ if AWS_BEARER_TOKEN_BEDROCK:
             else:
                 raise ValueError(f"Invalid Claude model: {claude_model}")
         aws_region = os.environ.get('AWS_REGION', 'us-east-1')
-        def generate(prompt, max_tokens=1000, temperature=1.0, model=model):
+        def generate(prompt, max_tokens=1000, temperature=TEMPERATURE, model=model):
             debug(f"Prompt:\n{prompt}")
             print(f"Sending request to Anthropic AWS (model={model}, max_tokens={max_tokens}, temp={temperature})")
 
@@ -91,7 +92,7 @@ if PROJECT_ID:
         generate = dummy_generate('anthropic[vertex]')
     if generate is None:
         model = os.environ.get('ANTHROPIC_MODEL', 'claude-sonnet-4-5')
-        def generate(prompt, max_tokens=1000, temperature=1.0, model=model):
+        def generate(prompt, max_tokens=1000, temperature=TEMPERATURE, model=model):
             debug(f"Prompt:\n{prompt}")
             print(f"Sending request to Anthropic Vertex (model={model}, max_tokens={max_tokens}, temp={temperature})")
 
@@ -127,7 +128,7 @@ if PROJECT_ID:
         generate = dummy_generate('google-genai')
 
     if generate is None:
-        def generate(prompt, max_tokens=1000, temperature=1.0, model=GEMINI_MODEL):
+        def generate(prompt, max_tokens=1000, temperature=TEMPERATURE, model=GEMINI_MODEL):
             print(f"Sending request to Gemini Vertex (model={model}, max_tokens={max_tokens}, temp={temperature})")
 
             client = genai.Client(vertexai=True, project=PROJECT_ID, location="us-central1")
@@ -151,7 +152,7 @@ if OPENAI_API_KEY:
         OPENAI_BASE_URL = os.environ.get('OPENAI_BASE_URL')
         if OPENAI_BASE_URL:
             openai.base_url = OPENAI_BASE_URL
-        def generate(prompt, max_tokens=1000, temperature=1.0, model="gpt-4o"):
+        def generate(prompt, max_tokens=1000, temperature=TEMPERATURE, model="gpt-4o"):
             debug(f"Prompt:\n{prompt}")
             debug(f"Sending request to OpenAI (model={model}, max_tokens={max_tokens}, temp={temperature})")
 
@@ -178,7 +179,7 @@ if ANTHROPIC_API_KEY:
     except ModuleNotFoundError:
         generate = dummy_generate('anthropic')
     if generate is None:
-        def generate(prompt, max_tokens=1000, temperature=1.0, model="claude-3-7-sonnet-20250219"):
+        def generate(prompt, max_tokens=1000, temperature=TEMPERATURE, model="claude-3-7-sonnet-20250219"):
             debug(f"Prompt:\n{prompt}")
             debug(f"Sending request to Anthropic (model={model}, max_tokens={max_tokens}, temp={temperature})")
 
@@ -214,7 +215,7 @@ if GEMINI_API_KEY:
     except ModuleNotFoundError:
         generate = dummy_generate('google-genai')
     if generate is None:
-        def generate(prompt, max_tokens=1000, temperature=1.0, model=GEMINI_MODEL):
+        def generate(prompt, max_tokens=1000, temperature=TEMPERATURE, model=GEMINI_MODEL):
             debug(f"Prompt:\n{prompt}")
             debug(f"Sending request to Google Gemini (model={model}, max_tokens={max_tokens}, temp={temperature})")
             
@@ -238,7 +239,7 @@ if OLLAMA_API_KEY:
         generate = dummy_generate('ollama', extra=", or package 'anthropic' while setting ANTHROPIC_API_KEY")
     if generate is None:
         model = os.environ.get('OLLAMA_MODEL', 'gemma3:27b')
-        def generate(prompt, max_tokens=1000, temperature=1.0, model=model):
+        def generate(prompt, max_tokens=1000, temperature=TEMPERATURE, model=model):
             debug(f"Prompt:\n{prompt}")
             debug(f"Sending request to Ollama (model={model}, max_tokens={max_tokens}, temp={temperature})")
 
@@ -269,7 +270,7 @@ if MLX_API_KEY and (len(generators) < 2 or LLM_PROVIDER == 'mlx'):
     if generate is None:
         model_name = os.environ.get('MLX_MODEL', 'mlx-community/Qwen2.5-14B-Instruct-4bit')
         model, tokenizer = load(model_name)
-        def generate(prompt, max_tokens=1000, temperature=1.0, model=model):
+        def generate(prompt, max_tokens=1000, temperature=TEMPERATURE, model=model):
 
             debug(f"Prompt:\n{prompt}")
             debug(f"Sending request to MLX (model={model_name}, max_tokens={max_tokens}, temp={temperature})")
@@ -296,7 +297,7 @@ def multiline_input():
     return "\n".join(lines)
 
 if LLM_PROVIDER=='user':
-    def generate(prompt, max_tokens=1000, temperature=1.0, model=None):
+    def generate(prompt, max_tokens=1000, temperature=TEMPERATURE, model=None):
         print(f"Prompt:\n{prompt}")
         return multiline_input()
     generators['user'] = generate
