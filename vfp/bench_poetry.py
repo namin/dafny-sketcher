@@ -6,16 +6,12 @@ instead of using individual LLM calls.
 """
 
 import driver
-import sys
 import os
 import pathlib
 import tempfile
-
-# Add dafny-poetry to path
-# sys.path.insert(0, str(pathlib.Path(__file__).parent.parent / "dafny-poetry" / "src"))
-
 from dafny_poetry.api import verify_dafny
 
+USE_SKETCHERS = os.environ.get('USE_SKETCHERS', 'true').lower() != 'false'
 
 def lemma1(lemma, p, stats):
     """
@@ -43,6 +39,7 @@ def lemma1(lemma, p, stats):
             result = verify_dafny(
                 xp,
                 max_depth=3,
+                use_sketcher=USE_SKETCHERS,
                 use_llm=True,
                 llm_tries=2,
                 timeout=300,  # 5 minutes per lemma
