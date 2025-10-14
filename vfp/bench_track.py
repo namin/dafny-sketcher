@@ -75,8 +75,4 @@ def print_stats(stats):
 
 if __name__ == "__main__":
     import bench_driver
-    assertions_and_forall_needed = ["dedupCorrect", "maxIsCorrect"]
-    helper_calls_needed = ["flattenCorrect", "HeapHeightBound", "reverseAppend", "ReverseAppend", "reverse_involutes"]
-    both_assertions_and_helper_calls_needed = ["DequeueCorrect", "sumDistributive", "reverseReverse", "ReverseReverse", "reverse_append"]
-    on_track = assertions_and_forall_needed + helper_calls_needed + both_assertions_and_helper_calls_needed
-    bench_driver.run(lemma1, print_stats, only_lemmas=on_track)
+    bench_driver.run(lemma1, print_stats)

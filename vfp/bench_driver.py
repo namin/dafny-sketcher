@@ -31,14 +31,21 @@ def main1(lemma1, f, stats, lemma_names=None):
             except Exception as e:
                 print(f"Error processing lemma {lemma['name']}: {e}")
 
-def run(lemma1, print_stats, only_lemmas=None):
+def run(lemma1, print_stats, only_lemmas=None, on_track=False):
     import argparse
     
     parser = argparse.ArgumentParser(description='Run the bench suite')
     parser.add_argument('--file', type=str, action='append', help='Path to Dafny file to process (can be used multiple times)')
     parser.add_argument('--lemma', type=str, action='append', help='Name of lemma to process (can be used multiple times)')
+    parser.add_argument('--on-track', action='store_true', help='Only run on track lemmas')
     
     args = parser.parse_args()
-    
+
+    if only_lemmas is None and args.on_track:
+        assertions_and_forall_needed = ["dedupCorrect", "maxIsCorrect"]
+        helper_calls_needed = ["flattenCorrect", "HeapHeightBound", "reverseAppend", "ReverseAppend", "reverse_involutes"]
+        both_assertions_and_helper_calls_needed = ["DequeueCorrect", "sumDistributive", "reverseReverse", "ReverseReverse", "reverse_append"]
+        only_lemmas = assertions_and_forall_needed + helper_calls_needed + both_assertions_and_helper_calls_needed
+
     main(lemma1, print_stats, args.file, args.lemma or only_lemmas)
 
