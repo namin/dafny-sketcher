@@ -46,7 +46,7 @@ def lemma1(lemma, p, stats):
                 use_llm=True,
                 llm_tries=2,
                 timeout=300,  # 5 minutes per lemma
-                verbose=False,
+                verbose=True,
                 out_dir=out_dir
             )
 
