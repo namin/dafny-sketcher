@@ -3,10 +3,12 @@ import os
 import tests
 import sketcher
 
-def main(lemma1, print_stats, solution_files=None, lemma_names=None):
+def main(lemma1, print_stats, solution_files=None, lemma_names=None, glob_pattern=None):
     stats = {}
+    if glob_pattern is None:
+        glob_pattern = "bench/*_solution.dfy"
     if not solution_files:
-        solution_files = sorted(glob.glob("bench/*_solution.dfy"))
+        solution_files = sorted(glob.glob(glob_pattern))
         solution_files = [f for f in solution_files if os.path.basename(f)[0].islower()]
     print(len(solution_files))
     print(solution_files)
@@ -37,15 +39,16 @@ def run(lemma1, print_stats, only_lemmas=None, on_track=False):
     parser = argparse.ArgumentParser(description='Run the bench suite')
     parser.add_argument('--file', type=str, action='append', help='Path to Dafny file to process (can be used multiple times)')
     parser.add_argument('--lemma', type=str, action='append', help='Name of lemma to process (can be used multiple times)')
-    parser.add_argument('--on-track', action='store_true', help='Only run on track lemmas')
+    parser.add_argument('--on-track', action='store_true', help='Only run on track lemmas (for default glob pattern)')
+    parser.add_argument('--glob-pattern', type=str, help='Glob pattern for solution files (default: "bench/*_solution.dfy")')
     
     args = parser.parse_args()
 
-    if only_lemmas is None and args.on_track:
+    if only_lemmas is None and args.glob_pattern is None and args.on_track:
         assertions_and_forall_needed = ["dedupCorrect", "maxIsCorrect"]
         helper_calls_needed = ["flattenCorrect", "HeapHeightBound", "reverseAppend", "ReverseAppend", "reverse_involutes"]
         both_assertions_and_helper_calls_needed = ["DequeueCorrect", "sumDistributive", "reverseReverse", "ReverseReverse", "reverse_append"]
         only_lemmas = assertions_and_forall_needed + helper_calls_needed + both_assertions_and_helper_calls_needed
 
-    main(lemma1, print_stats, args.file, args.lemma or only_lemmas)
+    main(lemma1, print_stats, args.file, args.lemma or only_lemmas, args.glob_pattern)
 
