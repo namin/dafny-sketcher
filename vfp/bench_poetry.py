@@ -12,6 +12,12 @@ import tempfile
 from dafny_poetry.api import verify_dafny
 
 USE_SKETCHERS = os.environ.get('USE_SKETCHERS', 'true').lower() != 'false'
+SERVER = os.environ.get('DAFNY_ANNOTATOR_SERVER')
+if SERVER is not None:
+    import annotator
+    oracle = annotator.annotate
+else:
+    oracle = None
 
 def lemma1(lemma, p, stats):
     """
@@ -44,7 +50,8 @@ def lemma1(lemma, p, stats):
                 llm_tries=2,
                 timeout=300,  # 5 minutes per lemma
                 verbose=True,
-                out_dir=out_dir
+                out_dir=out_dir,
+                oracle=oracle
             )
 
             if result.error:
