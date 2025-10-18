@@ -156,6 +156,12 @@ namespace DafnySketcherCli {
           }
           await Console.Out.WriteLineAsync(json);
         }
+        else if (sketchType == "proof_lines")
+        {
+          var lines = method == null ? ListProofLines(dafnyProgram) : ListProofLinesInMethod(method);
+          var json = JsonSerializer.Serialize(lines);
+          await Console.Out.WriteLineAsync(json);
+        }
         else
         {
           var sketcher = ISketcher.Create(sketchType, reporter);
@@ -358,6 +364,74 @@ namespace DafnySketcherCli {
       }
       return units;
     }
+    public static List<ProofLine> ListProofLines(Microsoft.Dafny.Program dafnyProgram)
+    {
+      var lines = new List<ProofLine>();
+      if (dafnyProgram.DefaultModuleDef is DefaultModuleDefinition defaultModule)
+      {
+        foreach (var (member, _) in defaultModule.AccessibleMembers)
+        {
+          if (member is Method m)
+          {
+            lines.AddRange(ListProofLinesInMethod(m));
+          }
+        }
+      }
+      return lines;
+    }
+    public static List<ProofLine> ListProofLinesInMethod(Method method)
+    {
+      var lines = new List<ProofLine>();
+      if (method.Body != null)
+      {
+        foreach (var s in method.Body.DescendantsAndSelf)
+        {
+          string? type = null;
+          if (s is AssertStmt)
+          {
+            type = "assert";
+          }
+          if (s is CallStmt)
+          {
+            type = "call";
+          }
+          if (s is WhileStmt ws)
+          {
+            lines.AddRange(ListProofLineInvariants(method, ws.Invariants));
+          }
+          if (type != null)
+          {
+            lines.Add(new ProofLine
+            {
+              method = method.Name,
+              startLine = s.StartToken.line,
+              startColumn = s.StartToken.col,
+              EndLine = s.EndToken.line,
+              EndColumn = s.EndToken.col,
+              Type = type
+            });
+          }
+        }
+      }
+      return lines;
+    }
+    public static List<ProofLine> ListProofLineInvariants(Method method, List<AttributedExpression> invariants)
+    {
+      var lines = new List<ProofLine>();
+      foreach (var inv in invariants)
+      {
+        lines.Add(new ProofLine
+        {
+          method = method.Name,
+          startLine = inv.StartToken.line,
+          startColumn = inv.StartToken.col,
+          EndLine = inv.EndToken.line,
+          EndColumn = inv.EndToken.col,
+          Type = "invariant"
+        });
+      }
+      return lines;
+    }
   }
   public class Unit
   {
@@ -380,5 +454,21 @@ namespace DafnySketcherCli {
     required public string Type { get; set; }
     [JsonPropertyName("status")]
     required public string Status { get; set; }
+  }
+  public class ProofLine
+  {
+    [JsonPropertyName("method")]
+    required public string method { get; set; }
+    [JsonPropertyName("startLine")]
+    required public int startLine { get; set; }
+    [JsonPropertyName("startColumn")]
+    required public int startColumn { get; set; }
+    [JsonPropertyName("endLine")]
+    required public int EndLine { get; set; }
+
+    [JsonPropertyName("endColumn")]
+    required public int EndColumn { get; set; }
+    [JsonPropertyName("type")]
+    required public string Type { get; set; }
   }
 }
