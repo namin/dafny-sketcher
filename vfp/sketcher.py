@@ -370,6 +370,18 @@ def sketch_counterexamples(file_input: str, method_name: Optional[str] = None) -
 
     return [x for x in result.split('\n') if x]
 
+def sketch_proof_lines(file_input: str, method: Optional[str] = None) -> list[object]:
+    """
+    List proof lines for a specific file.
+    
+    Args:
+        file_input: String content of the Dafny file
+    
+    Returns:
+        proof lines as JSON
+    """
+    result = dafny_sketcher(file_input, ['--sketch', 'proof_lines'] + (['--method', method] if method else []))
+    return json.loads(result) if result else []
 
 if __name__ == "__main__":
     import tests
