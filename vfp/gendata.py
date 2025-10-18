@@ -5,10 +5,10 @@ import driver
 
 def lemma1(lemma, p, stats):
     name = lemma['name']
-    stats[name] = []
+    stats["out"] = stats.get("out", [])
     lines = sketcher.sketch_proof_lines(p, name)
     for i, line in enumerate(lines):
-        stats[name].append(to_example(name, line, i, p))
+        stats["out"].append(to_example(name, line, i, p))
     print("Added", len(lines), "proof lines for", name)
 
 def to_example(name, line, i, p):
@@ -43,7 +43,7 @@ def to_example(name, line, i, p):
 def print_stats(stats):
     print(stats)
     with open('data.json', 'w') as f:
-        json.dump(stats, f)
+        json.dump(stats.get("out", []), f)
 
 if __name__ == "__main__":
     import bench_driver
