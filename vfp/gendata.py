@@ -36,14 +36,14 @@ def to_example(name, line, i, p):
     return {
         "id": "example_" + name + "_" + str(i),
         "type": line["type"],
-        "program_prompt": program_prompt,
-        "content": p
+        "program": program_prompt,
+        "output": proof_line
     }
 
 def print_stats(stats):
     print(stats)
     with open('data.json', 'w') as f:
-        json.dump({"nodes": stats}, f)
+        json.dump(stats, f)
 
 if __name__ == "__main__":
     import bench_driver
