@@ -3,16 +3,22 @@ import os
 import argparse
 
 SERVER = os.environ['DAFNY_ANNOTATOR_SERVER']
+DEBUG_ANNOTATOR = os.environ.get('DEBUG_ANNOTATOR', 'false').lower() != 'false'
 
 def endpoint(path: str, program: str):
+    if DEBUG_ANNOTATOR:
+        print(f"Annotator request on {path}")
+        print(program)
     url = f"{SERVER}/{path}"
     params = {"program": program}
     response = requests.post(url, params=params)
     
     # Raise an error if the server responded with 4xx/5xx
     response.raise_for_status()
-    
-    return response.json()
+    r = response.json()
+    if DEBUG_ANNOTATOR:
+        print(f"Annotator response: {r}")
+    return r
 
 def greedy_search(program: str):
     return endpoint("greedy_search", program)

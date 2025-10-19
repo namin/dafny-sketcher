@@ -11,13 +11,19 @@ import pathlib
 import tempfile
 from dafny_poetry.api import verify_dafny
 
+USE_LLM=os.environ.get('USE_LLM', 'true').lower() != 'false'
 USE_SKETCHERS = os.environ.get('USE_SKETCHERS', 'true').lower() != 'false'
 SERVER = os.environ.get('DAFNY_ANNOTATOR_SERVER')
 if SERVER is not None:
+    print('CONFIG: using oracle')
     import annotator
     oracle = annotator.annotate
 else:
+    print('CONFIG: NOT using oracle')
     oracle = None
+
+print('CONFIG: USE_LLM:', USE_LLM)
+print('CONFIG: USE_SKETCHERS:', USE_SKETCHERS)
 
 def lemma1(lemma, p, stats):
     """
@@ -46,7 +52,7 @@ def lemma1(lemma, p, stats):
                 xp,
                 max_depth=3,
                 use_sketcher=USE_SKETCHERS,
-                use_llm=True,
+                use_llm=USE_LLM,
                 llm_tries=2,
                 timeout=300,  # 5 minutes per lemma
                 verbose=True,
