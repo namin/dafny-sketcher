@@ -50,7 +50,7 @@ def lemma1(lemma, p, stats):
             # Run POETRY on the program
             result = verify_dafny(
                 xp,
-                max_depth=3,
+                max_depth=4,
                 use_sketcher=USE_SKETCHERS,
                 use_llm=USE_LLM,
                 llm_tries=2,
