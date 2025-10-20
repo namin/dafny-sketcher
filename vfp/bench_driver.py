@@ -43,6 +43,7 @@ def run(lemma1, print_stats, only_lemmas=None, on_track=False):
     parser.add_argument('--lemma', type=str, action='append', help='Name of lemma to process (can be used multiple times)')
     parser.add_argument('--skip-file', type=str, action='append', help='Path to Dafny file to skip (can be used multiple times)')
     parser.add_argument('--on-track', action='store_true', help='Only run on track lemmas (for default glob pattern)')
+    parser.add_argument('--for-poetry', action='store_true', help='Only run on the lemmas suitable for poetry')
     parser.add_argument('--glob-pattern', type=str, help='Glob pattern for solution files (default: "bench/*_solution.dfy")')
     
     args = parser.parse_args()
@@ -52,6 +53,7 @@ def run(lemma1, print_stats, only_lemmas=None, on_track=False):
         helper_calls_needed = ["flattenCorrect", "HeapHeightBound", "reverseAppend", "ReverseAppend", "reverse_involutes"]
         both_assertions_and_helper_calls_needed = ["DequeueCorrect", "sumDistributive", "reverseReverse", "ReverseReverse", "reverse_append"]
         only_lemmas = assertions_and_forall_needed + helper_calls_needed + both_assertions_and_helper_calls_needed
-
+    if only_lemmas is None and args.glob_pattern is None and args.for_poetry:
+        only_lemmas = ['binarySearchCorrect', 'flattenCorrect', 'SingleNodeAcyclic', 'HeapHeightBound', 'ReverseLength', 'ReverseReverse', 'GcdDividesBoth', 'reverseAppend', 'reverseReverse', 'ReverseAppend', 'QueueSizeProperty', 'RevAcc_Helper', 'RevAcc_Correct'] 
     main(lemma1, print_stats, args.file, args.lemma or only_lemmas, args.glob_pattern, args.skip_file)
 
