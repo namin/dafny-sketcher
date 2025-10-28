@@ -25,7 +25,7 @@ Additional projects:
 
 ## Instructions to run `bench_poetry`
 
-# in one shell, run the dafny-annotator oracle
+### in one shell, run the dafny-annotator oracle
 - Choose the LLM configuration as follows:
 ```
 export MLX_API_KEY=mlx
@@ -34,7 +34,7 @@ export MLX_MODEL=metareflection/dafny-annotator-modular-vfp-4B
 Run `python llm.py --test` as a sanity check.
 - Optionally set `export VFP_MODULAR=true`.
 - Run the annotation server: `uvicorn annotator_server:app --host 127.0.0.1 --port 8000 --log-level debug`.
-# in another shell
+### in another shell
 - Choose an LLM configuration from [llm.py](llm.py). For example:
 ```
 export OLLAMA_API_KEY=ollama
