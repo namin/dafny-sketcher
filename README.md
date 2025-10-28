@@ -24,6 +24,9 @@ The submodules are forked (namin) branches (sketcher) of the Dafny repositories:
 
 ### LLM models
 
+This is optional, and only to use the AI sketchers in the IDE.
+VFP has a separate mechanism to configure an LLM.
+
 #### Configuration
 You can specify by environment export `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, or else Ollama is assumed available by default.
 
