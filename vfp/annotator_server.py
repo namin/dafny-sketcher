@@ -1,6 +1,9 @@
 from fastapi import FastAPI
 from typing import List, Optional
 from llm import default_generate as generate
+import os
+
+NUM_PROPOSALS = int(os.environ.get('NUM_PROPOSALS', '2'))
 
 app = FastAPI()
 
@@ -59,11 +62,13 @@ Action:"""
 
     return p + ' ' + f'\n{END}\n'
 
-def annotate1(program: str) -> str:
+def annotate1(program: str) -> List[str]:
     r = generate(make_prompt(program))
-    assert r.endswith('\n'+END)
-    return r[:-len('\n'+END)]
-
+    return [y for y in [x.strip() for x in r.split(END)] if y]
+    
 @app.post("/annotate")
 async def annotate(program: str) -> List[str]:
-    return [annotate1(program) for i in range(0, 2)]
+    r = []
+    while len(r) < NUM_PROPOSALS:
+        r += annotate1(program)
+    return r
