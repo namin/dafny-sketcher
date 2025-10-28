@@ -17,3 +17,8 @@ Some solvers here:
 The file [vermcts.json](vermcts.json) contains the raw prompts from VerMCTS in the format used by DafnySynth, part of [dafny-annotator](https://github.com/metareflection/dafny-annotator).
 The [bench](bench) directory contains starting points (as `_spec` or as `_buggy`) and solutions (as `_solution`).
 These problems are already well within reach of Claude Code, so we should only consider the first step as a catch up.
+
+Additional projects:
+- [dafny-tasker](https://github.com/metareflection/dafny-tasker): create annotation tasks for training [dafny-annotator](https://github.com/metareflection/dafny-tasker); supersedes [gendata.py](gendata.py)
+- [dafny-admitter](https://github.com/metareflection/dafny-admitter): make failure points explicit
+- [dafny-poetry](https://github.com/metareflection/dafny-poetry): orchestrate proving recursively
