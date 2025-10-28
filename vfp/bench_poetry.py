@@ -51,6 +51,7 @@ def lemma1(lemma, p, stats):
             result = verify_dafny(
                 xp,
                 max_depth=4,
+                max_branches=2,  # Limit both LLM and Oracle candidates
                 use_sketcher=USE_SKETCHERS,
                 use_llm=USE_LLM,
                 llm_tries=2,

@@ -395,8 +395,6 @@ if __name__ == "__main__":
         print(show_errors(p))
         print("SHOW ERRORS FOR SOLUTION")
         print(show_errors(tests.read_file('bench/bst_solution.dfy')))
-        print("LIST ERRORS FOR TEST FILE")
-        print(list_errors_for_method(tests.read_file('test.dfy'), "reverse_involutes"))
 
     if False:
         print('StlcDemo')
