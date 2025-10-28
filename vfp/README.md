@@ -8,10 +8,11 @@ Caching is available through `joblib`. Options include:
 - `CACHE_LLM` to cache LLM calls, per distinct provider/model/prompt.
 - `CACHE_DAFNY` to cache Dafny Sketcher CLI calls.
 
-Currently, there are three solvers:
+Some solvers here:
 - [driver.py](driver.py) which also contain all the code surrounding a solver
 - [mcts.py](mcts.py) which recapitulates the approach from [VerMCTS](https://github.com/namin/llm-verified-with-monte-carlo-tree-search) but using more principled structured editing (and sketching!) instead of ad-hoc left-to-right editing
 - [fine.py](fine.py) which features finer-grained edits, for example, to fill in each case in inductive sketch as separate edits.
+- The `bench_` files also show some solvers and orchestration loops.
 
 The file [vermcts.json](vermcts.json) contains the raw prompts from VerMCTS in the format used by DafnySynth, part of [dafny-annotator](https://github.com/metareflection/dafny-annotator).
 The [bench](bench) directory contains starting points (as `_spec` or as `_buggy`) and solutions (as `_solution`).
