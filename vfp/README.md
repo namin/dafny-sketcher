@@ -22,3 +22,25 @@ Additional projects:
 - [dafny-tasker](https://github.com/metareflection/dafny-tasker): create annotation tasks for training [dafny-annotator](https://github.com/metareflection/dafny-tasker); supersedes [gendata.py](gendata.py)
 - [dafny-admitter](https://github.com/metareflection/dafny-admitter): make failure points explicit
 - [dafny-poetry](https://github.com/metareflection/dafny-poetry): orchestrate proving recursively
+
+## Instructions to run `bench_poetry`
+
+# in one shell, run the dafny-annotator oracle
+- Choose the LLM configuration as follows:
+```
+export MLX_API_KEY=mlx
+export MLX_MODEL=metareflection/dafny-annotator-modular-vfp-4B
+```
+Run `python llm.py --test` as a sanity check.
+- Optionally set `export VFP_MODULAR=true`.
+- Run the annotation server: `uvicorn annotator_server:app --host 127.0.0.1 --port 8000 --log-level debug`.
+# in another shell
+- Choose an LLM configuration from [llm.py](llm.py). For example:
+```
+export OLLAMA_API_KEY=ollama
+export OLLAMA_MODEL=gemma3:12b
+```
+- Probably `export USE_LLM=false` to just try with the inductive sketcher and oracle but without additional LLMs.
+- `export DAFNY_ANNOTATOR_SERVER=http://localhost:8000` matching your first shell.
+- Try a small run: `python bench_poetry.py --lemma flattenCorrect --lemma Insert_New_Min --lemma ReverseLength --lemma HeapHeightBound`.
+  This should score 2/4 for solving `flattenCorrect` and `ReverseLength`.
