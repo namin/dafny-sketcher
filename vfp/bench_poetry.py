@@ -14,6 +14,7 @@ from dafny_poetry.api import verify_dafny
 USE_LLM=os.environ.get('USE_LLM', 'true').lower() != 'false'
 USE_SKETCHERS = os.environ.get('USE_SKETCHERS', 'true').lower() != 'false'
 SERVER = os.environ.get('DAFNY_ANNOTATOR_SERVER')
+SKETCH_SERVER = os.environ.get('SKETCH_DAFNY_ANNOTATOR_SERVER')
 if SERVER is not None:
     print('CONFIG: using oracle')
     import annotator
@@ -21,6 +22,14 @@ if SERVER is not None:
 else:
     print('CONFIG: NOT using oracle')
     oracle = None
+if SKETCH_SERVER is not None:
+    print('CONFIG: using sketch oracle')
+    import annotator
+    sketch_oracle = annotator.sketch
+else:
+    print('CONFIG: NOT using sketch oracle')
+    sketch_oracle = None
+
 
 print('CONFIG: USE_LLM:', USE_LLM)
 print('CONFIG: USE_SKETCHERS:', USE_SKETCHERS)
@@ -59,7 +68,8 @@ def lemma1(lemma, p, stats):
                 timeout=300,  # 5 minutes per lemma
                 verbose=True,
                 out_dir=out_dir,
-                oracle=oracle
+                oracle=oracle,
+                sketch_oracle=sketch_oracle
             )
 
             if result.error:

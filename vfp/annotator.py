@@ -5,7 +5,8 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-SERVER = os.environ['DAFNY_ANNOTATOR_SERVER']
+SERVER = os.environ.get('DAFNY_ANNOTATOR_SERVER')
+SKETCH_SERVER = os.environ.get('SKETCH_DAFNY_ANNOTATOR_SERVER')
 DEBUG_ANNOTATOR = os.environ.get('DEBUG_ANNOTATOR', 'false').lower() != 'false'
 VFP_MODULAR = os.environ.get('VFP_MODULAR', 'false').lower() != 'false'
 
@@ -68,7 +69,7 @@ def axiomatize_program(program: str) -> str:
         except Exception:
             pass
 
-def endpoint(path: str, program: str):
+def endpoint(path: str, program: str, server: str = SERVER):
     # Axiomatize the program if VFP_MODULAR is set
     if VFP_MODULAR:
         if DEBUG_ANNOTATOR:
@@ -78,7 +79,7 @@ def endpoint(path: str, program: str):
     if DEBUG_ANNOTATOR:
         print(f"Annotator request on {path}")
         print(program)
-    url = f"{SERVER}/{path}"
+    url = f"{server}/{path}"
     params = {"program": program}
     response = requests.post(url, params=params)
     
@@ -95,11 +96,14 @@ def greedy_search(program: str):
 def annotate(program: str):
     return endpoint("annotate", program)
 
+def sketch(program: str):
+    return endpoint("annotate", program, server=SKETCH_SERVER)
+
 def main():
     parser = argparse.ArgumentParser(description='Run greedy search on Dafny programs')
     parser.add_argument('file', nargs='?', help='Dafny file to process')
     parser.add_argument('--program', '-p', help='Dafny program as string (alternative to file)')
-    parser.add_argument('--endpoint', '-e', choices=['greedy_search', 'annotate'], help='Endpoint to use', default='greedy_search')
+    parser.add_argument('--endpoint', '-e', choices=['greedy_search', 'annotate', 'sketch'], help='Endpoint to use', default='annotate')
     
     args = parser.parse_args()
     
@@ -123,8 +127,19 @@ def main():
     }
     """
     
-    result = endpoint(args.endpoint, program)
-    print(result)
+    point = args.endpoint
+    if args.endpoint == 'sketch':
+        point = 'annotate'
+        server = SKETCH_SERVER
+    else:
+        server = SERVER
+    result = endpoint(point, program, server)
+    if isinstance(result, list):
+        for x in result:
+            print(x)
+            print('-' * 40)
+    else:
+        print(result)
 
 if __name__ == "__main__":
     main()
