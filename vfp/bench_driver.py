@@ -9,7 +9,8 @@ def main(lemma1, print_stats, solution_files=None, lemma_names=None, glob_patter
         glob_pattern = "bench/*_solution.dfy"
     if not solution_files:
         solution_files = sorted(glob.glob(glob_pattern))
-        solution_files = [f for f in solution_files if os.path.basename(f)[0].islower()]
+        if glob_pattern == "bench/*_solution.dfy":
+            solution_files = [f for f in solution_files if os.path.basename(f)[0].islower()]
     if skip_files:
         solution_files = [f for f in solution_files if f not in skip_files]
     print(len(solution_files))
