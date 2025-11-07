@@ -69,13 +69,23 @@ async def setup_lemma_agenda(lemma, p, output_dir):
     )
     obj_path = await agenda.create_object(obj)
 
-    # Create initial POETRY task
-    task = Task(
+    # Create initial POETRY tasks - both inductive sketcher and sketch oracle
+    # These are alternative paths that both work on the original problem
+    task1 = Task(
         id=f"{name}-initial",
         type="poetry.inductive_sketch",
         properties={"dfy_path": obj_path}
     )
-    await agenda.add_task(task)
+    await agenda.add_task(task1)
+
+    # Sketch oracle also works on the original problem (alternative to inductive sketcher)
+    # The method name is the same as the lemma name
+    task2 = Task(
+        id=f"sketch-{name}-initial",
+        type="poetry.sketch_oracle",
+        properties={"dfy_path": obj_path, "method": name}
+    )
+    await agenda.add_task(task2)
 
     print(f'  Created agenda at: {checkpoint_path}')
     return checkpoint_path
