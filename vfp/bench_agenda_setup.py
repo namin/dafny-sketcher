@@ -1,5 +1,5 @@
 """
-Setup agendas for POETRY benchmark using agenda-based scheduling.
+Setup agendas for benchmark using agenda-based scheduling.
 
 Creates one agenda per lemma, ready to be executed by the scheduler.
 
@@ -69,23 +69,17 @@ async def setup_lemma_agenda(lemma, p, output_dir):
     )
     obj_path = await agenda.create_object(obj)
 
-    # Create initial POETRY tasks - both inductive sketcher and sketch oracle
-    # These are alternative paths that both work on the original problem
-    task1 = Task(
-        id=f"{name}-initial",
-        type="poetry.inductive_sketch",
-        properties={"dfy_path": obj_path}
+    # Create a single generic lemma solving task
+    # The scheduler decides which solving strategy to use
+    task = Task(
+        id=f"solve-{name}",
+        type="lemma_solve",
+        properties={
+            "dfy_path": obj_path,
+            "lemma_name": name
+        }
     )
-    await agenda.add_task(task1)
-
-    # Sketch oracle also works on the original problem (alternative to inductive sketcher)
-    # The method name is the same as the lemma name
-    task2 = Task(
-        id=f"sketch-{name}-initial",
-        type="poetry.sketch_oracle",
-        properties={"dfy_path": obj_path, "method": name}
-    )
-    await agenda.add_task(task2)
+    await agenda.add_task(task)
 
     print(f'  Created agenda at: {checkpoint_path}')
     return checkpoint_path
@@ -127,7 +121,7 @@ def print_stats(stats):
     print(f'    +scheduler=poetry llm=aws')
     print(f'\nTo run all lemmas:')
     print(f'  cd {AGENDA_SYSTEM_PATH}')
-    print(f'  python bench_agenda_run.py {stats["output_dir"]}')
+    print(f'  python poetry/bench_agenda_run.py {stats["output_dir"]}')
     print(f'{"="*80}\n')
 
 
@@ -142,7 +136,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     # Parse output directory argument (in addition to bench_driver args)
-    parser = argparse.ArgumentParser(description='Setup POETRY agendas')
+    parser = argparse.ArgumentParser(description='Setup agendas for lemma solving')
     parser.add_argument('--output-dir', type=str, default='bench_agendas',
                         help='Directory to store agenda checkpoints (default: bench_agendas)')
 
