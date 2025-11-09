@@ -172,7 +172,20 @@ namespace DafnySketcherCli {
             return;
           }
 
-          var req = new SketchRequest(dafnyProgram, source, method, sketchType, startLine, 0/* indent */, prompt);
+          // For induction-based sketch types, ensure the method body is empty
+          // This allows the sketcher to make the correct choice between structural and rule induction
+          var sourceToUse = source;
+
+          if ((sketchType == "induction" || sketchType == "induction_search") && method != null && method.Body != null)
+          {
+            sourceToUse = Utility.EmptyMethodBody(source, method);
+
+            // Clear the method body in the AST as well, since the sketcher looks at method.Body
+            // We do this by modifying the Body.Body list (the list of statements in the block statement)
+            method.Body.Body.Clear();
+          }
+
+          var req = new SketchRequest(dafnyProgram, sourceToUse, method, sketchType, startLine, 0/* indent */, prompt);
           var resp = await sketcher.GenerateSketch(req);
           var sketch = resp.Sketch;
           var result = sketch;
