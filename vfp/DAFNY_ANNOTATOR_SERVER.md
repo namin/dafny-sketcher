@@ -33,3 +33,20 @@ Finally, convert:
 ```
 mlx_lm.convert --hf-path vfp-finetuned_Meta-Llama-3.1-8B --mlx-path vfp-finetuned_Meta-Llama-3.1-8B-mlx
 ```
+
+## Alternative quick cheatsheet
+
+Push the full model to huggingface:
+```
+huggingface-cli upload $MODEL_USER_NAME $MODEL_LOCAL_PATH .
+```
+
+On mac, convert the model to MLX:
+```
+python -m mlx_lm.convert --hf-path $MODEL_USER_NAME
+```
+
+You might need to add a `README.md`. You can clone the repo to add with:
+```
+GIT_LFS_SKIP_SMUDGE=1 git clone --depth 1 https://huggingface.co/$MODEL_USER_NAME
+```
