@@ -20,10 +20,10 @@ def debug(msg: str):
     if DEBUG_LLM:
         print(f"DEBUG: {msg}")
 
+def error_generate(*args):
+    raise ValueError(f"No LLM generators are available. See llm.py for configuration options.")
+
 def dummy_generate(pkg, extra=""):
-    # def generate(*args):
-    #     raise ValueError(f"Need to install pip package '{pkg}'"+extra)
-    # return generate
     raise ValueError(f"Need to install pip package '{pkg}'"+extra)
 
 models = {}
@@ -236,7 +236,7 @@ if OLLAMA_API_KEY:
     try:
         import ollama
     except ModuleNotFoundError:
-        generate = dummy_generate('ollama', extra=", or package 'anthropic' while setting ANTHROPIC_API_KEY")
+        generate = dummy_generate('ollama')
     if generate is None:
         model = os.environ.get('OLLAMA_MODEL', 'gemma3:27b')
         def generate(prompt, max_tokens=1000, temperature=TEMPERATURE, model=model):
@@ -308,7 +308,8 @@ def pick_generate():
     gs = [(key, generators[key]) for key in generators.keys() if key is not None]
     if gs:
         return gs[0]
-    raise ValueError("No generators available")
+    print("WARNING: No generators available")
+    return None, error_generate
 
 default_provider, default_generate = pick_generate()
 
@@ -362,7 +363,7 @@ def extract_code_blocks(response: str) -> List[str]:
 if __name__ == '__main__':
     print('available providers:', list(generators.keys()))
     print('picked provider:', default_provider)
-    print('default model:', models[default_provider])
+    print('default model:', models[default_provider] if default_provider else None)
     import sys
     if len(sys.argv) > 1:
         print(default_generate('Who are you?'))
