@@ -276,13 +276,14 @@ def show_errors(file_input: str) -> Optional[str]:
     return result or None
 
 
-def sketch_induction(file_input: str, method_name: Optional[str] = None) -> str:
+def sketch_induction(file_input: str, method_name: str, shallow: bool = False) -> str:
     """
     Sketch induction for a specific method.
     
     Args:
         file_input: String content of the Dafny file
         method_name: Name of the method to sketch induction for
+        shallow: Whether induction sketch is shallow (default: False).
     
     Returns:
         Induction sketch or error message
@@ -290,7 +291,7 @@ def sketch_induction(file_input: str, method_name: Optional[str] = None) -> str:
     if not method_name:
         return "Error: missing parameter for method name"
     
-    result = dafny_sketcher(file_input, ['--sketch', 'induction_search', '--method', method_name])
+    result = dafny_sketcher(file_input, ['--sketch', ('shallow_' if shallow else '')+'induction_search', '--method', method_name])
     
     if result and "// Error: No method resolved." in result:
         return "Error: No method resolved. Either the method name could not be found or there is a parse error early on. Use show_errors for details on errors."
@@ -408,6 +409,7 @@ if __name__ == "__main__":
         print(sketch_done(tests.nat_module))
         print(show_errors(tests.nat_module_empty_lemma_body))
         print(sketch_induction(tests.nat_module_empty_lemma_body, "add_comm"))
+        print(sketch_induction(tests.nat_module_empty_lemma_body, "add_comm", shallow=True))   
 
     if False:
         print(sketch_todo("""
