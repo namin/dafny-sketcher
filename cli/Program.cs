@@ -198,10 +198,15 @@ namespace DafnySketcherCli {
             // 3) Compute replace range
             int start = startLine, end = endLine;
 
-            // 4) Replace those lines
+            // 4) Replace those lines (ensure count is non-negative)
             var sketchLines = sketch.Split('\n');
-            lines.RemoveRange(start, end - start);
-            lines.InsertRange(start, sketchLines);
+            int removeCount = Math.Max(0, end - start);
+            if (start >= 0 && start <= lines.Count)
+            {
+              removeCount = Math.Min(removeCount, lines.Count - start);
+              lines.RemoveRange(start, removeCount);
+              lines.InsertRange(start, sketchLines);
+            }
 
             // 5) Output
             result = string.Join("\n", lines);
