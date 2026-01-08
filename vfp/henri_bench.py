@@ -8,12 +8,14 @@ Usage:
     python henri_bench.py
     python henri_bench.py --file bench/binary_search_solution.dfy
     python henri_bench.py --file bench/reverse_solution.dfy --lemma reverseLength
-    USE_SKETCHER=true python henri_bench.py
+    USE_SKETCHERS=true python henri_bench.py
     MAX_TURNS=10 python henri_bench.py
 
 Environment variables:
-    USE_SKETCHER: Set to 'true' to include the dafny_sketcher hook
+    USE_SKETCHERS: Set to 'true' to include the dafny_sketcher hook
     MAX_TURNS: Maximum conversation turns for henri (default: 4)
+    MODEL: Model ID to use (e.g., us.anthropic.claude-opus-4-5-20250929-v1:0)
+    PROVIDER: LLM provider (e.g., bedrock, google, vertex, ollama)
     KEEP_TMP: Set to 'true' to keep temp files for debugging
 """
 
@@ -42,7 +44,7 @@ def empty_lemma_body(lemma, program):
     return driver.insert_program_todo(lemma, program, "")
 
 
-def run_henri(problem_file_path, use_sketcher=False, timeout=300, max_turns=None):
+def run_henri(problem_file_path, use_sketcher=False, timeout=300, max_turns=None, model=None, provider=None):
     """
     Run henri as a subprocess to solve the Dafny verification problem.
 
@@ -51,6 +53,8 @@ def run_henri(problem_file_path, use_sketcher=False, timeout=300, max_turns=None
         use_sketcher: Whether to include the dafny_sketcher hook
         timeout: Timeout in seconds (default 300 = 5 minutes)
         max_turns: Maximum conversation turns for henri (default None = unlimited)
+        model: Model ID to use (default None = henri's default)
+        provider: LLM provider to use (default None = henri's default)
 
     Returns:
         tuple: (success: bool, output: str, elapsed_time: float)
@@ -75,6 +79,12 @@ def run_henri(problem_file_path, use_sketcher=False, timeout=300, max_turns=None
 
     if max_turns is not None:
         cmd.extend(['--max-turns', str(max_turns)])
+
+    if model is not None:
+        cmd.extend(['--model', model])
+
+    if provider is not None:
+        cmd.extend(['--provider', provider])
 
     start_time = time.time()
     try:
@@ -156,8 +166,10 @@ def lemma1(lemma, program, stats):
     name = lemma['name']
     print(f'lemma {name}')
 
-    use_sketcher = os.environ.get('USE_SKETCHER', 'false').lower() in ('true', '1', 'yes')
+    use_sketcher = os.environ.get('USE_SKETCHERS', 'false').lower() in ('true', '1', 'yes')
     max_turns = int(os.environ.get('MAX_TURNS', '4'))
+    model = os.environ.get('MODEL')
+    provider = os.environ.get('PROVIDER')
 
     # Step 1: Create problem file (solution with empty lemma body)
     problem_content = empty_lemma_body(lemma, program)
@@ -176,8 +188,8 @@ def lemma1(lemma, program, stats):
 
     try:
         # Step 3: Run henri
-        print(f'  Running henri (USE_SKETCHER={use_sketcher}, MAX_TURNS={max_turns})...')
-        success, output, elapsed = run_henri(problem_file, use_sketcher=use_sketcher, max_turns=max_turns)
+        print(f'  Running henri (USE_SKETCHERS={use_sketcher}, MAX_TURNS={max_turns}, MODEL={model}, PROVIDER={provider})...')
+        success, output, elapsed = run_henri(problem_file, use_sketcher=use_sketcher, max_turns=max_turns, model=model, provider=provider)
 
         if not success:
             print(f'  :( henri failed: {output[:200]}')
