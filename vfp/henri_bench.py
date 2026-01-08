@@ -56,7 +56,8 @@ def run_henri(problem_file_path, use_sketcher=False, timeout=300, max_turns=None
         tuple: (success: bool, output: str, elapsed_time: float)
     """
     filename = Path(problem_file_path).name
-    prompt = f"Make the file {filename} verify in Dafny. Only add lines; do not delete any line except whitespace."
+    tools_hint = " You have access to dafny_sketcher for induction sketches." if use_sketcher else ""
+    prompt = f"Make the file {filename} verify in Dafny. Only add lines; do not delete any line except whitespace. You have access to dafny_verify to check your work.{tools_hint} Verify your solution before finishing."
 
     # Build hooks list
     hooks = [
