@@ -9,9 +9,12 @@ Usage:
     python henri_bench.py --file bench/binary_search_solution.dfy
     python henri_bench.py --file bench/reverse_solution.dfy --lemma reverseLength
     USE_SKETCHER=true python henri_bench.py
+    MAX_TURNS=10 python henri_bench.py
 
 Environment variables:
     USE_SKETCHER: Set to 'true' to include the dafny_sketcher hook
+    MAX_TURNS: Maximum conversation turns for henri (default: 4)
+    KEEP_TMP: Set to 'true' to keep temp files for debugging
 """
 
 import os
@@ -39,7 +42,7 @@ def empty_lemma_body(lemma, program):
     return driver.insert_program_todo(lemma, program, "")
 
 
-def run_henri(problem_file_path, use_sketcher=False, timeout=300):
+def run_henri(problem_file_path, use_sketcher=False, timeout=300, max_turns=None):
     """
     Run henri as a subprocess to solve the Dafny verification problem.
 
@@ -47,6 +50,7 @@ def run_henri(problem_file_path, use_sketcher=False, timeout=300):
         problem_file_path: Absolute path to the .dfy file with empty lemma body
         use_sketcher: Whether to include the dafny_sketcher hook
         timeout: Timeout in seconds (default 300 = 5 minutes)
+        max_turns: Maximum conversation turns for henri (default None = unlimited)
 
     Returns:
         tuple: (success: bool, output: str, elapsed_time: float)
@@ -67,6 +71,9 @@ def run_henri(problem_file_path, use_sketcher=False, timeout=300):
     cmd = ['henri']
     for hook in hooks:
         cmd.extend(['--hook', hook])
+
+    if max_turns is not None:
+        cmd.extend(['--max-turns', str(max_turns)])
 
     start_time = time.time()
     try:
@@ -149,6 +156,7 @@ def lemma1(lemma, program, stats):
     print(f'lemma {name}')
 
     use_sketcher = os.environ.get('USE_SKETCHER', 'false').lower() in ('true', '1', 'yes')
+    max_turns = int(os.environ.get('MAX_TURNS', '4'))
 
     # Step 1: Create problem file (solution with empty lemma body)
     problem_content = empty_lemma_body(lemma, program)
@@ -167,8 +175,8 @@ def lemma1(lemma, program, stats):
 
     try:
         # Step 3: Run henri
-        print(f'  Running henri (USE_SKETCHER={use_sketcher})...')
-        success, output, elapsed = run_henri(problem_file, use_sketcher=use_sketcher)
+        print(f'  Running henri (USE_SKETCHER={use_sketcher}, MAX_TURNS={max_turns})...')
+        success, output, elapsed = run_henri(problem_file, use_sketcher=use_sketcher, max_turns=max_turns)
 
         if not success:
             print(f'  :( henri failed: {output[:200]}')
