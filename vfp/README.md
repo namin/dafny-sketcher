@@ -22,6 +22,7 @@ Additional projects:
 - [dafny-tasker](https://github.com/metareflection/dafny-tasker): create annotation tasks for training [dafny-annotator](https://github.com/metareflection/dafny-tasker); supersedes [gendata.py](gendata.py)
 - [dafny-admitter](https://github.com/metareflection/dafny-admitter): make failure points explicit
 - [dafny-poetry](https://github.com/metareflection/dafny-poetry): orchestrate proving recursively
+- [henri](https://github.com/metareflection/henri): agent CLI with explicit control via tools, permissions, and hooks
 
 ## Instructions to run `bench_poetry`
 
