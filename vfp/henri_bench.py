@@ -44,7 +44,7 @@ def empty_lemma_body(lemma, program):
     return driver.insert_program_todo(lemma, program, "")
 
 
-def run_henri(problem_file_path, use_sketcher=False, timeout=300, max_turns=None, model=None, provider=None):
+def run_henri(problem_file_path, use_sketcher=False, timeout=300, max_turns=None, model=None, provider=None, keep_tmp=False):
     """
     Run henri as a subprocess to solve the Dafny verification problem.
 
@@ -55,9 +55,10 @@ def run_henri(problem_file_path, use_sketcher=False, timeout=300, max_turns=None
         max_turns: Maximum conversation turns for henri (default None = unlimited)
         model: Model ID to use (default None = henri's default)
         provider: LLM provider to use (default None = henri's default)
+        keep_tmp: Whether to keep temp files (default False)
 
     Returns:
-        tuple: (success: bool, output: str, elapsed_time: float)
+        tuple: (success: bool, henri_stats: dict | None, error: str | None, elapsed_time: float)
     """
     filename = Path(problem_file_path).name
     tools_hint = " You have access to dafny_sketcher for induction sketches." if use_sketcher else ""
@@ -86,6 +87,10 @@ def run_henri(problem_file_path, use_sketcher=False, timeout=300, max_turns=None
     if provider is not None:
         cmd.extend(['--provider', provider])
 
+    # Stats file has same base name as problem file but with .json extension
+    stats_file = str(Path(problem_file_path).with_suffix('.json'))
+    cmd.extend(['--stats-file', stats_file])
+
     start_time = time.time()
     try:
         # Don't capture output - let it stream to terminal
@@ -97,13 +102,29 @@ def run_henri(problem_file_path, use_sketcher=False, timeout=300, max_turns=None
             cwd=str(Path(problem_file_path).parent),
         )
         elapsed = time.time() - start_time
-        return True, f"[exit code {result.returncode}]", elapsed
+
+        # Read stats from file
+        import json
+        henri_stats = None
+        try:
+            with open(stats_file, 'r') as f:
+                henri_stats = json.load(f)
+        except:
+            pass
+        finally:
+            if not keep_tmp:
+                try:
+                    os.unlink(stats_file)
+                except:
+                    pass
+
+        return True, henri_stats, None, elapsed
     except subprocess.TimeoutExpired:
         elapsed = time.time() - start_time
-        return False, f"[timeout after {timeout} seconds]", elapsed
+        return False, None, f"[timeout after {timeout} seconds]", elapsed
     except Exception as e:
         elapsed = time.time() - start_time
-        return False, f"[error: {e}]", elapsed
+        return False, None, f"[error: {e}]", elapsed
 
 
 def diff_check(original, modified):
@@ -170,6 +191,7 @@ def lemma1(lemma, program, stats):
     max_turns = int(os.environ.get('MAX_TURNS', '4'))
     model = os.environ.get('MODEL')
     provider = os.environ.get('PROVIDER')
+    keep_tmp = os.environ.get('KEEP_TMP', 'false').lower() in ('true', '1', 'yes')
 
     # Step 1: Create problem file (solution with empty lemma body)
     problem_content = empty_lemma_body(lemma, program)
@@ -189,18 +211,19 @@ def lemma1(lemma, program, stats):
     try:
         # Step 3: Run henri
         print(f'  Running henri (USE_SKETCHERS={use_sketcher}, MAX_TURNS={max_turns}, MODEL={model}, PROVIDER={provider})...')
-        success, output, elapsed = run_henri(problem_file, use_sketcher=use_sketcher, max_turns=max_turns, model=model, provider=provider)
+        success, henri_stats, error, elapsed = run_henri(problem_file, use_sketcher=use_sketcher, max_turns=max_turns, model=model, provider=provider, keep_tmp=keep_tmp)
 
         if not success:
-            print(f'  :( henri failed: {output[:200]}')
+            print(f'  :( henri failed: {error}')
             stats[name] = {
                 'status': 'henri_error',
-                'error': output,
+                'error': error,
                 'elapsed': elapsed,
             }
             return
 
-        print(f'  henri completed in {elapsed:.1f}s')
+        turns = henri_stats.get('turns') if henri_stats else None
+        print(f'  henri completed in {elapsed:.1f}s (turns={turns})')
 
         # Step 4: Read back the modified file
         try:
@@ -224,7 +247,7 @@ def lemma1(lemma, program, stats):
                 'status': 'diff_invalid',
                 'reason': diff_reason,
                 'elapsed': elapsed,
-                'output': output,
+                'henri_stats': henri_stats,
             }
             return
 
@@ -238,6 +261,7 @@ def lemma1(lemma, program, stats):
                 'elapsed': elapsed,
                 'proof': modified_content,
                 'additions': len(additions),
+                'henri_stats': henri_stats,
             }
         else:
             print(f'  :( verification failed with {len(errors)} errors')
@@ -246,11 +270,11 @@ def lemma1(lemma, program, stats):
                 'errors': errors,
                 'elapsed': elapsed,
                 'proof': modified_content,
+                'henri_stats': henri_stats,
             }
 
     finally:
         # Cleanup temp file unless KEEP_TMP is set
-        keep_tmp = os.environ.get('KEEP_TMP', 'false').lower() in ('true', '1', 'yes')
         if keep_tmp:
             print(f'  temp file kept: {problem_file}')
         else:
@@ -285,6 +309,15 @@ def print_stats(stats):
         print(f'  Total:   {sum(elapsed_times):.1f}s')
         print(f'  Average: {sum(elapsed_times)/len(elapsed_times):.1f}s')
         print(f'  Max:     {max(elapsed_times):.1f}s')
+
+    # Print turns stats
+    turns_list = [r['henri_stats']['turns'] for r in stats.values()
+                  if r.get('henri_stats') and r['henri_stats'].get('turns')]
+    if turns_list:
+        print(f'\nTurns:')
+        print(f'  Total:   {sum(turns_list)}')
+        print(f'  Average: {sum(turns_list)/len(turns_list):.1f}')
+        print(f'  Max:     {max(turns_list)}')
 
     # List successes
     successes = [name for name, r in stats.items() if r.get('status') == 'success']
