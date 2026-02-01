@@ -46,7 +46,7 @@ if AWS_BEARER_TOKEN_BEDROCK:
             claude_model = os.environ.get('CLAUDE_MODEL', 'sonnet3')
             if claude_model == 'opus' or claude_model == 'opus45':
                 model = 'us.anthropic.claude-opus-4-5-20251101-v1:0'
-            if claude_model == 'opus41':
+            elif claude_model == 'opus41':
                 model = 'us.anthropic.claude-opus-4-1-20250805-v1:0'
             elif claude_model == 'sonnet3':
                 model = 'anthropic.claude-3-sonnet-20240229-v1:0'
