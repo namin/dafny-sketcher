@@ -9,6 +9,13 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd $SCRIPT_DIR
 
 cd dafny
+# Stub out the Java runtime jar if Java is not installed, so dotnet build succeeds
+if ! command -v java &> /dev/null; then
+  mkdir -p Source/DafnyRuntime/DafnyRuntimeJava/build/libs
+  touch Source/DafnyRuntime/DafnyRuntimeJava/build/libs/DafnyRuntime-4.11.1.jar
+  mkdir -p DafnyRuntimeJava/build/libs
+  touch DafnyRuntimeJava/build/libs/DafnyRuntime-4.11.1.jar
+fi
 make exe
 cd Source/DafnyLanguageServer
 dotnet build
