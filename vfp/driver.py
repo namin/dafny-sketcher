@@ -244,7 +244,7 @@ def prompt_begin_dafny(type: str) -> str:
     return f"Please just provide the body of the {type} (without the outer braces), starting with a line \"// BEGIN DAFNY\", ending with a line \"// END DAFNY\"."
 
 def prompt_function_implementer(program: str, name: str) -> str:
-    return f"You are implementing a function in a Dafny program that is specified but not fully implemented. The current program is\n{program}\n\nThe function to implement is {name}. {prompt_begin_dafny("function")}\nSome hints about Dafny:\n" + """
+    return f"You are implementing a function in a Dafny program that is specified but not fully implemented. The current program is\n{program}\n\nThe function to implement is {name}. {prompt_begin_dafny('function')}\nSome hints about Dafny:\n" + """
 The syntax for pattern match in Dafny is
 match e
 case Case1(arg1, arg2) => result1
@@ -267,7 +267,7 @@ Only use semicolons at the end of lines where you are assigning a variable.
 """
 
 def prompt_lemma_implementer(program: str, name: str) -> str:
-    return f"You are implementing a lemma in a Dafny program that is specified but not fully implemented. The current program is\n{program}\n\nThe lemma to implement is {name}. {prompt_begin_dafny("lemma")}"
+    return f"You are implementing a lemma in a Dafny program that is specified but not fully implemented. The current program is\n{program}\n\nThe lemma to implement is {name}. {prompt_begin_dafny('lemma')}"
 
 if __name__ == "__main__":
     import tests
