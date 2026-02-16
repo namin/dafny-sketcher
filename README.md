@@ -107,6 +107,8 @@ ensures eval(optimize(e), env) == eval(e, env)
 The lemma doesn't verify automatically, but the sketcher adds the following inductive case analysis,
 which is sufficient to prove the lemma.
 
+By default, the sketcher auto-detects the induction variable. To override this, add `{:induction_on x}` to the lemma, where `x` is a parameter name (for structural induction) or a function name/application (for rule induction). See [CLI AGENTS.md](cli/AGENTS.md) for details.
+
 ```
     match e {
         case Const(n) => {
