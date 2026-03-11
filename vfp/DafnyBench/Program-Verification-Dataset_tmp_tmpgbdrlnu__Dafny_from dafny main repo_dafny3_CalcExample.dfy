@@ -14,6 +14,9 @@ lemma Monotonicity(y: int, z: int)
 
 lemma DiagonalIdentity(x: int)
   ensures f(x, x) == x
+{
+  
+}
 
 // From these axioms, we can prove a lemma about "f":
 

@@ -134,9 +134,11 @@ lemma L(n: nat, n': nat, g: (int, int) -> int)
 
 lemma Commute(n: nat, g: (int,int) -> int)
   ensures Sum(n, x => Sum(n, y => g(x,y))) == Sum(n, x => Sum(n, y => g(y,x)))
-// TODO
+{ // TODO
+}
 
 lemma CommuteSum(n: nat, g: (int,int) -> int)
   ensures Sum(n, x => Sum(n, y => g(x,y))) == Sum(n, y => Sum(n, x => g(x,y)))
-// TODO
+{ // TODO
+}
 

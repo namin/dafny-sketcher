@@ -69,6 +69,9 @@ class MultisetImplementationWithMap extends MyMultiset {
   lemma LemmaReverseA(m: map<int, nat>, s : seq<int>)
     requires (forall i | i in m :: m[i] == multiset(s)[i]) && (m == map[] <==> multiset(s) == multiset{})
     ensures A(m) == multiset(s)
+  {
+
+  }
 
   // ADT concrete implementation variable
   var elements: map<int, nat>;
