@@ -10,16 +10,16 @@
 
 function fusc(n: int): nat
 
-lemma rule1()
+lemma {:axiom} rule1()
   ensures fusc(0) == 0
 
-lemma rule2()
+lemma {:axiom} rule2()
   ensures fusc(1) == 1
 
-lemma rule3(n:nat)
+lemma {:axiom} rule3(n:nat)
   ensures fusc(2*n) == fusc(n)
 
-lemma rule4(n:nat)
+lemma {:axiom} rule4(n:nat)
   ensures fusc(2*n+1) == fusc(n) + fusc(n+1)
 
 
