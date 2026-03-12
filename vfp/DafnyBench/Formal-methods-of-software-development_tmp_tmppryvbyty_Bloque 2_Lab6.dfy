@@ -327,7 +327,10 @@ ensures r == []
 
 lemma elem_Lemma<T> (s:seq<T>,r:seq<T>)
 requires s != [] && multiset(s) == multiset(r)
-ensures exists i :: 0 <= i < |r| && r[i] == s[0] && multiset(s[1..]) == multiset(r[..i]+r[i+1..]);
+ensures exists i :: 0 <= i < |r| && r[i] == s[0] && multiset(s[1..]) == multiset(r[..i]+r[i+1..])
+{
+  
+}
 
 // SEQUENCES WITH EQUAL MULTISETS HAVE EQUAL SUMS
 

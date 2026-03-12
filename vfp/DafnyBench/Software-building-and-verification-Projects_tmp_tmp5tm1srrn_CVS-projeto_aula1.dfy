@@ -46,6 +46,9 @@ function factAlt(n: nat) : int { factAcc(n,1) }
 
 lemma factAcc_correct(n: nat,a: int)
   ensures factAcc(n,a) == fact(n)*a
+{
+  
+}
 
 lemma equiv(n: nat)
   ensures fact(n) == factAlt(n) {
