@@ -11,20 +11,32 @@ lemma consistency(n: real, alpha: real)
     requires n > 0.0 && alpha > 0.0
     ensures log(power(n,alpha), alpha) == n
     ensures power(log(n, alpha), alpha) == n
+{
+
+}
 
 lemma logarithmSum(n: real, alpha: real, x: real, y: real)
     requires n > 0.0 && alpha > 0.0
     requires x > 0.0
     requires n == x * y
     ensures log(n,alpha) == log(x, alpha) +  log(y, alpha)
+{
+
+}
 
 lemma powerLemma(n: real, alpha: real)
     requires n > 0.0 && alpha > 0.0
     ensures power(n, alpha) * alpha == power(n+1.0, alpha)
+{
+
+}
 
 lemma power1(alpha: real)
     requires alpha > 0.0
     ensures power(1.0, alpha) == alpha
+{
+  
+}
 
 lemma test() {
     var pow3 := power(3.0,4.0);
