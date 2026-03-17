@@ -1,4 +1,4 @@
-﻿// Proving type safety of a Simply Typed Lambda-Calculus in Dafny
+// Proving type safety of a Simply Typed Lambda-Calculus in Dafny
 // adapted from Coq (http://www.cis.upenn.edu/~bcpierce/sf/Stlc.html)
 
 /// Utilities
@@ -335,7 +335,16 @@ lemma nonexample_typing_3(S: ty, T: ty)
   ensures has_type(map[], tabs(0, S, tapp(tvar(0), tvar(0)))) != Some(T);
 {
   var c := extend(0, S, map[]);
+  assert has_type(c, tvar(0)) == Some(S);
+  if S.TArrow? {
+    assert S.T1 < S;
+    if S.T1 == S {
+      assert S < S;
+    }
+  }
+  assert !(S.TArrow? && S.T1 == S);
   assert has_type(c, tapp(tvar(0), tvar(0))) == None;
+  assert has_type(map[], tabs(0, S, tapp(tvar(0), tvar(0)))) == None;
 }
 
 /*BOOL?
