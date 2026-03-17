@@ -41,7 +41,15 @@ by method
 lemma combProps(n: nat, k: nat)
    requires 0 <= k <= n
    ensures comb(n, k) == comb(n, n-k)
-{}
+{
+  if k == 0 || k == n {
+    // both sides are 1 by definition
+  } else {
+    // 0 < k < n; unfold Pascal's rule on both sides and apply IH to (n-1, k) and (n-1, k-1)
+    combProps(n-1, k);    // comb(n-1, k) == comb(n-1, (n-1)-k) == comb(n-1, n-k-1)
+    combProps(n-1, k-1);  // comb(n-1, k-1) == comb(n-1, (n-1)-(k-1)) == comb(n-1, n-k)
+  }
+}
 
 method Main()
 {

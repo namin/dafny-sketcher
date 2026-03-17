@@ -18,13 +18,18 @@ lemma SumRangeNChoose2(n: nat)
   ensures SumRange(0, n) == NChoose2(n)
 {}
 
-// dafny proves this automatically by induction
-// (given the correct decreases clause)
+
 lemma SumRangeUnrollLeft(lo: int, hi: int)
   decreases hi - lo
   ensures SumRange(lo, hi) ==
           if lo >= hi then 0 else lo + SumRange(lo + 1, hi)
-{}
+{
+  if lo < hi {
+    if lo + 1 < hi {
+      SumRangeUnrollLeft(lo, hi - 1);
+    }
+  }
+}
 
 method BubbleSort(a: array<int>) returns (n: nat) 
   modifies a

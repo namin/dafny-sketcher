@@ -18,6 +18,13 @@ lemma sum_plus(s: seq<int>, i: nat)
     requires i < |s|
     ensures sum(s, i) + s[i] == sum(s, i+1)
 {
+    if i == 0 {
+        // sum(s, 0) == 0 and sum(s, 1) == s[0]; trivial
+    } else {
+        // IH on the tail: sum(s[1..], i-1) + s[1..][i-1] == sum(s[1..], i)
+        // and s[1..][i-1] == s[i], so this closes the goal
+        sum_plus(s[1..], i - 1);
+    }
 }
 
 method BelowZero(ops: seq<int>) returns (result: bool)

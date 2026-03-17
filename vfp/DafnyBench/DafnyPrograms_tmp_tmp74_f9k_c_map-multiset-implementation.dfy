@@ -68,7 +68,23 @@ class MultisetImplementationWithMap extends MyMultiset {
   // lemma for the opposite of the abstraction function
   lemma LemmaReverseA(m: map<int, nat>, s : seq<int>)
     requires (forall i | i in m :: m[i] == multiset(s)[i]) && (m == map[] <==> multiset(s) == multiset{})
+    requires forall i :: i in multiset(s) ==> i in m
     ensures A(m) == multiset(s)
+  {
+    forall i
+      ensures A(m)[i] == multiset(s)[i]
+    {
+      if i in m {
+        assert A(m)[i] == m[i];
+      } else {
+        assert i !in A(m);
+        assert i !in multiset(s);
+        assert A(m)[i] == 0;
+        assert multiset(s)[i] == 0;
+      }
+    }
+    assert A(m) == multiset(s);
+  }
 
   // ADT concrete implementation variable
   var elements: map<int, nat>;
@@ -177,6 +193,7 @@ class MultisetImplementationWithMap extends MyMultiset {
     ensures forall i | i in m.Keys :: i in s
     ensures A(m) == multiset(s)
     ensures (forall i | i in m :: m[i] == multiset(s)[i]) && (m == map[] <==> multiset(s) == multiset{})
+    ensures forall i :: i in multiset(s) ==> i in m
   {
     if |m| == 0 {return []; }
 
@@ -185,8 +202,10 @@ class MultisetImplementationWithMap extends MyMultiset {
     s := [];
 
     while keys != {}
+      invariant keys <= m.Keys
       invariant forall i | i in m.Keys :: i in keys <==> multiset(s)[i] == 0
       invariant forall i | i in m.Keys - keys :: multiset(s)[i] == m[i]
+      invariant forall i :: i in multiset(s) ==> i in m
     {
 
       key :| key in keys;
@@ -195,9 +214,11 @@ class MultisetImplementationWithMap extends MyMultiset {
 
       while counter < m[key]
         invariant 0 <= counter <= m[key]
+        invariant key in m.Keys
         invariant multiset(s)[key] == counter
         invariant forall i | i in m.Keys && i != key :: i in keys <==> multiset(s)[i] == 0
-        invariant forall i | i in m.Keys - keys :: multiset(s)[i] == m[i];
+        invariant forall i | i in m.Keys - keys :: multiset(s)[i] == m[i]
+        invariant forall i :: i in multiset(s) ==> i in m
       {
         s := s + [key];
         counter := counter + 1;
@@ -206,6 +227,7 @@ class MultisetImplementationWithMap extends MyMultiset {
       keys := keys - {key};
 
     }
+    assert forall i :: i in multiset(s) ==> i in m;
     LemmaReverseA(m, s);
   }
 

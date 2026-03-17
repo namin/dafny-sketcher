@@ -27,9 +27,27 @@ method powerIter(b: real, n: nat) returns (p : real)
     }
 }
 
-lemma {:induction e1} powDist(b: real, e1: nat, e2: nat)
+lemma powDist(b: real, e1: nat, e2: nat)
     ensures power(b, e1+e2) == power(b, e1) * power(b, e2)
-{}
+{
+  if e2 == 0 {
+    // power(b, e1 + 0) == power(b, e1)
+    // power(b, 0) == 1
+  } else {
+    powDist(b, e1, e2 - 1);
+    calc {
+      power(b, e1 + e2);
+      == { }
+      b * power(b, e1 + (e2 - 1));
+      == { powDist(b, e1, e2 - 1); }
+      b * (power(b, e1) * power(b, e2 - 1));
+      == { }
+      power(b, e1) * (b * power(b, e2 - 1));
+      == { }
+      power(b, e1) * power(b, e2);
+    }
+  }
+}
 
 lemma {:induction false} distributiveProperty(x: real, a: nat, b: nat)
     ensures power(x, a) * power(x, b) == power(x, a+b)

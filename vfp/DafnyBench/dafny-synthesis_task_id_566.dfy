@@ -1,57 +1,57 @@
-method SumOfDigits(number: nat) returns (sum: nat)
-  requires number >= 0
-  ensures sum >= 0
-  ensures sum == SumDigits(number)
-{
-  sum := 0;
-  var n: nat := number;
+// method SumOfDigits(number: nat) returns (sum: nat)
+//   requires number >= 0
+//   ensures sum >= 0
+//   ensures sum == SumDigits(number)
+// {
+//   sum := 0;
+//   var n: nat := number;
 
-  // Let's find out the number of digits, which is the same as powers of ten for the given number
-  ghost var ndigits := NumberOfDigits(number);
-  X(number);
-  assert Power10(ndigits) > number;
+//   // Let's find out the number of digits, which is the same as powers of ten for the given number
+//   ghost var ndigits := NumberOfDigits(number);
+//   X(number);
+//   assert Power10(ndigits) > number;
 
-  ghost var PowersOfTen := seq(ndigits+1, i requires 0 <= i <= ndigits => Power10(i));
-  ghost var pmax := Power10(ndigits);
-  ghost var p := PowersOfTen[0];
-  assert pmax == PowersOfTen[|PowersOfTen|-1];
-  assert pmax > number;
+//   ghost var PowersOfTen := seq(ndigits+1, i requires 0 <= i <= ndigits => Power10(i));
+//   ghost var pmax := Power10(ndigits);
+//   ghost var p := PowersOfTen[0];
+//   assert pmax == PowersOfTen[|PowersOfTen|-1];
+//   assert pmax > number;
 
-  // Let's compute the values of n
-  ghost var ValuesOfn := seq(ndigits+1, i requires 0 <= i <= ndigits => number / PowersOfTen[i]);
-  assert forall j :: 0 < j <= ndigits ==> ValuesOfn[j] == ValuesOfn[j-1]/10;
-  assert ValuesOfn[0] == number;
-  //DivIsZero();
-  assert ValuesOfn[|ValuesOfn|-1] == number/pmax == 0;
+//   // Let's compute the values of n
+//   ghost var ValuesOfn := seq(ndigits+1, i requires 0 <= i <= ndigits => number / PowersOfTen[i]);
+//   assert forall j :: 0 < j <= ndigits ==> ValuesOfn[j] == ValuesOfn[j-1]/10;
+//   assert ValuesOfn[0] == number;
+//   //DivIsZero();
+//   assert ValuesOfn[|ValuesOfn|-1] == number/pmax == 0;
 
-  assert ValuesOfn[0] == n;
-  assert PowersOfTen[0] == p;
-  ghost var i := 0;
-  while n > 0
-    //        invariant 1 <= p <= pmax
-    //        invariant n in ValuesOfn
-    invariant 0 <= i <= ndigits
-    invariant ValuesOfn[i] == n
-    invariant PowersOfTen[i] == p
-    invariant sum >= 0
-    invariant sum == SumDigits(number % p)
-  {
-    assert ValuesOfn[i] == n;
-    var digit := n % 10;
-    sum := sum + digit;
-    n := n / 10;
-    i := i + 1;
-    //        assert ValuesOfn[i] == ValuesOfn[i-1]/10;
-    //        assert ValuesOfn[i] == n;
-    p := PowersOfTen[i]; //p * 10;
-    assert n == 0 ==> p == pmax;
-  }
-  assert n == 0;
-  //    assert i == ndigits;
-  assert p == pmax;
-  NumberIdentity(number, p);
-  assert number == number % p;
-}
+//   assert ValuesOfn[0] == n;
+//   assert PowersOfTen[0] == p;
+//   ghost var i := 0;
+//   while n > 0
+//     //        invariant 1 <= p <= pmax
+//     //        invariant n in ValuesOfn
+//     invariant 0 <= i <= ndigits
+//     invariant ValuesOfn[i] == n
+//     invariant PowersOfTen[i] == p
+//     invariant sum >= 0
+//     invariant sum == SumDigits(number % p)
+//   {
+//     assert ValuesOfn[i] == n;
+//     var digit := n % 10;
+//     sum := sum + digit;
+//     n := n / 10;
+//     i := i + 1;
+//     //        assert ValuesOfn[i] == ValuesOfn[i-1]/10;
+//     //        assert ValuesOfn[i] == n;
+//     p := PowersOfTen[i]; //p * 10;
+//     assert n == 0 ==> p == pmax;
+//   }
+//   assert n == 0;
+//   //    assert i == ndigits;
+//   assert p == pmax;
+//   NumberIdentity(number, p);
+//   assert number == number % p;
+// }
 
 //lemma DivIsZero()
 //  ensures forall num, den : nat :: den >= 1 && num < den ==> num/den == 0

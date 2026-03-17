@@ -1,4 +1,4 @@
-﻿module Permutation
+module Permutation
 {
 	/**
 	 * Given n >= 0, generate a permuation of {0,...,n-1} nondeterministically.
@@ -74,9 +74,29 @@
 		requires s1 < s2
 		ensures |s1| < |s2|
 	{
+		if s2 - s1 == {} {
+			forall x | x in s2
+				ensures x in s1
+			{
+				if x !in s1 {
+					assert x in s2 - s1;
+					assert false;
+				}
+			}
+			assert s2 <= s1;
+			assert s1 == s2;
+			assert false;
+		}
 		var e :| e in s2 - s1;
+		assert e in s2;
+		assert e !in s1;
 		if s1 != s2 - {e} {
+			assert s1 <= s2 - {e};
 			CardinalityOrderingLemma(s1, s2 - {e});
+			assert |s1| < |s2 - {e}|;
+			assert |s2 - {e}| < |s2|;
+		} else {
+			assert |s2 - {e}| < |s2|;
 		}
 	}
 
@@ -84,7 +104,18 @@
 		requires s1 < s2
 		ensures s2 - s1 != {}
 	{
-		var e :| e in s2 - s1;
-		if s2 - s1 != {e} {} // What does Dafny prove here???
+		if s2 - s1 == {} {
+			forall x | x in s2
+				ensures x in s1
+			{
+				if x !in s1 {
+					assert x in s2 - s1;
+					assert false;
+				}
+			}
+			assert s2 <= s1;
+			assert s1 == s2;
+			assert false;
+		}
 	}
 }

@@ -121,27 +121,58 @@ lemma InvInductive(v: Variables, v': Variables)
   // SOLUTION
   match step {
     case CastVoteStep(n, c) => {
-      forall c | c in v'.decision
-        ensures exists q:Quorum :: ChoiceQuorum(v', q, c)
+      assert CastVote(v, v', step);
+      assert v'.decision == v.decision;
+      forall ch | ch in v'.decision
+        ensures exists q:Quorum :: ChoiceQuorum(v', q, ch)
       {
-        var q :| ChoiceQuorum(v, q, c);
-        assert ChoiceQuorum(v', q, c);
+        assert ch in v.decision;
+        var q :| ChoiceQuorum(v, q, ch);
+        assert ChoiceQuorum(v', q, ch);
       }
       return;
     }
     case DecideStep(c, q) => {
-      forall c | c in v'.decision
-        ensures exists q:Quorum :: ChoiceQuorum(v', q, c)
+      assert Decide(v, v', step);
+      assert v'.votes == v.votes;
+      assert v'.decision == v.decision + {step.c};
+
+      forall ch | ch in v'.decision
+        ensures exists q0:Quorum :: ChoiceQuorum(v', q0, ch)
       {
-        var q0 :| ChoiceQuorum(v, q0, c);
-        assert ChoiceQuorum(v', q0, c);
+        if ch in v.decision {
+          var q0 :| ChoiceQuorum(v, q0, ch);
+          assert ChoiceQuorum(v', q0, ch);
+        } else {
+          assert ch == step.c;
+          assert ChoiceQuorum(v', step.q, ch);
+        }
       }
+
       forall c1, c2 | c1 in v'.decision && c2 in v'.decision
         ensures c1 == c2
       {
-        var q1 :| ChoiceQuorum(v, q1, c1);
-        var q2 :| ChoiceQuorum(v, q2, c2);
-        var n := QuorumIntersect(q1, q2);
+        if c1 in v.decision && c2 in v.decision {
+          assert Safety(v);
+          assert c1 == c2;
+        } else if c1 !in v.decision && c2 !in v.decision {
+          assert c1 == step.c;
+          assert c2 == step.c;
+        } else if c1 !in v.decision {
+          assert c1 == step.c;
+          var q2 :| ChoiceQuorum(v, q2, c2);
+          var n := QuorumIntersect(step.q, q2);
+          assert step.c in v.votes[n];
+          assert c2 in v.votes[n];
+          assert c1 == c2;
+        } else {
+          assert c2 == step.c;
+          var q1 :| ChoiceQuorum(v, q1, c1);
+          var n := QuorumIntersect(q1, step.q);
+          assert c1 in v.votes[n];
+          assert step.c in v.votes[n];
+          assert c1 == c2;
+        }
       }
       assert Safety(v');
       return;

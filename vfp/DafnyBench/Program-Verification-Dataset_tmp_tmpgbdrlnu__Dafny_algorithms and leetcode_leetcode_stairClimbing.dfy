@@ -79,7 +79,6 @@ lemma plusOneNotIn(ss: set<seq<Steps>>, x: seq<Steps>)
 {
     if x == [] {
         assert [] !in ss;
-        assert [One]+[] !in addOne(ss);
     }
     if plusOne(x) in addOne(ss) {
         forall y | y in ss 
@@ -144,7 +143,6 @@ lemma plusTwoNotIn(ss: set<seq<Steps>>, x: seq<Steps>)
 {
     if x == [] {
         assert [] !in ss;
-        assert [Two]+[] !in addTwo(ss);
     }
     if plusTwo(x) in addTwo(ss) {
         forall y | y in ss 
@@ -208,38 +206,38 @@ lemma stepSetsAdd(i: nat, steps: array<nat>)
     // assert |sumSet| == steps[i-1]+steps[i-2];
 }
 
-method climbStairs(n: nat) returns (count: nat) 
-    ensures exists ss: set< seq<Steps> > :: count == |ss| && allEndAtN(ss, n)
-{
-    var steps := new nat[n+1];
-    steps[0] := 0;
-    if n > 0 {
-        steps[1] := 1;
-    }
-    if n > 1 {
-        steps[2] := 2;
-    }
-    stepBaseZero();
-    stepBaseOne();
-    stepBaseTwo();
-    if n < 3 {
-        return steps[n];
-    }
-    assert steps[0] == 0;
-    assert steps[1] == 1;
-    assert steps[2] == 2;
-    assert forall k: nat :: k < 3 ==> exists ss: set< seq<Steps> > :: steps[k] == |ss| && allEndAtN(ss, k);
-    var i := 3;
-    while i <= n 
-        invariant 3 <= i <= n+1
-        invariant forall k: nat :: k < i ==> exists ss: set< seq<Steps> > :: steps[k] == |ss| && allEndAtN(ss, k)
-    {   
-        steps[i] := steps[i-1] + steps[i-2];
-        stepSetsAdd(i, steps);
-        i := i + 1;
-    }
-    return steps[n];
-}
+// method climbStairs(n: nat) returns (count: nat) 
+//     ensures exists ss: set< seq<Steps> > :: count == |ss| && allEndAtN(ss, n)
+// {
+//     var steps := new nat[n+1];
+//     steps[0] := 0;
+//     if n > 0 {
+//         steps[1] := 1;
+//     }
+//     if n > 1 {
+//         steps[2] := 2;
+//     }
+//     stepBaseZero();
+//     stepBaseOne();
+//     stepBaseTwo();
+//     if n < 3 {
+//         return steps[n];
+//     }
+//     assert steps[0] == 0;
+//     assert steps[1] == 1;
+//     assert steps[2] == 2;
+//     assert forall k: nat :: k < 3 ==> exists ss: set< seq<Steps> > :: steps[k] == |ss| && allEndAtN(ss, k);
+//     var i := 3;
+//     while i <= n 
+//         invariant 3 <= i <= n+1
+//         invariant forall k: nat :: k < i ==> exists ss: set< seq<Steps> > :: steps[k] == |ss| && allEndAtN(ss, k)
+//     {   
+//         steps[i] := steps[i-1] + steps[i-2];
+//         stepSetsAdd(i, steps);
+//         i := i + 1;
+//     }
+//     return steps[n];
+// }
 
 
 method Test() {

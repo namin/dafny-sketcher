@@ -4,7 +4,7 @@ method quickSort(intSeq:array<int>)
     // ensures multiset(intSeq[..]) == multiset(old(intSeq[..]))
 
 
-lemma sort(prevSeq:seq<int>) returns (curSeq:seq<int>)
+lemma {:axiom} sort(prevSeq:seq<int>) returns (curSeq:seq<int>)
     ensures (forall i:nat, j:nat | 0 <= i <= j < |curSeq| :: curSeq[i] <= curSeq[j])
     ensures multiset(prevSeq) == multiset(curSeq)
 

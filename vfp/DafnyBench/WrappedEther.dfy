@@ -456,11 +456,13 @@ module U256 {
     }
 
     function Shr(lhs: u256, rhs: u256) : u256 {
-        var lbv := lhs as bv256;
-        // NOTE: unclear whether shifting is optimal choice here.
-        var res := if rhs < 256 then (lbv >> rhs) else 0;
-        //
-        res as u256
+        // Unsigned right-shift over a bounded integer is equivalent to
+        // integer division by 2^rhs (for rhs < word size).
+        if rhs < 256 then
+            var d := Pow(2, rhs as nat) as int;
+            var q := (lhs as int) / d;
+            if 0 <= q <= MAX_U256 then q as u256 else 0
+        else 0
     }
 
     /**

@@ -132,6 +132,7 @@ lemma PseudoLiveness(clientA:nat, clientB:nat) returns (behavior:seq<Variables>)
   ensures forall i | 0 <= i < |behavior|-1 :: Next(behavior[i], behavior[i+1]) // Behavior satisfies your state machine
   ensures forall i | 0 <= i < |behavior| :: Safety(behavior[i]) // Behavior always satisfies the Safety predicate
   ensures behavior[|behavior|-1].WellFormed() // precondition for calling ClientHoldsLock
+  ensures behavior[1].WellFormed()
   ensures ClientHoldsLock(behavior[1], clientA) // first clientA acquires lock
   ensures ClientHoldsLock(behavior[|behavior|-1], clientB) // eventually clientB acquires lock
 {

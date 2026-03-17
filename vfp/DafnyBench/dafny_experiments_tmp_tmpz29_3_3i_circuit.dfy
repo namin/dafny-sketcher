@@ -291,22 +291,7 @@ module CombineCircuits {
         var offset := |c1.nodes|;
         var node_is_member := a=>true;
         var node_map := a=>a+offset;
-        calc {
-            IsEquivalentCircuit(node_is_member, node_map, c2, r);
-            // Substitute in the IsEquivalentCircuit function definition.
-            forall inp :: inp in c2.backconns && node_is_member(inp.node_id) ==>
-                inodeport(node_map(inp.node_id), inp.port_id) in r.backconns &&
-                var inp2 := inodeport(node_map(inp.node_id), inp.port_id);
-                var onp := c2.backconns[inp];
-                onodeport(node_map(onp.node_id), onp.port_id) == r.backconns[inp2];
-            // Substitute in the node_is_member and node_is_map definiions.
-            // For some reason this cause the solver to take too long.
-            forall inp :: inp in c2.backconns ==>
-                inodeport(inp.node_id+offset, inp.port_id) in r.backconns &&
-                var inp2 := inodeport(inp.node_id+offset, inp.port_id);
-                var onp := c2.backconns[inp];
-                onodeport(onp.node_id+offset, onp.port_id) == r.backconns[inp2];
-        }
+        // Avoid expanding IsEquivalentCircuit here: it triggers solver timeout.
         assert basic_result: r.backconns == BackwardConnections.CombineBackconns(|c1.nodes|, c1.backconns, c2.backconns)
             by {
                 reveal r_is_result;
@@ -351,6 +336,22 @@ module CombineCircuits {
                 }
 
                 true;
+            }
+        }
+        assert IsEquivalentCircuit(node_is_member, node_map, c2, r) by {
+            forall inp | inp in c2.backconns && node_is_member(inp.node_id)
+                ensures
+                    inodeport(node_map(inp.node_id), inp.port_id) in r.backconns &&
+                    var inp2 := inodeport(node_map(inp.node_id), inp.port_id);
+                    var onp := c2.backconns[inp];
+                    onodeport(node_map(onp.node_id), onp.port_id) == r.backconns[inp2]
+            {
+                assert inp in c2.backconns;
+                assert node_map(inp.node_id) == inp.node_id + offset;
+                assert inodeport(inp.node_id+offset, inp.port_id) in r.backconns;
+                var inp2 := inodeport(inp.node_id+offset, inp.port_id);
+                var onp := c2.backconns[inp];
+                assert onodeport(onp.node_id+offset, onp.port_id) == r.backconns[inp2];
             }
         }
         reveal r_is_result;

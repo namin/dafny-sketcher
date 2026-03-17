@@ -82,10 +82,22 @@ function set_of_seq<T>(s: seq<T>): set<T>
 
 lemma in_set_of_seq<T>(x: T, s: seq<T>)
   ensures x in s <==> x in set_of_seq(s)
+{
+
+}
 
 lemma subset_set_of_seq<T>(s1: seq<T>, s2: seq<T>)
   requires set_of_seq(s1) <= set_of_seq(s2)
   ensures forall x :: x in s1 ==> x in s2
+{
+  forall x | x in s1
+    ensures x in s2
+  {
+    assert x in set_of_seq(s1);
+    assert x in set_of_seq(s2);
+    assert x in s2;
+  }
+}
   
 method getRandomDataEntry<T(==)>(m_workList: array<T>, avoidSet: seq<T>) returns (e: T)
   requires m_workList.Length > 0
