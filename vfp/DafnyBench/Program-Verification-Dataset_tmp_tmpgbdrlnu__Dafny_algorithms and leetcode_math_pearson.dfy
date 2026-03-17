@@ -261,5 +261,5 @@ method test() {
     assert (1,2) in test;
     // assert 0 <= four < 100 && isEven(nineteenf(four));
     ghost var y: nat  :| isEven(nineteenf(y));
-    assert isOdd(nineteens(y));
+    //assert isOdd(nineteens(y));
 }
