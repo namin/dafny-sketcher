@@ -20,6 +20,7 @@ lemma ExchangeEta(n: nat, f: int -> int, g: int -> int)
   requires forall i :: 0 <= i < n ==> f(i) == g(i)
   ensures Sum(n, x => f(x)) == Sum(n, x => g(x))
 {
+  Exchange(n, x => f(x), x => g(x));
 }
 
 lemma NestedAlphaRenaming(n: nat, g: (int,int) -> int)
@@ -134,11 +135,89 @@ lemma L(n: nat, n': nat, g: (int, int) -> int)
 
 lemma Commute(n: nat, g: (int,int) -> int)
   ensures Sum(n, x => Sum(n, y => g(x,y))) == Sum(n, x => Sum(n, y => g(y,x)))
-{ // TODO
+{
+  calc {
+    Sum(n, x => Sum(n, y => g(x,y)));
+    { CommuteSum(n, g); }
+    Sum(n, x => Sum(n, y => g(y,x)));
+  }
 }
 
 lemma CommuteSum(n: nat, g: (int,int) -> int)
   ensures Sum(n, x => Sum(n, y => g(x,y))) == Sum(n, y => Sum(n, x => g(x,y)))
-{ // TODO
+{
+  if n == 0 {
+  } else {
+    var n' := n - 1;
+    calc {
+      Sum(n, x => Sum(n, y => g(x,y)));
+      { L(n, n', g); }
+      Sum(n', x => Sum(n', y => g(x,y))) + Sum(n', x => g(x,n')) + Sum(n', y => g(n',y)) + g(n',n');
+      { CommuteSum(n', g); }
+      Sum(n', x => Sum(n', y => g(y,x))) + Sum(n', x => g(n',x)) + Sum(n', y => g(y,n')) + g(n',n');
+      {
+        assert Sum(n, x => Sum(n, y => g(y,x)))
+          == Sum(n', x => Sum(n', y => g(y,x))) + Sum(n', x => g(n',x)) + Sum(n', y => g(y,n')) + g(n',n') by {
+          var h := (a: int, b: int) => g(b, a);
+          calc {
+            Sum(n, x => Sum(n, y => g(y,x)));
+            {
+              forall i | 0 <= i < n
+                ensures (x => Sum(n, y => g(y,x)))(i) == (x => Sum(n, y => h(x,y)))(i)
+              {
+                forall j | 0 <= j < n
+                  ensures (y => g(y,i))(j) == (y => h(i,y))(j)
+                {
+                  assert h(i,j) == g(j,i);
+                }
+                Exchange(n, y => g(y,i), y => h(i,y));
+              }
+              Exchange(n, x => Sum(n, y => g(y,x)), x => Sum(n, y => h(x,y)));
+            }
+            Sum(n, x => Sum(n, y => h(x,y)));
+            { L(n, n', h); }
+            Sum(n', x => Sum(n', y => h(x,y))) + Sum(n', x => h(x,n')) + Sum(n', y => h(n',y)) + h(n',n');
+            {
+              forall i | 0 <= i < n'
+                ensures (x => Sum(n', y => h(x,y)))(i) == (x => Sum(n', y => g(y,x)))(i)
+              {
+                forall j | 0 <= j < n'
+                  ensures (y => h(i,y))(j) == (y => g(y,i))(j)
+                {
+                  assert h(i,j) == g(j,i);
+                }
+                Exchange(n', y => h(i,y), y => g(y,i));
+              }
+              Exchange(n', x => Sum(n', y => h(x,y)), x => Sum(n', y => g(y,x)));
+            }
+            Sum(n', x => Sum(n', y => g(y,x))) + Sum(n', x => h(x,n')) + Sum(n', y => h(n',y)) + h(n',n');
+            {
+              forall i | 0 <= i < n'
+                ensures (x => h(x,n'))(i) == (x => g(n',x))(i)
+              {
+                assert h(i,n') == g(n',i);
+              }
+              Exchange(n', x => h(x,n'), x => g(n',x));
+            }
+            Sum(n', x => Sum(n', y => g(y,x))) + Sum(n', x => g(n',x)) + Sum(n', y => h(n',y)) + h(n',n');
+            {
+              forall i | 0 <= i < n'
+                ensures (y => h(n',y))(i) == (y => g(y,n'))(i)
+              {
+                assert h(n',i) == g(i,n');
+              }
+              Exchange(n', y => h(n',y), y => g(y,n'));
+            }
+            Sum(n', x => Sum(n', y => g(y,x))) + Sum(n', x => g(n',x)) + Sum(n', y => g(y,n')) + h(n',n');
+            { assert h(n',n') == g(n',n'); }
+            Sum(n', x => Sum(n', y => g(y,x))) + Sum(n', x => g(n',x)) + Sum(n', y => g(y,n')) + g(n',n');
+          }
+        }
+      }
+      Sum(n, x => Sum(n, y => g(y,x)));
+      { assert Sum(n, x => Sum(n, y => g(y,x))) == Sum(n, y => Sum(n, x => g(x,y))); }
+      Sum(n, y => Sum(n, x => g(x,y)));
+    }
+  }
 }
 

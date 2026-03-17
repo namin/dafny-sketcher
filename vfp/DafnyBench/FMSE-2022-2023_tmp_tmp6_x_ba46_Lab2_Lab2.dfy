@@ -74,12 +74,16 @@ function Add(x: Nat, y: Nat) : Nat
 /*
  * Since Zero is neutral, it is trivial that the order of addition is not of importance.
  */
-lemma {:induction n} ZeroAddCommutative(n: Nat)
+lemma ZeroAddCommutative(n: Nat)
     ensures Add(Zero, n) == Add(n, Zero)
 {
-    assert Add(Zero, n)
-    == n 
-    == Add(n, Zero);
+    match n {
+        case Zero => {}
+        case S(n') =>
+            // IH: Add(Zero, n') == Add(n', Zero) == n'
+            // so Add(Zero, S(n')) = S(Add(Zero, n')) = S(n') = Add(S(n'), Zero)
+            ZeroAddCommutative(n');
+    }
 }
 
 /*

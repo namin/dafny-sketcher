@@ -31,16 +31,26 @@ module Seq {
         ensures seq_sum(s1) == seq_sum(s2)
     {
         if s1 == [] {
-            assert s2 == [];
+            if s2 != [] {
+                var y := s2[0];
+                assert y in s2;
+                assert multiset(s2)[y] > 0;
+                assert multiset(s1)[y] == multiset(s2)[y];
+                assert false;
+            }
         } else {
-            var x :| x in s1;
+            var x := s1[0];
             assert x in s1;
             assert multiset(s1)[x] > 0;
             assert multiset(s2)[x] > 0;
             assert x in s2;
-            var i1, i2 :| 0 <= i1 < |s1| && 0 <= i2 < |s2| && s1[i1] == s2[i2] && s1[i1] == x;
+            var i1 := 0;
+            var i2 :| 0 <= i2 < |s2| && s2[i2] == x;
 
             var remaining1 := s1[..i1] + s1[i1+1..];
+            assert s1[..i1] == [];
+            assert s1[i1+1..] == s1[1..];
+            assert remaining1 == s1[1..];
             assert s1 == s1[..i1] + s1[i1..];
             assert s1 == s1[..i1] + [x] + s1[i1+1..];
             assert seq_sum(s1) == seq_sum(s1[..i1] + [x] + s1[i1+1..]);
@@ -65,6 +75,8 @@ module Seq {
             assert seq_sum(s2) == seq_sum(remaining2) + x;
             assert multiset(s2) == multiset(remaining2) + multiset([x]);
             assert multiset(s2) - multiset([x]) == multiset(remaining2);
+            assert multiset(remaining1) == multiset(remaining2);
+            assert |remaining1| < |s1|;
 
             DifferentPermutationSameSum(remaining1, remaining2);
             assert seq_sum(remaining1) == seq_sum(remaining2);

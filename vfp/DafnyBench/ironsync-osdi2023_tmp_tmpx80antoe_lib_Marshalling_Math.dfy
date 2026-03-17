@@ -22,7 +22,17 @@ module Math {
       ensures power2(60) == 1152921504606846976;
       ensures power2(64) == 18446744073709551616;
   {
-    reveal_power2();
+    lemma_2toX32();
+
+    lemma_power2_adds(32, 28);
+    assert power2(60) == power2(32) * power2(28);
+    assert power2(60) == 4294967296 * 268435456;
+    assert power2(60) == 1152921504606846976;
+
+    lemma_power2_adds(32, 32);
+    assert power2(64) == power2(32) * power2(32);
+    assert power2(64) == 4294967296 * 4294967296;
+    assert power2(64) == 18446744073709551616;
   }
 
   lemma lemma_power2_adds(e1:nat, e2:nat)
@@ -101,6 +111,8 @@ module Math {
         == ((x + d) % d) - (x % d);
 
     assert -d < d * (x / d + 1) - d * ((x + d) / d) < d;
+    assert d * (x / d + 1) - d * ((x + d) / d)
+        == d * ((x / d + 1) - ((x + d) / d));
     assert -d < d * ((x / d + 1) - ((x + d) / d)) < d;
     bounded_mul_eq_0((x / d + 1) - ((x + d) / d), d);
   }
@@ -190,7 +202,12 @@ module Math {
   {
     if (x < c*d) {
       assert x/(c*d) == 0;
+      assert c*(x/c) <= x;
+      assert c*(x/c) < c*d;
       assert x/c < d;
+      assert 0 <= x/c;
+      assert 0 <= x/c < d;
+      assert (x/c) < d*1;
       assert (x/c)/d == 0;
     } else {
       calc {

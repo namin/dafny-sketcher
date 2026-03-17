@@ -18,9 +18,6 @@ codatatype Conat = Zero | Succ(Pred: Conat)
 greatest lemma ConstructorInjective(x: Conat, y: Conat)
     ensures Succ(x) == Succ(y) ==> x == y
 {
-    assume Succ(x) == Succ(y);
-    assert Succ(x).Pred == Succ(y).Pred;
-    assert x == y;
 }
 
 // Exercise (c): define the ∞ constant (as a corecursive function)
@@ -126,4 +123,5 @@ greatest lemma ZipCnstZeroCnstOneEqualsBlink()
 //     Cons(0, Cons(1, Cons(0, Cons(1, zip(cnst(0), cnst(1))))))
 // ==
 //     blink();
+  assert zip(cnst(0), cnst(1)) == blink();
 }

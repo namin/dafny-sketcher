@@ -84,8 +84,13 @@ lemma PercentileUniqueAnswer(p: real, A: array<real>, total: real, i1: int, i2: 
 
   ensures i1 == i2
 {
-  if i1+1< i2 {
-    SumUpto_increase(A, i1+1, i2);
+  if i2 < i1 {
+    PercentileUniqueAnswer(p, A, total, i2, i1);
+  } else if i1 < i2 {
+    assert i1 + 1 <= i2;
+    assert i1 + 1 < A.Length;
+
+    SumUpto_increase(A, i1 + 1, i2);
   }
 }
 // lemma for previous proof: when an array has strictly positive elements, the

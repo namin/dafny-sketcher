@@ -33,9 +33,17 @@ method powerDC(x: real, n: nat) returns (p : real)
 
 // States the property x^a * x^b = x^(a+b), that the method power takes advantage of. 
 // The property is proved by automatic induction on 'a'.
-lemma {:induction a} productOfPowers(x: real, a: nat, b: nat) 
-  ensures power(x, a) * power(x, b)  == power(x, a + b) 
-{ }
+lemma productOfPowers(x: real, a: nat, b: nat) 
+  ensures power(x, a) * power(x, b) == power(x, a + b) 
+{
+  if a == 0 {
+    // power(x, 0) == 1.0, so 1.0 * power(x, b) == power(x, b) == power(x, 0 + b)
+  } else {
+    productOfPowers(x, a - 1, b);
+    // IH: power(x, a-1) * power(x, b) == power(x, a-1+b)
+    // power(x, a) unfolds to x * power(x, a-1), then re-folds as power(x, a+b)
+  }
+}
 
 
 // A few test cases (checked statically by Dafny).

@@ -55,33 +55,30 @@ method powerOpt(x: real, n: nat) returns (p : real)
 // States the property x^a * x^b = x^(a+b), that powerOpt takes advantage of. 
 // The annotation {:induction a} guides Dafny to prove the property
 // by automatic induction on 'a'.
-lemma {:induction a} distributiveProperty(x: real, a: nat, b: nat) 
+lemma distributiveProperty(x: real, a: nat, b: nat) 
   ensures power(x, a) * power(x, b)  == power(x, a + b) 
-{
-  //    
-  // To use the proof below, deactivate automatic induction, with {:induction false}.
-   /* if a == 0 {
-        // base case
-        calc == {
-            power(x, a) * power(x, b);
-            power(x, 0) * power(x, b); // substitution
-            1.0 * power(x, b); // by the definition of power
-            power(x, b); // neutral element of "*"
-            power(x, a + b); // neutral element of "+"
-        }
+{   
+  if a == 0 {
+    // base case
+    calc == {
+        power(x, a) * power(x, b);
+        power(x, 0) * power(x, b); // substitution
+        1.0 * power(x, b); // by the definition of power
+        power(x, b); // neutral element of "*"
+        power(x, a + b); // neutral element of "+"
     }
-    else {
-        // recursive case, assuming property holds for a-1 (proof by induction)
-        distributiveProperty(x, a-1, b); 
-        // now do the proof
-        calc == {
-            power(x, a) * power(x, b);
-            (x * power(x, a-1)) * power(x, b); // by the definition of power
-            x * (power(x, a-1) * power(x, b)); // associative property
-            x * power(x, a + b - 1); // this same property for a-1
-            power(x, a + b); // definition of power
-        }
-    }*/
+  } else {
+    // recursive case, assuming property holds for a-1 (proof by induction)
+    distributiveProperty(x, a-1, b); 
+    // now do the proof
+    calc == {
+        power(x, a) * power(x, b);
+        (x * power(x, a-1)) * power(x, b); // by the definition of power
+        x * (power(x, a-1) * power(x, b)); // associative property
+        x * power(x, a + b - 1); // this same property for a-1
+        power(x, a + b); // definition of power
+    }
+  }
 }
 
 // A simple test case to make sure the specification is adequate.

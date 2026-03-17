@@ -11,6 +11,10 @@ lemma sum_plus(s: seq<int>, i: nat)
     requires i < |s|
     ensures sum(s, i) + s[i] == sum(s, i+1)
 {
+    if i == 0 {
+    } else {
+        sum_plus(s[1..], i-1);
+    }
 }
 
 method below_zero(ops: seq<int>) returns (result: bool)

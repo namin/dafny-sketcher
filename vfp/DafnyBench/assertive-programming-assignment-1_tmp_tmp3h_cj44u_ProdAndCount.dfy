@@ -274,12 +274,9 @@ lemma AppendProd(q: seq<int>)
 {
 	if |q| == 1
 	{
-		assert
-		RecursivePositiveProduct(q[..|q|-1])*prody(q[|q|-1]) == 
-		RecursivePositiveProduct(q[..0])*prody(q[0]) == 
-		RecursivePositiveProduct([])*prody(q[0]) ==
-		1*prody(q[0]) == 
-		prody(q[0]);
+		assert q[..|q|-1] == [];
+		assert q[|q|-1] == q[0];
+		assert RecursivePositiveProduct(q[..|q|-1])*prody(q[|q|-1]) == prody(q[0]);
 		assert RecursivePositiveProduct(q) == prody(q[0]);
 	}
 	else
