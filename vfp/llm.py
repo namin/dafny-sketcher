@@ -158,7 +158,8 @@ if OPENAI_API_KEY:
         OPENAI_BASE_URL = os.environ.get('OPENAI_BASE_URL')
         if OPENAI_BASE_URL:
             openai.base_url = OPENAI_BASE_URL
-        def generate(prompt, max_tokens=1000, temperature=TEMPERATURE, model="gpt-4o"):
+        OPENAI_MODEL = os.environ.get('OPENAI_MODEL', 'gpt-4o')
+        def generate(prompt, max_tokens=1000, temperature=TEMPERATURE, model=OPENAI_MODEL):
             debug(f"Prompt:\n{prompt}")
             debug(f"Sending request to OpenAI (model={model}, max_tokens={max_tokens}, temp={temperature})")
 
@@ -175,7 +176,7 @@ if OPENAI_API_KEY:
             debug("Received response from OpenAI")
             debug(f"Response:\n{response}")
             return response
-        models['openai'] = model
+        models['openai'] = OPENAI_MODEL
     generators['openai'] = generate
 
 if ANTHROPIC_API_KEY:
@@ -185,7 +186,8 @@ if ANTHROPIC_API_KEY:
     except ModuleNotFoundError:
         generate = dummy_generate('anthropic')
     if generate is None:
-        def generate(prompt, max_tokens=1000, temperature=TEMPERATURE, model="claude-3-7-sonnet-20250219"):
+        ANTHROPIC_MODEL = os.environ.get('ANTHROPIC_MODEL', 'claude-3-7-sonnet-20250219')
+        def generate(prompt, max_tokens=1000, temperature=TEMPERATURE, model=ANTHROPIC_MODEL):
             debug(f"Prompt:\n{prompt}")
             debug(f"Sending request to Anthropic (model={model}, max_tokens={max_tokens}, temp={temperature})")
 
@@ -211,7 +213,7 @@ if ANTHROPIC_API_KEY:
             debug("Received response from Anthropic")
             debug(f"Response:\n{message}")
             return message.content[0].text
-        models['claude'] = model
+        models['claude'] = ANTHROPIC_MODEL
     generators['claude'] = generate
 
 if GEMINI_API_KEY:
