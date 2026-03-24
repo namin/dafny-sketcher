@@ -45,7 +45,7 @@ def _show_errors_for_method_core(file_input: str, method_name: str) -> Optional[
         # Run dafny verify with filter-symbol
         cmd = ['dafny', 'verify', file_path]
         if method_name:
-            cmd = cmd + ['--filter-symbol', method_name]
+            cmd = cmd + ['--filter-symbol', method_name + "."]
         
         result = subprocess.run(
             cmd,
