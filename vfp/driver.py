@@ -3,6 +3,7 @@ from typing import List, Optional
 from llm import default_generate as generate
 import sketcher
 import os
+import dafny_utils as utils
 
 XP_DEBUG = os.environ.get('XP_DEBUG', 'true').lower() != 'false'
 
@@ -176,20 +177,11 @@ def implementer(p: str, x: str, todo) -> str:
         return None
     return xp
 
-def line_col_to_offset(lines: list[str], line: int, col: int) -> int:
-    return sum(len(l) for l in lines[:line - 1]) + (col - 1)
-
-def line_col_to_start_offset(p: str,lines: list[str], line: int, col: int) -> int:
-    return line_col_to_offset(lines, line, col)
-
-def line_col_to_end_offset(p: str, lines: list[str], line: int, col: int) -> int:
-    return line_col_to_offset(lines, line, col)+1
-
 def erase_implementation(p: str, todo) -> str:
     assert todo['type'] == 'function'
     lines = p.splitlines(keepends=True)
-    start_offset = line_col_to_start_offset(p, lines, todo['insertLine'], todo['insertColumn'])
-    end_offset = line_col_to_end_offset(p, lines, todo['endLine'], todo['endColumn'])
+    start_offset = utils.line_col_to_start_offset(p, lines, todo['insertLine'], todo['insertColumn'])
+    end_offset = utils.line_col_to_end_offset(p, lines, todo['endLine'], todo['endColumn'])
     xp = p[:start_offset] + p[end_offset:]
     print("ERASE")
     print("from", start_offset, "to", end_offset)
@@ -197,35 +189,7 @@ def erase_implementation(p: str, todo) -> str:
     return xp
 
 def insert_program_todo(todo, p, x):
-    if todo['status'] != 'todo':
-        #print('CASE DONE')
-        lines = p.splitlines(keepends=True)
-        start_offset = line_col_to_start_offset(p,lines, todo['insertLine'], todo['insertColumn'])
-        end_offset = line_col_to_end_offset(p, lines, todo['endLine'], todo['endColumn'])
-        after_offset = end_offset
-        to_skip = ''.join(p[start_offset:end_offset])
-        # Hack: because sometimes skipping to the end_offset swallows lemmas coming after
-        if 'lemma ' in to_skip:
-            after_offset = start_offset
-        xp = p[:start_offset] + "{\n" + x + "\n}" + p[after_offset:]
-    else:
-        #print('CASE TODO')
-        line = todo['insertLine']
-        lines = p.splitlines(keepends=True)
-        
-        # Ensure the target line doesn't end with newline for clean insertion
-        lines[line-1] = lines[line-1].rstrip('\n\r')
-        
-        # Create insertion lines as separate array elements
-        insertion_lines = ["\n", "{\n", x + "\n", "}\n"]
-        
-        # Insert the new lines into the array after the target line
-        lines[line:line] = insertion_lines
-        
-        if todo['type'] == 'lemma':
-            line_lemma = todo['startLine']
-            lines[line_lemma-1] = lines[line_lemma-1].replace('{:axiom}', '')
-        xp = ''.join(lines)
+    xp = utils.insert_program_todo_helper(todo, p, x)
     if XP_DEBUG:
         print("XP")
         print(xp)
