@@ -1,7 +1,28 @@
 import glob
 import os
+import subprocess
 import tests
 import sketcher
+
+def _dafny_resolve_ok(f: str) -> bool:
+    """Return True if ``dafny resolve`` reports no errors for *f*."""
+    try:
+        result = subprocess.run(
+            ['dafny', 'resolve', f],
+            capture_output=True, text=True, timeout=30,
+        )
+        output = (result.stdout or '') + (result.stderr or '')
+        errors = [ln for ln in output.splitlines() if 'Error' in ln]
+        if errors:
+            print('  dafny resolve reported errors – skipping file:')
+            for ln in errors:
+                print(f'    {ln}')
+            return False
+        return True
+    except Exception as exc:
+        print(f'  dafny resolve failed ({exc}) – skipping file')
+        return False
+
 
 def main(lemma1, print_stats, solution_files=None, lemma_names=None, glob_pattern=None, skip_files=None):
     stats = {}
@@ -21,6 +42,8 @@ def main(lemma1, print_stats, solution_files=None, lemma_names=None, glob_patter
 
 def main1(lemma1, f, stats, lemma_names=None):
     print('---------- Looking at file: ', f, '--------------')
+    if not _dafny_resolve_ok(f):
+        return
     p = tests.read_file(f)
     if False:
         e = sketcher.show_errors(p)
