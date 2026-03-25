@@ -24,6 +24,3 @@ Empty (paper):    83.8%         86.3%
 Skeleton (paper): 85.5%         89.7%
 Process (new):    89.0%         94.9%
 ```
-
-Full logs also available at: https://huggingface.co/datasets/datvo06/dafny-paradox-process-logs
-
