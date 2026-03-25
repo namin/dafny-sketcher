@@ -15,12 +15,3 @@
 |----------|-------|---------|
 | `process_opus46_dafnybench.json` | Opus 4.6 | `python bench_paradox_process.py --model anthropic/claude-opus-4-6 --process-only --glob-pattern 'DafnyBench/*.dfy'` |
 | `process_sonnet46_dafnybench.json` | Sonnet 4.6 | `python bench_paradox_process.py --model anthropic/claude-sonnet-4-6 --process-only --glob-pattern 'DafnyBench/*.dfy'` |
-
-Results:
-
-```
-                  Sonnet 4.6    Opus 4.6
-Empty (paper):    83.8%         86.3%
-Skeleton (paper): 85.5%         89.7%
-Process (new):    89.0%         94.9%
-```
