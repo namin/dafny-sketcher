@@ -21,6 +21,7 @@ from typing import Any
 SOLVED_STATUSES = {"empty_seed", "skeleton_seed", "whole_proof_loop", "case_repair"}
 LEMMA_LINE_RE = re.compile(r"^\s{2}([^:]+):\s+(.*)$")
 MODE_RE = re.compile(r"(empty|skeleton)=\(([^,]+), iter=([^,]+), calls=([^)]+)\)")
+SIMPLE_MODE_RE = re.compile(r"(empty|skeleton)=([^\s]+)")
 LENGTHS_CACHE_PATH = Path(__file__).resolve().parent / "lemma_lengths.json"
 
 
@@ -145,7 +146,7 @@ def parse_log_per_lemma_stats(log_path: Path) -> dict[str, dict[str, Any]]:
 
     for raw_line in log_path.read_text(encoding="utf-8", errors="replace").splitlines():
         line = raw_line.rstrip("\n")
-        if line.strip() == "--- per-lemma ---":
+        if line.strip() in {"--- per-lemma ---", "--- per-lemma results ---"}:
             in_per_lemma = True
             continue
         if not in_per_lemma:
@@ -164,10 +165,14 @@ def parse_log_per_lemma_stats(log_path: Path) -> dict[str, dict[str, Any]]:
             continue
 
         row: dict[str, Any] = {"skipped": False}
-        for mode, status, iter_text, calls_text in MODE_RE.findall(payload):
+        detailed_matches = MODE_RE.findall(payload)
+        for mode, status, iter_text, calls_text in detailed_matches:
             row[f"{mode}_status"] = status.strip()
             row[f"{mode}_iter"] = _parse_int_or_none(iter_text)
             row[f"{mode}_calls"] = _parse_int_or_none(calls_text)
+        if not detailed_matches:
+            for mode, raw_score in SIMPLE_MODE_RE.findall(payload):
+                row[f"{mode}_score"] = _parse_int_or_none(raw_score)
         if row:
             stats[lemma_name] = row
 
@@ -186,6 +191,11 @@ def build_top_k_with_stats(
         item
         for item in candidates
         if per_lemma_stats[item["unique_name"]].get("empty_iter") != 0
+    ]
+    candidates = [
+        item
+        for item in candidates
+        if per_lemma_stats[item["unique_name"]].get("empty_score") != -1
     ]
     candidates = [
         item
@@ -212,10 +222,43 @@ def is_solved(status: Any) -> bool:
     return status in SOLVED_STATUSES
 
 
+def score_is_solved(score: Any) -> bool:
+    return score is not None
+
+
 def summarize(rows: list[dict[str, Any]]) -> dict[str, int]:
     total = len(rows)
     skipped = sum(1 for r in rows if r.get("skipped"))
     considered = total - skipped
+
+    has_simple_scores = any("empty_score" in r or "skeleton_score" in r for r in rows)
+    if has_simple_scores:
+        empty_solved = 0
+        skeleton_solved = 0
+        solved = 0
+        unsolved = 0
+        for row in rows:
+            if row.get("skipped"):
+                continue
+            empty_ok = score_is_solved(row.get("empty_score"))
+            skeleton_ok = score_is_solved(row.get("skeleton_score"))
+            if empty_ok:
+                empty_solved += 1
+            if skeleton_ok:
+                skeleton_solved += 1
+            if empty_ok or skeleton_ok:
+                solved += 1
+            else:
+                unsolved += 1
+        return {
+            "total": total,
+            "skipped": skipped,
+            "considered": considered,
+            "empty_solved": empty_solved,
+            "skeleton_solved": skeleton_solved,
+            "solved": solved,
+            "unsolved": unsolved,
+        }
 
     empty_solved = 0
     skeleton_solved = 0
@@ -296,7 +339,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--log-file",
         type=Path,
-        default=Path("case_repair_logs/log_gemini_case_repair_paradox.txt"),
+        default=Path("logs_paradox/log_gemini_case_repair_paradox.txt"),
         help="Path to log_gemini_case_repair log file.",
     )
     parser.add_argument(
@@ -318,6 +361,20 @@ def print_summary(summary: dict[str, int]) -> None:
     print(f"total lemmas: {summary['total']}")
     print(f"skipped (no case/if structure): {summary['skipped']}")
     print(f"considered: {summary['considered']}")
+    if (
+        "empty_solved" in summary
+        and "skeleton_solved" in summary
+        and "both_solved" not in summary
+    ):
+        print(f"  empty solved: {summary['empty_solved']}")
+        print(f"  skeleton solved: {summary['skeleton_solved']}")
+        print(f"  solved: {summary['solved']}")
+        print(f"  unsolved: {summary['unsolved']}")
+        return
+    if "solved" in summary and "unsolved" in summary:
+        print(f"  solved: {summary['solved']}")
+        print(f"  unsolved: {summary['unsolved']}")
+        return
     print(f"  empty solved: {summary['empty_solved']}")
     print(f"  skeleton solved: {summary['skeleton_solved']}")
     print(f"  both solved: {summary['both_solved']}")
