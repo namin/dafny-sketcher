@@ -339,7 +339,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--log-file",
         type=Path,
-        default=Path("case_repair_logs/log_gemini_case_repair_paradox.txt"),
+        default=Path("logs_paradox/log_gemini_case_repair_paradox.txt"),
         help="Path to log_gemini_case_repair log file.",
     )
     parser.add_argument(
