@@ -33,8 +33,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-# Fetch the forked Dafny at the pinned submodule commit (the empty local
-# `dafny/` dir is intentionally excluded via .dockerignore).
+# Fetch the forked Dafny at the pinned submodule commit into a fresh `dafny/`.
+# (The local `dafny/` submodule dir is never COPY'd below, so it can't clobber
+# this; only `cli`, `vfp`, and a few top-level files are copied into the image.)
 RUN git init dafny \
     && cd dafny \
     && git remote add origin "${DAFNY_REPO}" \
@@ -89,12 +90,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends wget unzip ca-c
 # Build the Sketcher CLI (references the Dafny projects fetched above).
 RUN cd cli && dotnet build DafnySketcherCli.csproj -c Release
 
-# Python environment for the VFP benchmark scripts.
+# Python environment for the VFP benchmark scripts and servers.
+#   - joblib/tqdm: caching + progress bars
+#   - anthropic/google-genai/openai/ollama: LLM provider SDKs (llm.py)
+#   - litellm/python-dotenv: required by bench_paradox_process.py
+#   - fastapi/pydantic/uvicorn/requests: sketcher_server.py, annotator_server.py, annotator.py
 ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv "$VIRTUAL_ENV"
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 RUN pip install --no-cache-dir \
-        joblib tqdm anthropic google-genai openai ollama
+        joblib tqdm \
+        anthropic google-genai openai ollama \
+        litellm python-dotenv \
+        fastapi pydantic uvicorn requests
 
 # `dafny` and `dafny-sketcher-cli` launchers on PATH (the scripts invoke both).
 RUN printf '#!/bin/sh\nexec dotnet /app/dafny/Binaries/Dafny.dll "$@"\n' \
